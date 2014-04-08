@@ -1,9 +1,7 @@
 class CreatePolicies < ActiveRecord::Migration
   def change
     create_table :policies do |t|
-
-      t.references :company, index: true
-
+      
       # Policy Infos
       t.string :policy_name
       t.string :short_hand
@@ -14,12 +12,13 @@ class CreatePolicies < ActiveRecord::Migration
       t.string :purchase_url
       t.boolean :can_buy_after_30_days
       t.string :status
+      t.references :company, index: true
 
       # Policy Age Variables
       t.integer :min_age
       t.integer :max_age
       t.integer :max_age_with_kids
-      t.integer :max_age_kids
+      t.integer :max_kids_age
 
       # Other Policy Variables
       t.integer :min_trip_duration

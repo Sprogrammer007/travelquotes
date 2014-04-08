@@ -24,4 +24,4 @@ def secure_token
   end
 end
 
-WeddingApp::Application.config.secret_key_base = secure_token
+Travelquotes::Application.config.secret_key_base = secure_token

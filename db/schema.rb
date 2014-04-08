@@ -50,6 +50,7 @@ ActiveRecord::Schema.define(version: 20140406171755) do
   add_index "admin_users", ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true, using: :btree
 
   create_table "age_brackets", force: true do |t|
+    t.string   "range"
     t.integer  "policy_id"
     t.integer  "min_age"
     t.integer  "max_age"
@@ -63,13 +64,14 @@ ActiveRecord::Schema.define(version: 20140406171755) do
     t.string   "name"
     t.string   "short_hand"
     t.string   "logo"
+    t.boolean  "status"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "coverage_categories", force: true do |t|
-    t.integer  "policy_id"
     t.string   "name"
+    t.integer  "policy_id"
     t.string   "description"
     t.integer  "order"
     t.datetime "created_at"
@@ -79,9 +81,9 @@ ActiveRecord::Schema.define(version: 20140406171755) do
   add_index "coverage_categories", ["policy_id"], name: "index_coverage_categories_on_policy_id", using: :btree
 
   create_table "coverages", force: true do |t|
+    t.string   "name"
     t.integer  "policy_id"
     t.integer  "category_id"
-    t.string   "name"
     t.string   "description"
     t.integer  "order"
     t.datetime "created_at"
@@ -93,10 +95,10 @@ ActiveRecord::Schema.define(version: 20140406171755) do
 
   create_table "deductibles", force: true do |t|
     t.integer  "policy_id"
-    t.integer  "amount"
     t.integer  "mutiplier"
     t.integer  "age"
     t.string   "condition"
+    t.integer  "amount"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -113,8 +115,7 @@ ActiveRecord::Schema.define(version: 20140406171755) do
   add_index "destinations", ["policy_id"], name: "index_destinations_on_policy_id", using: :btree
 
   create_table "policies", force: true do |t|
-    t.integer  "company_id"
-    t.string   "name"
+    t.string   "policy_name"
     t.string   "short_hand"
     t.string   "policy_number"
     t.datetime "eff_date"
@@ -123,10 +124,11 @@ ActiveRecord::Schema.define(version: 20140406171755) do
     t.string   "purchase_url"
     t.boolean  "can_buy_after_30_days"
     t.string   "status"
+    t.integer  "company_id"
     t.integer  "min_age"
     t.integer  "max_age"
     t.integer  "max_age_with_kids"
-    t.integer  "max_age_kids"
+    t.integer  "max_kids_age"
     t.integer  "min_trip_duration"
     t.integer  "max_trip_duration"
     t.integer  "min_adult"
@@ -149,8 +151,8 @@ ActiveRecord::Schema.define(version: 20140406171755) do
   add_index "policies", ["company_id"], name: "index_policies_on_company_id", using: :btree
 
   create_table "provinces", force: true do |t|
-    t.integer  "company_id"
     t.string   "name"
+    t.integer  "company_id"
     t.string   "short_hand"
     t.integer  "order"
     t.datetime "created_at"
@@ -161,8 +163,8 @@ ActiveRecord::Schema.define(version: 20140406171755) do
 
   create_table "rates", force: true do |t|
     t.integer  "age_bracket_id"
-    t.integer  "rate"
     t.integer  "eff_dat"
+    t.integer  "rate"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
