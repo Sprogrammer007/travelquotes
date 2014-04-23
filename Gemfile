@@ -30,6 +30,8 @@ group :development do
   gem 'meta_request' # Chrome Rails panel
 end
 
+gem 'tzinfo-data', platforms: [:x64_mingw,:mingw, :mswin]
+
 gem 'rails_12factor', group: :production
 group :doc do
   gem 'sdoc', require: false
