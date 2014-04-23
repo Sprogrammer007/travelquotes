@@ -1,0 +1,57 @@
+<aside>
+  <div class="row side_bar_widget">
+    <div class="title">
+        <p>Your Quote</p>
+    </div>
+
+      <div class="col-sm-6">
+        <p>Departure Date:</p>
+        <p>Return Date:</p>
+        <p>Trip Cost:</p>
+        <p>Traveler Age:</p>
+      </div>
+      <div class="col-sm-6">
+        <p><%= params[:quote][:leave_home] %></p>
+        <p><%= params[:quote][:return_home] %></p>
+        <p><%= params[:quote][:trip_cost] %></p>
+        <% params[:quote][:number_traveler].to_i.times do |n| %>
+          <p><%= params[:quote][:"#{n.to_s}"][:ages] %></p>
+        <% end %>
+      </div>
+  </div>
+
+  <div class="row side_bar_widget">
+    <div class="title">
+        <p>Your Current Filter</p>
+    </div>
+    <div class="current_filters">
+    <% if params[:filters].present? %>
+      <span class="filter"><%= params[:search] %> <%= link_to "x", params.merge(:search => nil, :page => nil) %></span>
+    <% else %>
+      <p>No Filters Selected</p>
+    <% end %>
+    </div>
+  </div>
+  <div class="row side_bar_widget">
+    <div class="title">
+        <p>Select Filter</p>
+    </div>
+    <div class="filter_selections">
+      <% Quote.getFilters.each do |k, v| %>
+      <h5 data-toggle="collapse"  href="#selection_<%= "#{k.gsub(" ", "_").downcase}" %>" class="collapsible collapsed arrow-black"> <%= "#{k}" %></h5>
+
+      <div id="selection_<%= "#{k.gsub(" ", "_").downcase}" %>" class="panel-collapse collapse">
+        <ul>
+        <% v.each do |filter| %>
+          <li>
+          <%= check_box :filters, "#{filter}" %>
+          <%= label_tag "filters[#{filter}]", "#{filter}" %>
+          </li>
+        <% end %>
+        </ul>
+      </div>
+      <% end %>
+    </div>
+
+  </div>
+</aside>

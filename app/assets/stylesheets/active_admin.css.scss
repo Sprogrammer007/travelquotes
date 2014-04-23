@@ -19,3 +19,121 @@
 .radio-width {
 	width: 8%;
 }
+
+input.editable_text_column {
+  background-color: #66ff66;
+  border: 1px none #FBFF8C;
+  box-shadow: 0 2px 19px #AAAAAA;
+  color: black;
+  display: none;
+  font-family: serif;
+  font-size: 1em;
+  font-style: italic;
+  height: 30px;
+  position: absolute;
+  text-align: center;
+  vertical-align: middle;
+  width: 180px;
+  z-index: 9090;
+}
+
+div.editable_text_column {
+  padding: 4px;
+
+}
+
+.cke_chrome {
+  width: 76% !important;
+  overflow: hidden;
+}
+
+form input[type=text], form input[type=password], 
+form input[type=email], form input[type=number], 
+form input[type=url], form input[type=tel], 
+form textarea {
+width: calc(76% - 22px);
+}
+
+
+div.show_left {
+  width: 65%;
+  float: left;
+}
+
+
+.group:before,
+.group:after {
+    content: "";
+    display: table;
+} 
+.group:after {
+  padding: 0 0 15px 0;
+  content: "";
+  display: table;
+  clear: both;
+}
+.group {
+    zoom: 1; /* For IE 6/7 (trigger hasLayout) */
+}
+
+div.show_right {
+  width: 32%;
+  float: right;
+  margin-bottom: 30px;
+}
+
+
+.panel_contents ul li {
+  width: 46%;
+  margin: 10px;
+  display: inline-block;
+  list-style-type: none;
+  vertical-align: top;
+
+}
+
+.single_show .attributes_table {
+  padding: 10px;
+  background-color :#ffffff;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 7px 10px 6px -6px #777777;
+  -moz-box-shadow: 7px 10px 6px -6px #777777;
+  box-shadow: 7px 10px 6px -6px #777777;
+}
+
+
+.single_show_plan  .show_plan_wrapper {
+  padding: 10px;
+  background-color :#ffffff;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 7px 10px 6px -6px #777777;
+  -moz-box-shadow: 7px 10px 6px -6px #777777;
+  box-shadow: 7px 10px 6px -6px #777777;
+}
+
+.single_show .attributes_table th, .single_show_plan  .attributes_table th  {
+  padding-left: 5px;
+  background-color: #ebebeb;
+}
+
+.single_show .attributes_table a {
+  text-decoration: none;
+}
+
+
+.show_less {
+  overflow: hidden;
+}
+
+.show_more {
+  height: auto !important;
+}
+.des_flown {
+  height: 250px;
+}
+
+

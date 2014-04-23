@@ -1,0 +1,316 @@
+// Place all the styles related to the products controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+
+/* universal */
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+  padding-top: 60px;
+}
+
+section {
+  overflow: auto;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.center {
+  text-align: center;
+}
+
+.center h1 {
+  margin-bottom: 10px;
+}
+
+/* typography */
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1;
+}
+
+h1 {
+  font-size: 3em;
+  letter-spacing: -2px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.2em;
+  letter-spacing: -1px;
+  margin-bottom: 30px;
+  font-weight: normal;
+  color: #999;
+}
+
+
+
+p {
+  font-size: 1.1em;
+  line-height: 1.7em;
+}
+
+/* header */
+
+.navbar-custom {
+  background-color: #61a8eb;
+  border-color: #3bbbd8;
+}
+
+.navbar .container {
+  width: 1000px;
+  height: 100%;
+  margin-top: 4px;
+}
+
+.nav li a{
+  font-size: 1.1em;
+  color: #fff9fc;  
+  text-decoration: none;
+}
+
+.nav li a:hover{
+  color: #fff9fc;  
+  text-decoration: none;
+  background-color: #477bad;
+  -moz-box-shadow:    inset 0 0 10px #000000;
+  -webkit-box-shadow: inset 0 0 10px #000000;
+  box-shadow:         inset 0 0 10px #000000;
+}
+
+#logo {
+  float: left;
+  margin-right: 10px;
+  font-size: 1.7em;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  padding-top: 9px;
+  font-weight: bold;
+  line-height: 1;
+  text-decoration: none;
+}
+
+#logo:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* footer */
+
+footer {
+  width: 1000px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 45px;
+  padding-top: 5px;
+  border-top: 1px solid #eaeaea;
+  color: #999;
+}
+
+footer a {
+  color: #555;
+}
+
+footer a:hover {
+  color: #222;
+}
+
+footer small {
+  float: left;
+}
+
+footer ul {
+  float: right;
+  list-style: none;
+}
+
+footer ul li {
+  float: left;
+  margin-left: 10px;
+}
+
+/* Home */
+a.btn {
+  text-decoration: none;
+  color: white;
+}
+.container {
+  width: 1000px;
+}
+
+.container .jumbotron {
+  border-radius: 0px;
+}
+
+/* Quotes */
+.quote_form_info {
+  width: 50%
+}
+
+.quote_form_info h2 {
+  margin: 0 0 10px 0;
+  padding: 0;
+  font-size: 2.1em;
+  color: black;
+}
+
+.quote_form_info h3 {
+  font-size: 1.25em;
+  margin-bottom: 20px;
+  font-weight: normal;
+  color: #999;
+}
+
+
+.quote_form_info p {
+  font-size: 1.1em;
+  margin-bottom: 20px;
+  font-weight: normal;
+  color: #999;
+}
+
+.quotes {
+  padding: 1.78em;
+  background-color: #eee;
+}
+
+
+.form-horizontal .control-label {
+  font-size: 1.1em;
+  text-align: left;
+}
+
+
+/* Results */ 
+
+
+
+/* SideBar */ 
+aside {
+  display: block;
+  width: 100%;
+  height: inherit;
+  background-color:#ffffff;
+}
+
+aside p {
+  font-size: 0.85em;
+}
+
+aside .title {
+  font-size: 1.3em;
+  text-align: center;
+  color: #ffffff;
+  background-color: #5bc3ec;
+}
+
+aside .side_bar_widget {
+  width: 110%;
+  height: auto;
+  border: 1px solid #e5e4ec;  
+  border-radius: 3px;
+  margin-bottom: 15px;
+}
+
+
+/* Result List */
+
+.result_list_wrapper ul {
+  padding: 0;
+  margin: 0;
+}
+
+.result_list_wrapper p {
+  padding: 0;
+  margin: 0;
+}
+.result_list_wrapper ul li {
+  list-style-type: none;
+}
+
+.result_list_wrapper img {
+    width: 100%;
+}
+
+
+.result_item_wrapper {
+  height: 100px;
+  background-color: #ffffff;
+  display: block;
+  margin: 10px, auto;
+  border: 2px solid #e5e4ec;  
+  border-radius: 5px;
+}
+
+.result_item_wrapper .compare_box {
+  
+  text-align: center;
+  vertical-align: center;
+
+}
+
+.result_item_wrapper div {
+  height: inherit;
+  border-right: 2px solid #dfdfdf;
+}
+
+.result_item_wrapper div:last-child {
+
+  border-right: none;
+}
+/* FILTERS */ 
+
+.current_filters p {
+  margin: 0 10px 10px 10px;
+  padding: 5px;
+  text-align: center;
+  border: 2px dashed #dfdfdf;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+
+}
+.filter_selections h5 {
+  font-size: 1.1em;
+  margin-bottom: 0.5em;
+}
+
+.filter_selections ul {
+  padding-left: 30px;
+}
+
+.filter_selections ul li {
+  font-size: 0.9em;
+  font-weight: normal;
+  list-style-type: none;
+}
+
+.collapsible {
+  padding-left: 30px;
+  margin: 0 -11px;
+}
+.collapsible:hover, .arrow-black:hover {
+  
+  cursor: pointer;
+}
+
+h5.collapsed.arrow-black::before {
+  content: "\25B8";
+}
+
+.collapsible.arrow-black::before {
+  content: "\25BE";
+}
+
+/* Other */
+.btn:focus {
+  border-color: #d2322d !important;
+} 

@@ -1,5 +1,7 @@
 class Deductible < ActiveRecord::Base
-	DEFAULT_HEADER = %w{policy_id mutiplier age condition amount}
+  DEFAULT_HEADER = %w{product_id amount mutiplier condition }
 
-  belongs_to :policy
+  belongs_to :product
+
+
 end

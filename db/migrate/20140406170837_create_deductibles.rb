@@ -1,12 +1,10 @@
 class CreateDeductibles < ActiveRecord::Migration
   def change
     create_table :deductibles do |t|
-      
-      t.references :policy, index: true
+    	t.references :product
+    	t.integer :amount
       t.integer :mutiplier
-      t.integer :age
       t.string :condition
-      t.integer :amount
       t.timestamps
     end
   end

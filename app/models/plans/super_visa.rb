@@ -1,0 +1,2 @@
+class SuperVisa < Plan
+end
