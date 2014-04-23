@@ -19,9 +19,10 @@ ActiveAdmin.register PlanFilter do
 	index do
 		selectable_column
 		column :name
-		column "Description" do |p|
-    	p.description.html_safe
-    end
+		column :category
+		column :description do |p|
+			p.description.html_safe
+		end
 		default_actions
 	end
 

@@ -101,6 +101,7 @@ ActiveAdmin.register Plan do
 	form do |f|
 		f.inputs do
 			f.input :product
+			f.input :unique_id
 			f.input :type, :as => :select, :collection => Plan.get_types
 		end
 		f.inputs do
