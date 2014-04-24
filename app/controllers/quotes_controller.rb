@@ -1,7 +1,7 @@
 class QuotesController < ApplicationController
 
 	def create
-		@c = Company.all
+		@c = Plan.all
 		Rails.cache.write(:params, params)
 		Rails.cache.write(:results, @c)
 		redirect_to  result_quotes_path
