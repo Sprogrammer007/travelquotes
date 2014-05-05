@@ -11,12 +11,11 @@
         <p>Traveler Age:</p>
       </div>
       <div class="col-sm-6">
-        <p><%= params[:quote][:leave_home] %></p>
-        <p><%= params[:quote][:return_home] %></p>
-        <p><%= params[:quote][:trip_cost] %></p>
-        <% params[:quote][:number_traveler].to_i.times do |n| %>
-          <p><%= params[:quote][:"#{n.to_s}"][:ages] %></p>
-        <% end %>
+        <p><%= q.leave_home.strftime("%d, %m, %Y") %></p>
+        <p><%= q.return_home.strftime("%d, %m, %Y") %></p>
+        <p><%= q.trip_cost %></p>
+        <p><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(", ") %></p>
+
       </div>
   </div>
 

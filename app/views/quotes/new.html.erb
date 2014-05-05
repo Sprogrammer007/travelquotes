@@ -2,74 +2,106 @@
 
   <div class="col-md-8 quotes">  
     <div class="quote_form_info" >
-      <h2>Travel Insurance Quote</h2>
+      <h2>Visitor Visa Insurance Quote</h2>
 
       <p>Stone-Hedge Financial Group Inc. provides unbiased comparative quotes to travelers. Stone-Hedge Financial Group Inc. is not owned in part or in whole by any insurance company and is a leader in the insurance industry.</p>
     </div>
 
-    <%= form_tag url_for(:controller => 'quotes', :action => 'create'), class: "form-horizontal" %>
+    <%= form_for @quote, class: "form-horizontal" do |f|%>
 
-    <div class="form-group">
-      <%= label_tag 'quote[leave_home]', "When do you leave home for your trip?", class: "col-sm-4 control-label" %>
+     <div class="form-group row">
+      <div class="col-sm-4"> 
+        <%= f.label :leave_home, "When do you leave home for your trip?", class: "control-label" %>
+        <div class="question_mark"><%= image_tag "question.png"  %></div>
+      </div>
       <div class="col-sm-8">
-        <%= datetime_field_tag 'quote[leave_home]', nil, class: "form-control" %>
+        <%= f.text_field :leave_home, class: "form-control", readonly: true %>
       </div>
     </div>
 
 
-    <div class="form-group">
-      <%= label_tag 'quote[return_home]', "When do you return home?", class: "col-sm-4 control-label" %>
+    <div class="form-group row">
+      <div class="col-sm-4"> 
+        <%= f.label :return_home, "When do you return home?", class: "control-label" %>
+        <div class="question_mark"><%= image_tag "question.png"  %></div>
+      </div>
+   
       <div class="col-sm-8">
-        <%= datetime_field_tag 'quote[return_home]', nil, class: "form-control" %>
+        <%= f.text_field :return_home, class: "form-control", readonly: true %>
       </div>
     </div>
 
-    <div class="form-group">
-      <%= label_tag 'quote[trip_cost]', "When did you make your first booking?", class: "col-sm-4 control-label" %>
+    <div class="form-group row">
+      <div class="col-sm-4"> 
+        <%= f.label :apply_from, "Do you currently reside in Canada", class: "control-label" %>
+        <div class="question_mark"><%= image_tag "question.png"  %></div>
+      </div>
       <div class="col-sm-8">
-        <%= text_field_tag 'quote[trip_cost]', nil, class: "form-control" %>
+        <%= f.select(:apply_from, options_for_select(["Yes", "No"], "No"), {}, class: "form-control") %>
       </div>
     </div>
 
-    <div class="form-group">
-      <%= label_tag 'quote[country]', "Which country are you a resident of?", class: "col-sm-4 control-label" %>
+    <div class="form-group row arrival_date" style="display: none;">
+      <div class="col-sm-4"> 
+        <%= f.label :arrival_date, "*If you're currently reside with in Canada, which date did you arrive on?", class: "control-label" %>
+        <div class="question_mark"><%= image_tag "question.png"  %></div>
+      </div>
       <div class="col-sm-8">
-        <%= select_tag 'quote[country]', options_for_select(["Canada", "US", "Other"]), class: "form-control" %>
+        <%= f.text_field :arrival_date, class: "form-control", readonly: true %>
       </div>
     </div>
 
-    <div class="form-group">
-      <%= label_tag 'quote[number_traveler]', "How many travelers?", class: "col-sm-4 control-label" %>
+    <div class="form-group row">
+      <div class="col-sm-4"> 
+        <%= f.label :trip_cost, "What was the cost of your trip? (In Canadian Dollars)", class: "control-label" %>
+        <div class="question_mark"><%= image_tag "question.png"  %></div>
+      </div>
       <div class="col-sm-8">
-        <%= select_tag  'quote[number_traveler]', options_for_select((1..10).to_a), class: "form-control" %>
+        <%= f.text_field :trip_cost, class: "form-control" %>
       </div>
     </div>
 
-    <div class="form-group">
-      <%= label_tag :traveler_age, "How old are the travelers as of today?", class: "col-sm-4 control-label" %>
+    <div class="form-group row">
+      <div class="col-sm-4"> 
+        <%= f.label :sum_insured, "How much coverage do you need? (In Canadian Dollars)", class: "control-label" %>
+        <div class="question_mark"><%= image_tag "question.png"  %></div>
+      </div>
       <div class="col-sm-8">
-        <div class="age_of_traverl">
-          <div class="row">
-            <% 10.times do |n| %>
-              <div class="col-sm-2">
-                <% if n == 0 %>
-                  <%= text_field_tag "quote[#{n}][ages]", nil, class: 'form-control' %>
-                <% else %>
-                  <%= text_field_tag "quote[#{n}][ages]", nil, class: 'hidden form-control' %>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
- 
+        <%= f.select :sum_insured, options_for_select(Quote.getSumInsured), {}, class: "form-control" %>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <%= f.label :traveler_type, "How many travelers?", class: "col-sm-4 control-label" %>
+      <div class="col-sm-8">
+        <%= f.select :traveler_type, options_for_select(["Single", "Couple", "Family"]), {}, class: "form-control" %>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <fieldset class="traveling_members">
+        <legend>Traveling Members</legend>
+        <%= render('member_fields_toolbar', f: f) %>
+
+        <div class="row adult_fields">
+          <%= f.fields_for :traveler_members do |builder| %>
+            <%= render('traveler_member_fields', f: builder )%>
+          <% end %>
         </div>
-      </div>
+        <div class="row dependent_fields" style="display: none;">
+          <h4>Dependents</h4>
+        </div>
+      </fieldset>
+
     </div>
 
     <div class="form-group">
       <div class="col-sm-offset-9 col-sm-10 right">
-        <button type="submit" class="btn btn-danger btn-lg">Get Quote!</button>
+        <%= f.submit "Get Quote!", class: "btn btn-danger btn-lg" %>
       </div>
     </div>
+
+    <% end %>
   </div>
 
   <div class="col-md-4">

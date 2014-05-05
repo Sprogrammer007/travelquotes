@@ -8,39 +8,47 @@ ActiveAdmin.register Province do
 	preserve_default_filters!
 	remove_filter :regions
 
+	#Index
+	index do 
+		selectable_column
+		column :flag do |p|
+			image_tag p.flag, size: "50x50"
+		end
+		column :name
+		column :short_hand
+		column :country
+		default_actions
+	end
+
+	#Show
+
+	show do |p|
+		attributes_table do
+			row :name
+			row :short_hand 
+			row :flag do |p|
+				image_tag p.flag, size: "80x80"
+			end
+			row :country
+			
+		end
+	end
+
 	#Form
 	form do |f|
 		f.inputs do
-			f.input :companies, :as => :select, :input_html => { :multiple => false }
-			f.input :name,  :wrapper_html => { class: "new_selection"} 
+			if f.object.new_record?
+				f.input :companies, :as => :select
+			end
+			f.input :flag
+			f.input :name
 			f.input :short_hand
-	
 		end
 		f.actions
 	end
 
-	#Custom controller
-	collection_action :create_region, method: :post do
-		c = Company.find(params[:province][:company_id])
-		if params[:province][:from_existing] == "Yes"
-			if Region.where("province_id = ? AND company_id = ?", params[:province][:existing_name], params[:province][:company_id]).any?
-				flash[:error] = "You've already added this Province for this Company!"
-			else
-				c.regions.create!(:province_id => params[:province][:existing_name])
-				flash[:notice] = "Province was successfully added!"
-			end
-				redirect_to admin_company_path(c)
-		else
-
-			p = c.provinces.create!(params[:province])
-			flash[:notice] = "Province was successfully created!"
-			redirect_to admin_company_path(c)
-		end
-	end
-
-
 	#Custom Actions
 	action_item :only => :show do
-   link_to("Add #{province.class.name}", action: 'import')
+   link_to("Add #{province.class.name}", action: 'new')
   end
 end

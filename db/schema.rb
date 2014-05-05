@@ -11,25 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140415021048) do
+ActiveRecord::Schema.define(version: 20140503145340) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "active_admin_comments", force: true do |t|
-    t.string   "namespace"
-    t.text     "body"
-    t.string   "resource_id",   null: false
-    t.string   "resource_type", null: false
-    t.integer  "author_id"
-    t.string   "author_type"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "active_admin_comments", ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id", using: :btree
-  add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
-  add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
   create_table "admin_users", force: true do |t|
     t.string   "email",                  default: "", null: false
@@ -54,6 +39,9 @@ ActiveRecord::Schema.define(version: 20140415021048) do
     t.string   "range"
     t.integer  "min_age"
     t.integer  "max_age"
+    t.boolean  "preex"
+    t.integer  "min_trip_duration"
+    t.integer  "max_trip_duration"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -75,6 +63,9 @@ ActiveRecord::Schema.define(version: 20140415021048) do
     t.datetime "updated_at"
   end
 
+  create_table "couple_details", force: true do |t|
+  end
+
   create_table "deductibles", force: true do |t|
     t.integer  "product_id"
     t.integer  "amount"
@@ -90,50 +81,65 @@ ActiveRecord::Schema.define(version: 20140415021048) do
     t.datetime "updated_at"
   end
 
+  create_table "family_details", force: true do |t|
+    t.integer "min_dependant"
+    t.integer "max_dependant"
+    t.integer "max_kids_age"
+    t.integer "max_age_with_kids"
+  end
+
+  create_table "legal_texts", force: true do |t|
+    t.integer  "product_id"
+    t.string   "name"
+    t.string   "policy_type"
+    t.text     "description"
+    t.datetime "effective_date"
+    t.boolean  "status",         default: true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "plan_filter_sets", id: false, force: true do |t|
-    t.integer "filter_id"
+    t.integer "plan_filter_id"
     t.integer "plan_id"
   end
 
-  add_index "plan_filter_sets", ["filter_id"], name: "index_plan_filter_sets_on_filter_id", using: :btree
+  add_index "plan_filter_sets", ["plan_filter_id"], name: "index_plan_filter_sets_on_plan_filter_id", using: :btree
   add_index "plan_filter_sets", ["plan_id"], name: "index_plan_filter_sets_on_plan_id", using: :btree
 
   create_table "plan_filters", force: true do |t|
-    t.integer  "product_id"
-    t.string   "category"
-    t.string   "name"
-    t.text     "description"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string "category"
+    t.string "name"
+    t.string "policy_type"
+    t.text   "descriptions"
   end
 
   create_table "plans", force: true do |t|
     t.integer  "product_id"
     t.string   "unique_id"
     t.string   "type"
-    t.boolean  "status",     default: true
+    t.string   "detail_type"
+    t.string   "detail_id"
+    t.boolean  "can_buy_after_30_days"
+    t.boolean  "renewable"
+    t.integer  "renewable_period"
+    t.integer  "renewable_max_age"
+    t.boolean  "status",                default: true
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "plans", ["product_id"], name: "index_plans_on_product_id", using: :btree
 
-  create_table "product_filters", force: true do |t|
-    t.string   "name"
-    t.string   "category"
-    t.integer  "product_id"
-    t.text     "description"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "products", force: true do |t|
+    t.integer  "company_id"
     t.string   "name"
     t.string   "product_number"
     t.text     "description"
-    t.boolean  "can_buy_after_30_days"
-    t.boolean  "status",                default: true
-    t.integer  "company_id"
+    t.integer  "min_price"
+    t.boolean  "status",         default: true
+    t.string   "purchase_url"
+    t.datetime "effective_date"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -142,29 +148,37 @@ ActiveRecord::Schema.define(version: 20140415021048) do
 
   create_table "provinces", force: true do |t|
     t.string "name"
+    t.string "flag"
     t.string "short_hand"
     t.string "country"
   end
 
+  create_table "quotes", force: true do |t|
+    t.string   "quote_id"
+    t.string   "client_ip"
+    t.datetime "leave_home"
+    t.datetime "return_home"
+    t.boolean  "apply_from"
+    t.datetime "arrival_date"
+    t.integer  "trip_cost"
+    t.integer  "sum_insured"
+    t.string   "traveler_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "rates", force: true do |t|
     t.integer  "age_bracket_id"
-    t.integer  "product_id"
-    t.integer  "sum_insured"
-    t.boolean  "preex"
-    t.integer  "effective_date"
     t.integer  "rate"
+    t.string   "rate_type"
+    t.integer  "sum_insured"
+    t.datetime "effective_date"
+    t.string   "status"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "rates", ["age_bracket_id"], name: "index_rates_on_age_bracket_id", using: :btree
-  add_index "rates", ["product_id"], name: "index_rates_on_product_id", using: :btree
-
-  create_table "refundable_texts", force: true do |t|
-    t.string   "describition"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "regions", id: false, force: true do |t|
     t.integer "province_id"
@@ -173,6 +187,16 @@ ActiveRecord::Schema.define(version: 20140415021048) do
 
   add_index "regions", ["company_id"], name: "index_regions_on_company_id", using: :btree
   add_index "regions", ["province_id"], name: "index_regions_on_province_id", using: :btree
+
+  create_table "single_details", force: true do |t|
+  end
+
+  create_table "traveler_members", force: true do |t|
+    t.integer  "quote_id"
+    t.datetime "birthday"
+    t.string   "gender"
+    t.string   "member_type"
+  end
 
   create_table "trip_values", force: true do |t|
     t.integer  "plan_id"

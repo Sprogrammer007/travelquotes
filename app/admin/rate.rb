@@ -4,7 +4,6 @@ ActiveAdmin.register Rate do
 
 	#Scopes
 	scope :all, default: true
-	scope :has_pre_existing_medicals
 
 	#Filters
 	filter :age_bracket, :collection => proc { Rate.select_age_bracket_options }  
@@ -35,5 +34,28 @@ ActiveAdmin.register Rate do
 		end
 		f.actions
 	end
+
+	controller do         
+		def permitted_params             
+			params.permit(:future => [:age_bracket_id, :rate_type, :sum_insured, :rate, :effective_date])     
+		end     
+	end
+	#Actions
+  member_action :add_future, method: :get do
+    @page_title = "Add Future Rate"
+    @age = AgeBracket.find(params[:id])
+    render template: "admins/add_rate"
+  end
+
+  collection_action :create_future, method: :post do
+	  if params[:future] 
+	  	Rails.logger.warn ("#{permitted_params[:future]}")
+	  	Rate.create(permitted_params[:future]) do |r|
+	  		r.status = "Future"
+	  	end
+	  end
+    redirect_to :back
+  end
+
 
 end

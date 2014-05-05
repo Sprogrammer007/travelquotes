@@ -8,15 +8,26 @@ class Plan < ActiveRecord::Base
 	has_many :plan_filter_sets
 	has_many :plan_filters, :through => :plan_filter_sets
 
+  belongs_to :detail, polymorphic: true
+
 	accepts_nested_attributes_for :age_brackets
 
 	#Callbacks
 	after_commit :set_unique_id, unless: Proc.new { |plan| plan.unique_id } 
+  
+  #Scopes
+  generate_scopes
+  scope :active, -> {status.eq("Active")}
+  scope :get_type, ->(type) {details_type_eq(type).active}
 
 	def set_unique_id
 		self.unique_id = "#{self.product.company.short_hand + self.product.product_number + self.type}"
 		self.save
 	end
+
+  def get_rates(age, sum)
+    age_brackets.merge(AgeBracket.include_age(age)).joins(:rates).merge(Rate.with_sum_insured(sum)).select("rates.rate as rate")
+  end
 
 	#This is a fix for destroy related agebrackets for the plans that are not
   #tied to other plans. 
@@ -34,4 +45,6 @@ class Plan < ActiveRecord::Base
 	def self.get_types
 		%w{ Visitor SuperVisa AllInclusive}
 	end
+
+  self.inheritance_column = :race 
 end

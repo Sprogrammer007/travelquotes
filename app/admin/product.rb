@@ -4,15 +4,19 @@ ActiveAdmin.register Product do
 	menu :parent => "Companies", :priority => 1
 
 	include_import
-	scope :all, default: true
 	permit_params :name, :product_number, :description, :company_id
 
+	#Scopes
+	scope :all, default: true
+	scope :active
+	
 	#Filters
 	filter :company, :collection => -> { Company.all.map { |c| [c.name, c.id] } }
 	preserve_default_filters!
 	remove_filter :plans
 	remove_filter :deductibles
 	remove_filter :product_filters
+	remove_filter :legal_texts
 
 	#Index Table
 	index do
@@ -33,13 +37,12 @@ ActiveAdmin.register Product do
 		column "Describition" do |p|
 			p.description.html_safe
 		end
-		column :can_buy_after_30_days
+		
 		column :status
 		default_actions
 	end
 
 	show do |p|
-
 		div class: "show_left" do
 			attributes_table do
 				row :product_number
@@ -54,34 +57,27 @@ ActiveAdmin.register Product do
 					end
 				end
 			end
-			panel("Products", class: 'group single_show') do
+			
+			panel("Plans", class: 'group single_show') do
 				ul do
 					p.plans.each do |plan|
 						li do
 							attributes_table_for plan do
-								row :type do |plan|
-									link_to "#{plan.type}", admin_product_path(p)
-								end
+								row :type
+								row :detail_type
 				        row :unique_id
+				        row :status do |p|
+									if p.status
+										status_tag("Active", :ok)
+										else
+										status_tag("Not Active")
+									end
+								end
 				      end
 				    end
 					end
 				end
-				text_node button_to "Add Plan", new_admin_plan_path(), method: 'get', class: "right"
-			end
-
-			panel("Product Filters", class: 'group') do
-				if p.product_filters
-					table_for p.product_filters  do
-						column :name
-						column :category
-						column :description  do |f|
-							f.description.html_safe
-						end
-					end
-				else
-				end
-				text_node button_to "Add Product Filter", new_admin_product_filter_path, method: 'get', class: "right"
+				text_node link_to "Add New Plan",  new_admin_plan_path(:id => p.id), method: :get, class: "link_button right"
 			end
 		end
 
@@ -96,7 +92,7 @@ ActiveAdmin.register Product do
 				text_node button_to "Add Deductible", new_admin_deductible_path, method: 'get', class: "right"
 			end if p.deductibles
 		end
-
+		
 	end
 
 	form do |f|
@@ -106,7 +102,23 @@ ActiveAdmin.register Product do
 			f.input :company_id, :as => :select,      :collection => Company.all
 			f.input :description, :as => :ckeditor
 		end
+
 		f.actions
 	end
+
+	#Actions
+	member_action :add_plan, method: :get do
+		@plan = Plan.new
+		render template: "admins/add_plan"
+	end
+
+	member_action :remove_region, method: :delete do
+
+	Region.where("province_id = ? AND company_id = ?", params[:province_id], params[:id]).each { |r| r.destroy }
+
+		flash[:notice] = "Province was successfully removed!"
+		redirect_to admin_company_path(params[:id])
+	end
+	
 
 end

@@ -1,0 +1,43 @@
+<%= form_tag url_for(:controller => 'admin/age_sets', :action => 'create') do -%>
+  <%= hidden_field_tag "plan_id", params[:id] %>
+  <fieldset class="inputs single_show">
+    <div class="age_select">
+      <% if @ages.any? %>
+        <div class="group" >
+          <% @ages.each_with_index do |age, i| %>
+            <%= check_box_tag "age_ids[]", age.id, @already_selected_ages.include?(age.id), id: "age_#{age.id}"   %>
+            <label for="<%= "age_#{age.id}" %>" class="age_select attributes_table">
+              <table border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr class="row">
+                    <th>Range</th>
+                    <td><%= age.range %></td>
+                  </tr>
+                  <tr class="row">
+                    <th>Preex</th>
+                    <td>
+                      <% if age.preex %>
+                        <span class="status_tag ok">Yes</span>
+                      <% else %>
+                        <span class="status_tag">No</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr class="row">
+                    <th>Trip Duration</th>
+                    <td><%= "0 - #{age.max_trip_duration}" %></td>
+                  </tr>
+                </tbody>
+              </table>
+            </label>         
+          <% end %>
+        </div>
+      <%= submit_tag "Add All Age Brackets", class: "right", data: {confirm: I18n.t('active_admin.are_you_sure')} %>
+      <% else %>
+        <h3>There are currently no age brackets belonging to this product. To add a brand new age baracket use the button on the bottom right.</h3>
+      <% end %>
+      <%= link_to "Add Age Bracket", new_admin_age_bracket_path(id: params[:id]),  class: "link_button right"  %>
+    </div>
+  </fieldset>
+
+<% end %>

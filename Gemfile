@@ -6,7 +6,6 @@ gem 'activeadmin', github: 'gregbell/active_admin'
 gem "active_admin_import" , '2.1.1'
 gem 'polyamorous', github: 'activerecord-hackery/polyamorous'
 gem 'ransack',     github: 'activerecord-hackery/ransack'
-gem 'formtastic'
 gem 'rails'
 gem 'pg'
 gem 'sass-rails', '~> 4.0.2'
@@ -17,6 +16,7 @@ gem 'puma'
 gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'ckeditor'
+
 
 group :development do
   gem 'faker', '1.2.0'

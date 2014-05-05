@@ -5,11 +5,10 @@ class Company < ActiveRecord::Base
 	 
  	has_many :regions
  	has_many :provinces, :through => :regions
-	#query scopes
 
-	def self.recent(lmt)
-		order('created_at desc').limit(lmt)
-	end
+	#query scopes
+  scope :active, -> { where(status: true) }
+
 
 	def show_table(aa)
 		aa.attributes_table do

@@ -1,0 +1,21 @@
+<%= semantic_form_for @plan, url: {controller: "admin/plans", action: :create_region} do |f| %>
+  <%= f.inputs do %>
+    <%= f.input :company_id,  :as => :hidden, :input_html => { :value => params[:id] } %>
+    <%= f.input :from_existing, :as => :radio, :label => "Select From Existing Provinces", :collection => ["Yes", "No"] %>
+    <%= f.input :existing_name, :as => :select, :wrapper_html => { class: "existing_selection"}, :collection => Hash[Province.all.map{|p| [p.name,p.id]}], :label => "Province" %>
+    <%= f.input :name, :label => "Province",  :wrapper_html => { class: "new_selection"}  %>
+    <%= f.input :short_hand,  :wrapper_html => { class: "new_selection"}  %>
+  <% end %>
+  <%= f.actions %>
+<% end %>
+
+
+<%= semantic_form_for @post do |f| %>
+  <%= f.inputs :name, :product_number do %>
+    <%= f.input :company_id, :as => :select,      :collection => Company.all %>
+    <%= f.input :company_id, :as => :select,      f.input :description, :as => :ckeditor %>
+  <%= f.semantic_fields_for :author do |author| %>
+    <%= author.inputs :first_name, :last_name, :name => "Author" %>
+  <% end %>
+  <%= f.actions %>
+<% end %>

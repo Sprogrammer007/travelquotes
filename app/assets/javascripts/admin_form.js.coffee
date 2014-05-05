@@ -1,4 +1,18 @@
 ready = ->
+
+  $('.age_select label, .filters_select label').on "click", (e) ->
+    console.log("clicked")
+    checkbox = $(this).prev('input[type=checkbox]')
+    checkbox.prop("checked", !checkbox.prop("checked"));
+    e.preventDefault()
+
+
+  $('.province_select tr.selection').on "click", (e) ->
+    checkbox = "##{$(this).data("key")}"
+    $(checkbox).prop("checked", !$(checkbox).prop("checked"));
+    $(this).toggleClass('selected')
+
+
   tier2select = $('.tier2_select').html()
 
   $('.tier1_select').change ->
@@ -37,6 +51,14 @@ ready = ->
       $('.existing_selection').hide()
       $('.new_selection').toggle()
 
+  $('.detail_type').change ->
+    type = $(this).find(':selected').text()
+
+    if type == 'Family'
+      $('.family_details').toggle()
+    else
+      $('.family_details').hide()
+
   #Toggle Show More/Less
   (($) ->
     $.fn.OverFlown = ->
@@ -54,6 +76,30 @@ ready = ->
   $('.row-description .more_info').on("mouseenter", ->
     $(this).removeClass('show_less').addClass("show_more")).on("mouseleave", ->
     $(this).removeClass('show_more').addClass("show_less"))
+
+  removeFields = (e) ->
+    $(this).parents('.rate_fields').replaceWith($(this).data('addfields'))
+    $('.add_fields').on 'click', addFileds
+    e.preventDefault()
+    return false
+
+  addFileds = (e) ->
+    parent = $(this).parent()
+    addfields = parent.html().replace(/\s+/g, " ").replace("\n", "")
+    $(this).replaceWith( $(this).data('fields'))
+    $('.remove_fields').on('click', removeFields).attr('data-addfields', addfields)
+    $(parent.find('input[name="future[][effective_date]"]')).datepicker
+      dateFormat: "yy-mm-dd"
+      altFormat: "yy/mm/dd"
+      constrainInput: true
+      changeYear: true
+      changeMonth: true
+      minDate: 1 #set min date to current date
+    e.preventDefault()
+
+  $('.add_fields').on 'click', addFileds
+
+
 
 $(document).ready(ready)
 $(document).on('page:load', ready)

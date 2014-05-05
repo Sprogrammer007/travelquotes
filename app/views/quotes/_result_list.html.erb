@@ -1,38 +1,40 @@
 <div class="result_list_wrapper">
   <ul>
-    <% if results %>
-      <% results.each_with_index do |result, i| %>
-      <li>
-        <div class="row result_item_wrapper">
+    <% if results.any? %>
+      <% results.each do |result| %>
+        <% result.plans.each_with_index do |plan, i| %>
+        <li>
+          <div class="row result_item_wrapper">
 
-          <div class="col-md-2 compare_box">
-            <p><%= i + 1 %></p> 
-            <p><%= label_tag "compare[results]", "Compare" %>
-            <%= check_box :compare, "results" %></p>
-          </div>
+            <div class="col-md-2 compare_box">
+              <p><%= i + 1 %></p> 
+              <p><%= label_tag "compare[results]", "Compare" %>
+              <%= check_box :compare, "results" %></p>
+            </div>
 
-          <div class="col-md-3 logo_box">
-            <%= image_tag result.product.company.logo %>
-          </div>
+            <div class="col-md-3 center-block logo_box">
+              <%= image_tag plan.product.company.logo %>
+            </div>
 
-          <div class="col-md-3">
-            <p><%= %></p> 
-            <p> <%= result.product.name %></p> 
-          </div>
-          <div class="col-md-2">
-            <p><span class="glyphicon glyphicon-file"></span> <%= link_to "Policy Details", "#" %></p> 
-          </div>
+            <div class="col-md-3">
+              <p><%= %></p> 
+              <p> <%= plan.product.name %></p> 
+            </div>
+            <div class="col-md-2  center-block">
+              <p><span class="glyphicon glyphicon-file"></span> <%= link_to "Policy Details", "#" %></p> 
+            </div>
 
-          <div class="col-md-2 purchase_box">
-            <p>Your Quote</p>
-            <p>$256.25</p>
-            <%= link_to "Buy Now", "#", class: "btn btn-danger btn-sm" %>
-          </div>
-        </div>  
-      </li>
+            <div class="col-md-2 purchase_box">
+              <p><%= quote.get_rate_for(plan)[0].rate %></p>
+              <p></p>
+              <%= link_to "Buy Now", "#", class: "btn btn-danger btn-sm" %>
+            </div>
+          </div>  
+        </li>
+        <% end %>
       <% end %>
     <% else %>
-      <p>No Filters Selected</p>
+      <p>There Are No Quotes Matching Your Criteria</p>
     <% end %>
   </ul>
 </div>

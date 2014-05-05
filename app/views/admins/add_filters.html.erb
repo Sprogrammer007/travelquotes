@@ -1,0 +1,24 @@
+<%= form_tag url_for(:controller => 'admin/plan_filter_sets', :action => 'create') do -%>
+  <%= hidden_field_tag "plan_id", params[:id] %>
+  <fieldset class="inputs">
+    <div class="filters_select">
+        <% current_cat = "" %>
+        <div class=" group">
+          <% @filters.each_with_index do |f, i| %>
+            <% unless current_cat == f.category %>
+              <% current_cat = f.category %>
+              <h4><%= current_cat %></h4>
+            <% end %>
+            
+            
+            <%= check_box_tag "filter_ids[]", f.id, @already_selected_filters.include?(f.id), id: "filter_#{f.id}" %>
+            <label for="<%= "filter_#{f.id}" %>" ><%= f.name %></label>
+          <% end %>
+        </div>
+      <%= submit_tag "Add Selected Filters", class: "right", data: {confirm: I18n.t('active_admin.are_you_sure')} %>
+      <%= link_to "Add New Filter", new_admin_plan_filter_path(id: params[:id]),  class: "link_button right"  %>
+      </div>
+  
+  </fieldset>
+
+<% end %>

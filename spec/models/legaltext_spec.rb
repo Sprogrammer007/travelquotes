@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe SumInsured do
+describe Legaltext do
   pending "add some examples to (or delete) #{__FILE__}"
 end

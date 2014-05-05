@@ -5,11 +5,8 @@ Travelquotes::Application.routes.draw do
 	resources :products
 
 	resources :quotes do
-		collection do
-    	get 'result'
-  	end
-	end
-
+    get 'couple', on: :member
+  end
 	namespace :api, path: '/', constraints: { subdomain: 'api' } do
 		resources :policy, except: [:destroy, :update, :edit]
 	end

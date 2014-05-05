@@ -2,7 +2,7 @@ module ActiveAdminImport
   module MYDSL
     def include_import
       active_admin_import(:validate => false, 
-        :template => 'import',
+        :template => 'admins/import',
         :timestamps => true,
         :template_object => ActiveAdminImport::Model.new(
           :hint => "Note: File will be imported with such header format: [#{config.resource_class::DEFAULT_HEADER.join(', ')}]. 
@@ -11,7 +11,9 @@ module ActiveAdminImport
           ),
         :before_import => proc{ |importer| 
           importer.options[:resource_class].delete_all()
-          ActiveRecord::Base.connection.reset_pk_sequence!(importer.options[:resource_class].to_s.downcase.pluralize) #Reset all id to 0
+          ActiveRecord::Base.connection.reset_pk_sequence!(importer.options[:resource_class].to_s
+                                                            .gsub(/([a-z])([A-Z])/ , '\1_\2').downcase.pluralize) #Reset all id to 0
+          Rails.logger.warn "#{importer.model.headers_option.empty?}"
           header = importer.model.headers_option.empty? ? importer.options[:resource_class]::DEFAULT_HEADER : []
           importer.instance_variable_set(:@headers, header)
           },
@@ -22,3 +24,4 @@ module ActiveAdminImport
 end
 
 ::ActiveAdmin::DSL.send(:include, ActiveAdminImport::MYDSL)
+

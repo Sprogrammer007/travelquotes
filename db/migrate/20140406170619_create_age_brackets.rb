@@ -5,7 +5,9 @@ class CreateAgeBrackets < ActiveRecord::Migration
 			t.string :range
 			t.integer :min_age
 			t.integer :max_age
-			
+			t.boolean :preex
+			t.integer :min_trip_duration
+      t.integer :max_trip_duration
 
 			t.timestamps
 		end

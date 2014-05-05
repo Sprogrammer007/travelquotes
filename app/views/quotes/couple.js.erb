@@ -1,0 +1,1 @@
+$('#traveler<%= "#{params[:traveler_member]}" %>').after('<%= j(render 'result_list', quote: @quote, results: @results) %>');

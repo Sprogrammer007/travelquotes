@@ -11,8 +11,11 @@ class Product < ActiveRecord::Base
   
   belongs_to :company
   has_many :deductibles
+  has_many :legal_texts
   has_many :plans
-  has_many :product_filters
-  has_many :rates
 
+  accepts_nested_attributes_for :plans
+  
+  #scopes
+  scope :active, -> { where(status: true) }
 end

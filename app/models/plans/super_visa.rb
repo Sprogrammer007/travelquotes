@@ -1,2 +1,0 @@
-class SuperVisa < Plan
-end
