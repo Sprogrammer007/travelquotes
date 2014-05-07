@@ -13,7 +13,6 @@ module ActiveAdminImport
           importer.options[:resource_class].delete_all()
           ActiveRecord::Base.connection.reset_pk_sequence!(importer.options[:resource_class].to_s
                                                             .gsub(/([a-z])([A-Z])/ , '\1_\2').downcase.pluralize) #Reset all id to 0
-          Rails.logger.warn "#{importer.model.headers_option.empty?}"
           header = importer.model.headers_option.empty? ? importer.options[:resource_class]::DEFAULT_HEADER : []
           importer.instance_variable_set(:@headers, header)
           },

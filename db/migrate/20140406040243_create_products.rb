@@ -8,18 +8,19 @@ class CreateProducts < ActiveRecord::Migration
       t.string :product_number
       t.text :description
       t.integer :min_price
+      
+      t.boolean :can_buy_after_30_days
+
+      t.boolean :renewable
+      t.integer :renewable_period
+      t.integer :renewable_max_age
+
+      t.boolean :preex
+      t.integer :preex_max_age
+      t.boolean :follow_ups
       t.boolean :status, default: true
       t.string :purchase_url
       t.datetime :effective_date
-
-      # Policy Age Variables
-      # t.integer :min_age
-      # t.integer :max_age
-      # t.integer :min_adult
-      # t.integer :max_adult
-
-      # # Other
-      # t.boolean :follow_ups
 
       t.timestamps
     end

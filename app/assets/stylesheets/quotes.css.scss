@@ -284,9 +284,30 @@ fieldset.traveling_members  {
   border: 2px solid #97B6E4;
   border-bottom-color: transparent;
 }
+
+.no_result{
+  display: block;
+  width: 95%;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  background-color: #F5F5F5;
+  border: 2px dashed #97B6E4;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+}
+
+.no_result span {
+  color:#F57118;  
+  font-weight: bold;
+  font-size: 1.5em;
+  vertical-align: middle;
+}
+
 /* SideBar */ 
 aside {
-  display: block;
+
   width: 100%;
   height: inherit;
   background-color:#ffffff;
@@ -354,7 +375,6 @@ aside .side_bar_widget {
 }
 
 .compare_box p {
-
   text-align: center;
 }
 
@@ -370,7 +390,6 @@ aside .side_bar_widget {
 }
 
 .result_item_wrapper div:last-child {
-
   border-right: none;
 }
 /* FILTERS */ 

@@ -1,6 +1,6 @@
-class CreatePlanFilters < ActiveRecord::Migration
+class CreateProductFilters < ActiveRecord::Migration
   def change
-    create_table :plan_filters do |t|
+    create_table :product_filters do |t|
     	t.string :category
       t.string :name
       t.string :policy_type

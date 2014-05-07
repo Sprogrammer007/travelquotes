@@ -1,5 +1,5 @@
 <%= form_tag url_for(:controller => 'admin/age_sets', :action => 'create') do -%>
-  <%= hidden_field_tag "plan_id", params[:id] %>
+  <%= hidden_field_tag "version_id", params[:id] %>
   <fieldset class="inputs single_show">
     <div class="age_select">
       <% if @ages.any? %>
@@ -28,7 +28,9 @@
                     <td><%= "0 - #{age.max_trip_duration}" %></td>
                   </tr>
                 </tbody>
+
               </table>
+              <%= render("admins/rate_table", rates: age.rates.current) %>
             </label>         
           <% end %>
         </div>
@@ -36,7 +38,7 @@
       <% else %>
         <h3>There are currently no age brackets belonging to this product. To add a brand new age baracket use the button on the bottom right.</h3>
       <% end %>
-      <%= link_to "Add Age Bracket", new_admin_age_bracket_path(id: params[:id]),  class: "link_button right"  %>
+      <%= link_to "Add Age Bracket", new_admin_age_bracket_path(product_id: @version.product_id, name:  @version.product.name),  class: "link_button right"  %>
     </div>
   </fieldset>
 

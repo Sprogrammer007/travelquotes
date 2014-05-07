@@ -11,14 +11,17 @@ ActiveAdmin.register Rate do
 	remove_filter :preex
 	preserve_default_filters!
 
-	menu :parent => "Plans"
+	menu :parent => "Products"
 	
 	#Index Table
 	index do
 		selectable_column
-		column :sum_insured
-		column :preex
 		column :rate
+		column :rate_type
+		column :sum_insured
+		column :status do |r|
+			status_tag r.status, "#{r.status.downcase}"
+		end
 		column :effective_date
 		default_actions
 	end

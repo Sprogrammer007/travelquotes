@@ -5,6 +5,8 @@ class Quote < ActiveRecord::Base
   accepts_nested_attributes_for :traveler_members, allow_destroy: true
   before_save :set_quote_id
 
+  attr_reader :results
+
   def search
     get_ages()
     @results = self.send(:"#{self.traveler_type.downcase}_search")
@@ -15,12 +17,8 @@ class Quote < ActiveRecord::Base
     @ages ||= {}
   end
 
-  def results 
-    @results ||= []
-  end
-
-  def get_rate_for(plan)
-    plan.get_rates(ages["Adult"].max, self.sum_insured)
+  def get_rate_for(version)
+    version.get_rates(ages["Adult"].max, self.sum_insured)
   end
 
   def get_ages
@@ -31,6 +29,38 @@ class Quote < ActiveRecord::Base
     }
   end
 
+
+  def single_search(age = nil)
+    age = age || ages["Adult"].max
+
+    @results = Version.send("#{self.traveler_type.downcase}")
+    @results = @results.joins(:product).merge(Product.send((self.has_preex) ? "has_preex" : "has_no_preex"))
+  
+    if self.apply_from && beyond_30_days?
+       @results = @results.where(:products => {can_buy_after_30_days: true})
+    end
+    
+    if self.has_preex
+      @results = @results.joins(:age_brackets).merge(AgeBracket.include_age(age).preex)
+    else
+      @results = @results.joins(:age_brackets).merge(AgeBracket.include_age(age))
+    end
+
+    @results = @results.joins(age_brackets: [:rates]).merge(Rate.include_sum(self.sum_insured))
+
+    @results = @results.select("versions.*, rates.rate as product_rate").order("product_rate ASC")
+
+    return @results
+  end
+
+  def couple_search
+    single_search(ages["Adult"].max)
+  end
+
+  def family_search
+  end
+
+  #Class Methods
   def self.getFilters
     {
       "Cancellation" => %w{Trip\ Interruption Hurricane\ &\ Weather Terrorism Financial\ Default Employment\ Layoff Cancel\ For\ Work\ Reasons Cancel\ For\ Any\ Reason},
@@ -41,24 +71,9 @@ class Quote < ActiveRecord::Base
   end
 
   def self.getSumInsured
-    %w{25,000 50,000 100,000 150,000 200,000}
+    %w{ 10,000, 15,000 25,000 50,000 100,000 150,000 200,000, 250,000}
   end
 
-  def single_search(age = nil)
-    age = age || ages["Adult"].max
-    @results = AgeBracket.include_age(age).joins(:rates).merge(Rate.with_sum_insured(self.sum_insured))
-    if self.apply_from && beyond_30_days?
-      @results.includes(:plans).where(:plans => {can_buy_after_30_days: true})
-    end
-    return @results
-  end
-
-  def couple_search
-    single_search(ages["Adult"].max)
-  end
-
-  def family_search
-  end
 
   private
 

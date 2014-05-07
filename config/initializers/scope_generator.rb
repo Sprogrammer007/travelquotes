@@ -1,9 +1,11 @@
 module ScopeGenerator
   def generate_scopes
-    columns.each do |column|
-      predicates_for(column).each do |predicate|
-        scope "#{column.name}_#{predicate}", ->(value) do
-          where(arel_table[column.name].send(predicate, value))
+    if ActiveRecord::Base.connection.table_exists? "#{self.name.split(/(?=[A-Z])/).join("_").downcase.pluralize}"
+      columns.each do |column|
+        predicates_for(column).each do |predicate|
+          scope "#{column.name}_#{predicate}", ->(value) do
+            where(arel_table[column.name].send(predicate, value))
+          end
         end
       end
     end

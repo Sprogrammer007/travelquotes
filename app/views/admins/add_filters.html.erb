@@ -1,5 +1,5 @@
-<%= form_tag url_for(:controller => 'admin/plan_filter_sets', :action => 'create') do -%>
-  <%= hidden_field_tag "plan_id", params[:id] %>
+<%= form_tag url_for(:controller => 'admin/product_filter_sets', :action => 'create') do -%>
+  <%= hidden_field_tag "product_id", params[:id] %>
   <fieldset class="inputs">
     <div class="filters_select">
         <% current_cat = "" %>
@@ -16,7 +16,7 @@
           <% end %>
         </div>
       <%= submit_tag "Add Selected Filters", class: "right", data: {confirm: I18n.t('active_admin.are_you_sure')} %>
-      <%= link_to "Add New Filter", new_admin_plan_filter_path(id: params[:id]),  class: "link_button right"  %>
+      <%= link_to "Add New Filter", new_admin_product_filter_path(id: params[:id]),  class: "link_button right"  %>
       </div>
   
   </fieldset>

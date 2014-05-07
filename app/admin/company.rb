@@ -20,7 +20,7 @@ ActiveAdmin.register Company do
 		column :name
 		column :short_hand
 		column :logo do |c|
-			image_tag c.logo, size: "120x30"
+			image_tag c.logo, height: "60%"
 		end
 		column :status do |c|
 			if c.status

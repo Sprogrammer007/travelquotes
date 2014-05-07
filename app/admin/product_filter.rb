@@ -1,4 +1,4 @@
-ActiveAdmin.register PlanFilter do
+ActiveAdmin.register ProductFilter do
 	config.sort_order = "id_asc"
 	config.paginate = false
 	include_import
@@ -14,13 +14,11 @@ ActiveAdmin.register PlanFilter do
 
 	#Filters
 	preserve_default_filters!
-	remove_filter :plan_filter_sets
+	remove_filter :product_filter_sets
 	remove_filter :created_at
 	remove_filter :updated_at
 
-	filter :plans, :collection => -> {PlanFilter.plans_filter_selection}
-
-	menu :parent => "Plans"
+	menu :parent => "Products"
 
 	index do
 		selectable_column

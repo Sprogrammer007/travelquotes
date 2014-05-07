@@ -11,10 +11,10 @@
             </tr>
 
             <tr class="row">
-              <th>Plans</th>
+              <th>Versions</th>
               <td>
-                <% @age.plans.each do |plan| %>
-                  <%= "#{plan.type} (#{plan.detail_type})" %>
+                <% @age.versions.each do |version| %>
+                  <%= "#{version.type} (#{version.detail_type})" %>
                 <% end %>
               </td>
             </tr>

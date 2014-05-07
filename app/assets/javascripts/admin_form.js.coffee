@@ -1,16 +1,36 @@
 ready = ->
 
   $('.age_select label, .filters_select label').on "click", (e) ->
-    console.log("clicked")
     checkbox = $(this).prev('input[type=checkbox]')
     checkbox.prop("checked", !checkbox.prop("checked"));
     e.preventDefault()
-
-
+  #Select all select none
+  $('.select_all').click (e) ->
+    $('input[type="checkbox"]').each (index, ele) ->
+      if !$(ele).prop("checked")
+        $(ele).prop("checked", true)
+        $('.province_select').find("[data-key='" + $(ele).attr("id") + "']").addClass('selected')
+      return
+  #Province select helper
   $('.province_select tr.selection').on "click", (e) ->
     checkbox = "##{$(this).data("key")}"
     $(checkbox).prop("checked", !$(checkbox).prop("checked"));
     $(this).toggleClass('selected')
+
+    #Select all select none
+  $('.select_all').click (e) ->
+    $('input[type="checkbox"]').each (index, ele) ->
+      if !$(ele).prop("checked")
+        $(ele).prop("checked", true)
+        $('.province_select').find("[data-key='" + $(ele).attr("id") + "']").addClass('selected')
+      return
+
+  $('.select_none').click (e) ->
+    $('input[type="checkbox"]').each (index, ele) ->
+      if $(ele).prop("checked")
+        $(ele).prop("checked", false)
+        $('.province_select').find("[data-key='" + $(ele).attr("id") + "']").removeClass('selected')
+      return
 
 
   tier2select = $('.tier2_select').html()
@@ -26,12 +46,12 @@ ready = ->
       $('.tier2_select').html(tier2select)   
 
   #Age Bracket Filter Helper
-  plan_select = $('select[name="q[age_sets_plan_id_eq]"], select[name="q[plan_filter_sets_plan_id_eq]"]').html()
+  version_select = $('select[name="q[age_sets_version_id_eq]"], select[name="q[plan_filter_sets_plan_id_eq]"]').html()
   $('select[name="q[product_id_eq]"]').change ->
 
     product_select = $(this).find(':selected').text()
     escaped = product_select.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1')
-    options = $(plan_select).filter("optgroup[label='#{escaped}']").html()
+    options = $(version_select).filter("optgroup[label='#{escaped}']").html()
 
     if options
       $('.plan_select').html(options)
@@ -52,12 +72,24 @@ ready = ->
       $('.new_selection').toggle()
 
   $('.detail_type').change ->
+    single = $('.single_details')
+    couple = $('.couple_details')
+    family = $('.family_details')
     type = $(this).find(':selected').text()
+    switch type
+      when 'Couple'
+        couple.show()
+        family.hide()
+        single.hide()
+      when 'Family'
+        family.show()
+        couple.hide()
+        single.hide()
+      else
+        single.show()
+        couple.hide()
+        family.hide()
 
-    if type == 'Family'
-      $('.family_details').toggle()
-    else
-      $('.family_details').hide()
 
   #Toggle Show More/Less
   (($) ->

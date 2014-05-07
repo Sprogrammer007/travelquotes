@@ -31,7 +31,7 @@ class QuotesController < ApplicationController
 		def permitted_params
 			params[:quote][:sum_insured] = params[:quote][:sum_insured].gsub(",", "").to_i
 			params.require(:quote).permit(:leave_home, :return_home, :apply_from, :arrival_date,
-				:arrival_date, :trip_cost, :sum_insured, :traveler_type, 
+				:arrival_date, :trip_cost, :sum_insured, :traveler_type, :has_preex,
 				:traveler_members_attributes => [:member_type, :gender, :birthday]).merge(:client_ip => request.remote_ip)
 		end
 end

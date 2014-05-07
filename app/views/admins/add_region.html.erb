@@ -1,7 +1,11 @@
 <%= form_tag url_for(:controller => 'admin/regions', :action => 'create') do -%>
   <%= hidden_field_tag "company_id", params[:id] %>
   <fieldset class="inputs">
+
     <div class="province_select group panel_contents">
+      <%= link_to "Select None", "#",  class: "select_none link_button right"  %>
+      <%= link_to "Select All", "#",  class: "select_all link_button right"  %>
+ 
         <!-- Chrome Fix checkbox won't be checked if nested under table -->
         <% @provinces.each_with_index do |prov, i| %>
           <%= check_box_tag "region_ids[]", prov.id, @already_selected_region.include?(prov.id), id: "region_#{prov.id}" %>

@@ -8,7 +8,7 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs">
       <li class="active">
-        <%= link_to "#{quote.traveler_type} Policies", "##{quote.traveler_type.downcase}", data: {toggle: "tab"} %>
+        <%= link_to "#{@quote.traveler_type} Policies", "##{@quote.traveler_type.downcase}", data: {toggle: "tab"} %>
       </li>
       <% if @quote.traveler_type == "Couple" %>
         <li><%= link_to "Traveler #1", "#traveler1", data: {toggle: "tab", url: couple_quote_path(@quote, traveler_number: 1)} %></li>
@@ -21,7 +21,7 @@
     <!-- Tab panes -->
     <div class="tab-content">
 
-      <div class="tab-pane fade in active" id="<%=  quote.traveler_type.downcase %>">
+      <div class="tab-pane fade in active" id="<%= @quote.traveler_type.downcase %>">
         <%= render 'result_list', quote: @quote, results: @quote.results %>
       </div>
       <% if @quote.traveler_type == "Couple" %>

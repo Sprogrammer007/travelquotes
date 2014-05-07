@@ -8,10 +8,10 @@ class Rate < ActiveRecord::Base
   #scopes
   generate_scopes
 
-  scope :current, -> { where("status = ? AND effective_date < ?", "Current", Date.today) }
-  scope :outdated, -> { where("status = ? AND effective_date < ?", "OutDated", Date.today) }
-  scope :future, -> { where("status = ? AND effective_date > ?", "Future", Date.today) }
-  scope :with_sum_insured, ->(sum) {sum_insured_eq(sum).current}
+  scope :current, -> { status_eq("Current") }
+  scope :outdated, -> { status_eq("Outdated")}
+  scope :future, -> { status_eq("Future") }
+  scope :include_sum, ->(sum) {sum_insured_eq(sum).current}
 
   def set_status
     unless self.status
@@ -22,7 +22,7 @@ class Rate < ActiveRecord::Base
   def self.select_age_bracket_options
   	h = Hash.new 
   	Product.all.map do |product| 
-  		h[product.name] =  product.plans.map { |plan| plan.age_brackets.map {|age| [plan.type + " (#{age.range})", age.id]}}.flatten(1)
+  		h[product.name] =  product.versions.map { |version| version.age_brackets.map {|age| [version.type + " (#{age.range})", age.id]}}.flatten(1)
   	end
   	h
   end

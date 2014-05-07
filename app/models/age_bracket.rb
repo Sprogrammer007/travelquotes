@@ -1,34 +1,39 @@
 class AgeBracket < ActiveRecord::Base
-	DEFAULT_HEADER = %w{product_id range min_age max_age preex 
-		min_trip_duration max_trip_duration}
+	DEFAULT_HEADER = %w{product_id min_age max_age 
+		min_trip_duration max_trip_duration preex}
 	
 	belongs_to :product
 	has_many :age_sets
-	has_many :plans, :through => :age_sets 
+	has_many :versions, :through => :age_sets 
 	has_many :rates, :dependent => :destroy
 	accepts_nested_attributes_for :rates
 	
 	#Callbacks
-	after_commit :set_range_product, unless: Proc.new { |age| age.product } 
+	before_save :set_preex
 
 	#scopes
 	generate_scopes
-	scope :has_pre_existing_medicals, -> { where(:preex => true) }
 	scope :include_age, ->(age) {min_age_lteq(age) & max_age_gteq(age)}
+	scope :preex, -> {preex_eq(true)}
 
-	def set_range_product
-		self.range = "#{self.min_age} - #{self.max_age}"
-		self.product_id = self.plans[0].product_id
-		self.save
-	end
-
-	def get_rate_with()
-	end
 	def self.product_selection
-		Hash[Product.all.map {|pro| [ pro.name, pro.plans.map {|p| [p.type, p.id]} ]}]
+		Hash[Product.all.map {|pro| [ pro.name, pro.versions.map {|v| [v.detail_type, v.id]} ]}]
 	end
 
-	def self.plans_filter_selection
-		Hash[Product.all.map {|pro| [ pro.name, pro.plans.map {|p| [pro.name + " (#{p.type})", p.id]} ]}]
+	def self.versions_filter_selection
+		Hash[Product.all.map {|pro| [ pro.name, pro.versions.map {|v| [pro.name + " (#{v.detail_type})", v.id]} ]}]
 	end
+
+	def range
+		"#{self.min_age} - #{self.max_age}"
+	end
+	
+	private
+		
+		def set_preex
+			if self.new_record?
+				self.preex = self.product.preex
+			end
+		end
+
 end

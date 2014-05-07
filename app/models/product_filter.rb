@@ -1,8 +1,8 @@
-class PlanFilter < ActiveRecord::Base
+class ProductFilter < ActiveRecord::Base
 	DEFAULT_HEADER = %w{category name policy_type descriptions}
 
-  has_many :plan_filter_sets
-  has_many :plans, :through => :plan_filter_sets
+  has_many :product_filter_sets
+  has_many :product, :through => :product_filter_sets
  	
   scope :preex, -> { where(:category => "Pre-Existing Medical Conditions") } 
   scope :medical_benefits, -> { where(:category => "MEDICAL BENEFITS") }
@@ -15,7 +15,4 @@ class PlanFilter < ActiveRecord::Base
   scope :right_of_entery, -> { where(:category => "RIGHT OF ENTERY") }
   scope :refunds, -> { where(:category => "REFUNDS") }
 
-  def self.plans_filter_selection
-		Hash[Product.all.map {|pro| [ pro.name, pro.plans.map {|p| [pro.name + " (#{p.type})", p.id]} ]}]
-	end
 end

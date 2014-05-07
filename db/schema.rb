@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140503145340) do
+ActiveRecord::Schema.define(version: 20140507202716) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,23 +36,22 @@ ActiveRecord::Schema.define(version: 20140503145340) do
 
   create_table "age_brackets", force: true do |t|
     t.integer  "product_id"
-    t.string   "range"
     t.integer  "min_age"
     t.integer  "max_age"
-    t.boolean  "preex"
     t.integer  "min_trip_duration"
     t.integer  "max_trip_duration"
+    t.boolean  "preex"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "age_sets", id: false, force: true do |t|
     t.integer "age_bracket_id"
-    t.integer "plan_id"
+    t.integer "version_id"
   end
 
   add_index "age_sets", ["age_bracket_id"], name: "index_age_sets_on_age_bracket_id", using: :btree
-  add_index "age_sets", ["plan_id"], name: "index_age_sets_on_plan_id", using: :btree
+  add_index "age_sets", ["version_id"], name: "index_age_sets_on_version_id", using: :btree
 
   create_table "companies", force: true do |t|
     t.string   "name"
@@ -64,6 +63,9 @@ ActiveRecord::Schema.define(version: 20140503145340) do
   end
 
   create_table "couple_details", force: true do |t|
+    t.integer "min_age"
+    t.integer "max_age"
+    t.boolean "has_couple_rate"
   end
 
   create_table "deductibles", force: true do |t|
@@ -82,10 +84,15 @@ ActiveRecord::Schema.define(version: 20140503145340) do
   end
 
   create_table "family_details", force: true do |t|
+    t.integer "min_age"
+    t.integer "max_age"
     t.integer "min_dependant"
     t.integer "max_dependant"
+    t.integer "min_adult"
+    t.integer "max_adult"
     t.integer "max_kids_age"
     t.integer "max_age_with_kids"
+    t.boolean "has_family_rate"
   end
 
   create_table "legal_texts", force: true do |t|
@@ -99,37 +106,20 @@ ActiveRecord::Schema.define(version: 20140503145340) do
     t.datetime "updated_at"
   end
 
-  create_table "plan_filter_sets", id: false, force: true do |t|
-    t.integer "plan_filter_id"
-    t.integer "plan_id"
+  create_table "product_filter_sets", id: false, force: true do |t|
+    t.integer "product_filter_id"
+    t.integer "product_id"
   end
 
-  add_index "plan_filter_sets", ["plan_filter_id"], name: "index_plan_filter_sets_on_plan_filter_id", using: :btree
-  add_index "plan_filter_sets", ["plan_id"], name: "index_plan_filter_sets_on_plan_id", using: :btree
+  add_index "product_filter_sets", ["product_filter_id"], name: "index_product_filter_sets_on_product_filter_id", using: :btree
+  add_index "product_filter_sets", ["product_id"], name: "index_product_filter_sets_on_product_id", using: :btree
 
-  create_table "plan_filters", force: true do |t|
+  create_table "product_filters", force: true do |t|
     t.string "category"
     t.string "name"
     t.string "policy_type"
     t.text   "descriptions"
   end
-
-  create_table "plans", force: true do |t|
-    t.integer  "product_id"
-    t.string   "unique_id"
-    t.string   "type"
-    t.string   "detail_type"
-    t.string   "detail_id"
-    t.boolean  "can_buy_after_30_days"
-    t.boolean  "renewable"
-    t.integer  "renewable_period"
-    t.integer  "renewable_max_age"
-    t.boolean  "status",                default: true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "plans", ["product_id"], name: "index_plans_on_product_id", using: :btree
 
   create_table "products", force: true do |t|
     t.integer  "company_id"
@@ -137,7 +127,14 @@ ActiveRecord::Schema.define(version: 20140503145340) do
     t.string   "product_number"
     t.text     "description"
     t.integer  "min_price"
-    t.boolean  "status",         default: true
+    t.boolean  "can_buy_after_30_days"
+    t.boolean  "renewable"
+    t.integer  "renewable_period"
+    t.integer  "renewable_max_age"
+    t.boolean  "preex"
+    t.integer  "preex_max_age"
+    t.boolean  "follow_ups"
+    t.boolean  "status",                default: true
     t.string   "purchase_url"
     t.datetime "effective_date"
     t.datetime "created_at"
@@ -165,11 +162,12 @@ ActiveRecord::Schema.define(version: 20140503145340) do
     t.string   "traveler_type"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "has_preex"
   end
 
   create_table "rates", force: true do |t|
     t.integer  "age_bracket_id"
-    t.integer  "rate"
+    t.float    "rate"
     t.string   "rate_type"
     t.integer  "sum_insured"
     t.datetime "effective_date"
@@ -189,6 +187,8 @@ ActiveRecord::Schema.define(version: 20140503145340) do
   add_index "regions", ["province_id"], name: "index_regions_on_province_id", using: :btree
 
   create_table "single_details", force: true do |t|
+    t.integer "min_age"
+    t.integer "max_age"
   end
 
   create_table "traveler_members", force: true do |t|
@@ -205,5 +205,17 @@ ActiveRecord::Schema.define(version: 20140503145340) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "versions", force: true do |t|
+    t.integer  "product_id"
+    t.string   "type"
+    t.string   "detail_type"
+    t.integer  "detail_id"
+    t.boolean  "status",      default: true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "versions", ["product_id"], name: "index_versions_on_product_id", using: :btree
 
 end
