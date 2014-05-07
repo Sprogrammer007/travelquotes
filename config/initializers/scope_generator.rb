@@ -1,6 +1,6 @@
 module ScopeGenerator
   def generate_scopes
-    if ActiveRecord::Base.connection.table_exists? "#{self.name.split(/(?=[A-Z])/).join("_").downcase.pluralize}"
+   
       columns.each do |column|
         predicates_for(column).each do |predicate|
           scope "#{column.name}_#{predicate}", ->(value) do
@@ -8,7 +8,7 @@ module ScopeGenerator
           end
         end
       end
-    end
+
   end
 
   def predicates_for(column)
