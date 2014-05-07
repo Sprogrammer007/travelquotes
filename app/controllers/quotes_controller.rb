@@ -12,19 +12,19 @@ class QuotesController < ApplicationController
 	end
 
 	def show
-		@quote = Quote.find_by(:quote_id => params[:quote_id])
+		@quote = Quote.find(params[:id])
 		if @quote
 			@quote.search
 		end
 	end
 
-	def couple
-		@quote = Quote.find(params[:id])
-		@results = @quote.single_search(@quote.get_ages["Adult"][params[:traveler_number] - 1])
-		respond_to do |format|
-      format.js
-    end
-	end
+	# def couple
+	# 	@quote = Quote.find(params[:id])
+	# 	@results = @quote.single_search(@quote.get_ages["Adult"][params[:traveler_number] - 1])
+	# 	respond_to do |format|
+ #      format.js
+ #    end
+	# end
 
 	private
 
