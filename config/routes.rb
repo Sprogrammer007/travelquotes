@@ -5,7 +5,10 @@ Travelquotes::Application.routes.draw do
 	resources :products
 
 	resources :quotes do
-    get 'couple', on: :member
+    member do
+      post 'apply_filters'
+      post 'remove_filters'
+    end
   end
 	namespace :api, path: '/', constraints: { subdomain: 'api' } do
 		resources :policy, except: [:destroy, :update, :edit]

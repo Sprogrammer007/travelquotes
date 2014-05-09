@@ -1,15 +1,18 @@
 class Quote < ActiveRecord::Base
 
   has_many :traveler_members, dependent: :destroy
+  has_many :applied_filters, dependent: :destroy
+  has_many :product_filters, through: :applied_filters
 
   accepts_nested_attributes_for :traveler_members, allow_destroy: true
   before_save :set_quote_id
 
-  attr_reader :results
+  attr_reader :results, :pre_filtered_results, :filtered_results
 
   def search
-    get_ages()
+    calc_ages()
     @results = self.send(:"#{self.traveler_type.downcase}_search")
+    @pre_filtered_results = @results
     return self
   end
 
@@ -17,11 +20,7 @@ class Quote < ActiveRecord::Base
     @ages ||= {}
   end
 
-  def get_rate_for(version)
-    version.get_rates(ages["Adult"].max, self.sum_insured)
-  end
-
-  def get_ages
+  def calc_ages
     year = Date.today.year
     @ages = {
       "Adult" => traveler_members.adult.map { |m| year - m.birthday.year },
@@ -29,32 +28,68 @@ class Quote < ActiveRecord::Base
     }
   end
 
+  def calc_rate(version)
+    rate = version.product_rate
+    if version.detail_type == "Couple" && !version.detail.has_couple_rate
+      product_id = version.product_id
+      t1 = @results["Traveler #1"].reject{ |t| t.product_id != product_id}
+      t2 = @results["Traveler #2"].reject{ |t| t.product_id != product_id}
+      if t1.any? and t2.any?
 
-  def single_search(age = nil)
+        rate = t1[0].product_rate + t2[0].product_rate
+      end
+    end
+   (rate * (self.traveled_days / 1.day)).round(2)
+  end
+
+  def filter_results
+    if @results.is_a?(ActiveRecord::Relation)
+      @filtered_results = @results.reject do |r| 
+        has_filters?(r.product.product_filters.pluck(:id), self.product_filters.pluck(:id)) 
+      end
+    end
+
+    @results = @results.to_a - @filtered_results
+  end
+
+  def traveled_days
+    (self.return_home - self.leave_home).to_i
+  end
+
+
+  def single_search(age = nil, rate_type = nil)
     age = age || ages["Adult"].max
-
-    @results = Version.send("#{self.traveler_type.downcase}")
-    @results = @results.joins(:product).merge(Product.send((self.has_preex) ? "has_preex" : "has_no_preex"))
-  
+    rate_type = rate_type || self.traveler_type.downcase
+    result = Version.send(rate_type)
+   
     if self.apply_from && beyond_30_days?
-       @results = @results.where(:products => {can_buy_after_30_days: true})
+       result = result.where(:products => {can_buy_after_30_days: true})
     end
     
     if self.has_preex
-      @results = @results.joins(:age_brackets).merge(AgeBracket.include_age(age).preex)
+      result = result.joins(:product).merge(Product.has_preex)
+      result = result.joins(:age_brackets).merge(AgeBracket.include_age(age).preex)
     else
-      @results = @results.joins(:age_brackets).merge(AgeBracket.include_age(age))
+      result = result.joins(:age_brackets).merge(AgeBracket.include_age(age))
     end
 
-    @results = @results.joins(age_brackets: [:rates]).merge(Rate.include_sum(self.sum_insured))
+    result = result.joins(age_brackets: [:rates]).merge(Rate.include_sum(self.sum_insured))
+    result = result.select("versions.*, rates.rate as product_rate, rates.rate_type as rate_type").order("product_rate ASC")
 
-    @results = @results.select("versions.*, rates.rate as product_rate").order("product_rate ASC")
+    if self.traveler_type == "Single"
+      @results = result
+      return @results
+    end
 
-    return @results
+    return result
   end
 
   def couple_search
-    single_search(ages["Adult"].max)
+    @results = Hash.new()
+    @results["Couple"] =  single_search(ages["Adult"].max)
+    @results["Traveler #1"] =  single_search(ages["Adult"].first, "single")
+    @results["Traveler #2"] =  single_search(ages["Adult"].last, "single")
+    return @results
   end
 
   def family_search
@@ -62,12 +97,7 @@ class Quote < ActiveRecord::Base
 
   #Class Methods
   def self.getFilters
-    {
-      "Cancellation" => %w{Trip\ Interruption Hurricane\ &\ Weather Terrorism Financial\ Default Employment\ Layoff Cancel\ For\ Work\ Reasons Cancel\ For\ Any\ Reason},
-      "Medical" => %w{Primary\ Medical Emergency\ Medical Pre-existing\ Medical Medical\ Deductible},
-      "Loss or Delay" => %w{Travel\ Delay Baggage\ Delay Baggage\ Loss Missed\ Connection},
-      "Life Insurance" => %w{Accidental\ Death Air\ Flight\ Accident Common\ Carrier}
-    }
+    ProductFilter.prepare_filters
   end
 
   def self.getSumInsured
@@ -76,6 +106,9 @@ class Quote < ActiveRecord::Base
 
 
   private
+    def has_filters?(pfilters, afilters)
+      (afilters - (pfilters & afilters)).any?
+    end
 
     def beyond_30_days?
       (Day.today - self.arrival_date) >= 30
@@ -83,11 +116,7 @@ class Quote < ActiveRecord::Base
 
     #Before_Save
     def set_quote_id
-      self.quote_id = "307-521-#{counter}"
-    end
-
-    def counter
-      1
+      self.quote_id = "307-521-#{self.id}"
     end
 
 end

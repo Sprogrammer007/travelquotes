@@ -25,9 +25,12 @@
             </div>
 
             <div class="col-md-2 purchase_box">
-              <p><%= result.product_rate %></p>
-              <p></p>
-              <%= link_to "Buy Now", "#", class: "btn btn-danger btn-sm" %>
+              <div data-daily-rate="<%= result.product_rate %>" data-rate-type="<%= result.rate_type %>">
+                <p><%= number_to_currency(quote.calc_rate(result)) %></p>
+              
+ 
+                <%= link_to "Buy Now", "#", class: "btn btn-danger btn-sm" %>
+              </div>
             </div>
           </div>  
         </li>

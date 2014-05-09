@@ -16,18 +16,27 @@ class QuotesController < ApplicationController
 		if @quote
 			@quote.search
 		end
+
+		if @quote.product_filters.any?
+			@quote.filter_results
+		end
+		return @quote
 	end
 
-	# def couple
-	# 	@quote = Quote.find(params[:id])
-	# 	@results = @quote.single_search(@quote.get_ages["Adult"][params[:traveler_number] - 1])
-	# 	respond_to do |format|
- #      format.js
- #    end
-	# end
+	def apply_filters
+		if params[:filters]
+			AppliedFilter.create(permitted_filters[:filters]) do |a|
+				a.quote_id = params[:quote_id]
+			end
+		end
+		redirect_to :back
+	end
 
 	private
 
+		def permitted_filters
+			params.permit(:filters => [:product_filter_id])
+		end
 		def permitted_params
 			params[:quote][:sum_insured] = params[:quote][:sum_insured].gsub(",", "").to_i
 			params.require(:quote).permit(:leave_home, :return_home, :apply_from, :arrival_date,

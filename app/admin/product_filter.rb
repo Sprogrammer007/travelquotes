@@ -5,12 +5,8 @@ ActiveAdmin.register ProductFilter do
 
  	#Scopes
  	scope :all, default: true
-  scope :preex
   scope :medical_benefits
-  scope :medical_emergency
-  scope :trip_cancellation
-  scope :life_accident
-  scope :side_trips
+  scope :right_of_entery
 
 	#Filters
 	preserve_default_filters!

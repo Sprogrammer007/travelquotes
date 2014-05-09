@@ -7,7 +7,7 @@ ActiveAdmin.register ProductFilterSet do
   #Controller
   controller do         
     def create
-      ProductFilterSet.where(Product_id: params[:product_id]).delete_all
+      ProductFilterSet.where(product_id: params[:product_id]).delete_all
       if params[:filter_ids]
         ids = params[:filter_ids].map { |id| {:product_filter_id => id }}
         ProductFilterSet.create(ids) do |a|

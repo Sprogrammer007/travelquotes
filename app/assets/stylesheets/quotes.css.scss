@@ -404,15 +404,20 @@ aside .side_bar_widget {
   -webkit-border-radius: 3px;
 
 }
+.filter_selections {
+  margin-right: 10px;
+  margin-bottom: 15px;
+}
 .filter_selections h5 {
   font-size: 1.1em;
   margin-bottom: 0.5em;
+  font-weight: bold;
 }
 
-.filter_selections ul {
-  padding-left: 30px;
-}
 
+.filter_selections label {
+  font-weight: normal;
+}
 .filter_selections ul li {
   font-size: 0.9em;
   font-weight: normal;

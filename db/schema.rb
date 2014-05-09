@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140507202716) do
+ActiveRecord::Schema.define(version: 20140509045236) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,14 @@ ActiveRecord::Schema.define(version: 20140507202716) do
 
   add_index "age_sets", ["age_bracket_id"], name: "index_age_sets_on_age_bracket_id", using: :btree
   add_index "age_sets", ["version_id"], name: "index_age_sets_on_version_id", using: :btree
+
+  create_table "applied_filters", id: false, force: true do |t|
+    t.integer "quote_id"
+    t.integer "product_filter_id"
+  end
+
+  add_index "applied_filters", ["product_filter_id"], name: "index_applied_filters_on_product_filter_id", using: :btree
+  add_index "applied_filters", ["quote_id"], name: "index_applied_filters_on_quote_id", using: :btree
 
   create_table "companies", force: true do |t|
     t.string   "name"

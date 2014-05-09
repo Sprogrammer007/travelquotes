@@ -2,24 +2,36 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 ready = ->
-
-  # callback function for to min date after from is set
+  $(".filter_button").click (e)->
+    e.preventDefault()
+    btn = $(this)
+    btn.button "loading"
+    $.ajax().always ->
+      btn.button "reset"
+      
   setMinDateTo = (input, inst) ->
     currentFromDate = $('#quote_leave_home').val()
     if currentFromDate
       $(input).datepicker("option", "minDate", currentFromDate) 
 
-  $('#quote_leave_home').datepicker 
-    dateFormat: "yy-mm-dd"
-    altFormat: "yy/mm/dd"
-    constrainInput: true
-    changeYear: true
 
-  $('#quote_return_home').datepicker 
-    dateFormat: "yy-mm-dd"
-    altFormat: "yy/mm/dd"
-    constrainInput: true
-    changeYear: true
+  addDatePicker = (element) ->
+    element.datepicker 
+      dateFormat: "yy-mm-dd"
+      altFormat: "yy/mm/dd"
+      constrainInput: true
+      changeYear: true
+      changeMonth :true
+      yearRange: "-100:+0"
+
+    if element.selector == "#quote_return_home"
+      element.datepicker("option", "beforeShow", setMinDateTo )
+
+  # callback function for to min date after from is set
+
+  addDatePicker $('#quote_leave_home')
+  addDatePicker $('#quote_return_home')
+  addDatePicker $('#quote_arrival_date')
 
   $('#quote_leave_home').change ->
     selectedFrom = $('#quote_leave_home').datepicker('getDate')
@@ -28,12 +40,6 @@ ready = ->
     if currentTo && currentTo < selectedFrom
       $('#quote_leave_home').datepicker("setDate", selectedFrom)
       $('#quote_leave_home').datepicker("option", "minDate", selectedFrom) 
-  
-  $('#quote_arrival_date').datepicker 
-    dateFormat: "yy-mm-dd"
-    altFormat: "yy/mm/dd"
-    constrainInput: true
-    changeYear: true
 
   $('#quote_apply_from').change ->
     if $(this).find(':selected').text() == "Yes"
@@ -45,47 +51,41 @@ ready = ->
 
   dependentHide = (hide) ->
     if hide
-      $('.dependent_fields').fadeOut()
       $('.family_member').fadeOut()
+      $('.dependent_fields').fadeOut()
     else
-      $('.dependent_fields').fadeIn()
       $('.family_member').fadeIn()
+      $('.dependent_fields').fadeIn()
 
-  addDatePicker = (element) ->
-    element.datepicker 
-      dateFormat: "yy-mm-dd"
-      altFormat: "yy/mm/dd"
-      constrainInput: true
-      changeYear: true
 
-  $('#quote_traveler_members_attributes_0_birthday').datepicker 
-    dateFormat: "yy-mm-dd"
-    altFormat: "yy/mm/dd"
-    constrainInput: true
-    changeYear: true
-    
+  addDatePicker $('#quote_traveler_members_attributes_0_birthday')
+
   $('#quote_traveler_type').focus ->
     currentTravelTypeSelection = $(this).find(':selected').text()
 
   $('#quote_traveler_type').change ->
     type = $(this).find(':selected').text()
     adult_fields = $('.adult_fields').children()
+    dependent_fields = $('.dependent_fields').children('.member_fields_group')
     if type == "Couple" && currentTravelTypeSelection == "Single"
       $('.add_adult_fields').click()
       dependentHide(true)
     else if type == "Couple" && currentTravelTypeSelection == "Family" && adult_fields.length == 1
-      $('.dependent_fields').empty()
+      dependent_fields.remove()
       $('.add_adult_fields').click()
       dependentHide(true)
     else if type == "Couple" && currentTravelTypeSelection == "Family"
-      $('.dependent_fields').empty()
+      dependent_fields.remove()
       dependentHide(true)
     else if type == "Single" &&  currentTravelTypeSelection == "Couple"
       $('.remove_adult_fields').click()
       dependentHide(true)
+    else if type == "Single" &&  currentTravelTypeSelection == "Family" && adult_fields.length == 1
+      dependent_fields.remove()
     else if type == "Single" &&  currentTravelTypeSelection == "Family"
-      $('.dependent_fields').empty()
+      dependent_fields.remove()
       $('.remove_adult_fields').click()
+      dependentHide(true)
       dependentHide(true)
     else if type == "Family" &&  currentTravelTypeSelection == "Couple"
       $('.add_dependent_fields').click()
