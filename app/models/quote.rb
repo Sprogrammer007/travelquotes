@@ -42,10 +42,14 @@ class Quote < ActiveRecord::Base
    (rate * (self.traveled_days / 1.day)).round(2)
   end
 
+  def applied_filter_ids
+    product_filters.pluck(:id)
+  end
+
   def filter_results
     if @results.is_a?(ActiveRecord::Relation)
       @filtered_results = @results.reject do |r| 
-        has_filters?(r.product.product_filters.pluck(:id), self.product_filters.pluck(:id)) 
+        has_filters?(r.product_filters.pluck(:id), self.applied_filter_ids) 
       end
     end
 
@@ -61,13 +65,13 @@ class Quote < ActiveRecord::Base
     age = age || ages["Adult"].max
     rate_type = rate_type || self.traveler_type.downcase
     result = Version.send(rate_type)
-   
+
     if self.apply_from && beyond_30_days?
-       result = result.where(:products => {can_buy_after_30_days: true})
+       result = result.joins(:product).where(:products => {can_buy_after_30_days: true})
     end
     
     if self.has_preex
-      result = result.joins(:product).merge(Product.has_preex)
+      result = result.merge(Product.has_preex)
       result = result.joins(:age_brackets).merge(AgeBracket.include_age(age).preex)
     else
       result = result.joins(:age_brackets).merge(AgeBracket.include_age(age))
@@ -111,7 +115,7 @@ class Quote < ActiveRecord::Base
     end
 
     def beyond_30_days?
-      (Day.today - self.arrival_date) >= 30
+      (Date.today - self.arrival_date.to_datetime).to_i >= 30
     end
 
     #Before_Save

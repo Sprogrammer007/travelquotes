@@ -1,0 +1,29 @@
+<!-- Nav tabs -->
+<ul class="nav nav-tabs">
+  <li class="active">
+    <%= link_to "#{quote.traveler_type} Policies", "##{quote.traveler_type.downcase}", data: {toggle: "tab"} %>
+  </li>
+  <% if quote.traveler_type == "Couple" %>
+    <li><%= link_to "Traveler #1", "#traveler1", data: {toggle: "tab"} %></li>
+    <li><%= link_to "Traveler #2", "#traveler2", data: {toggle: "tab"} %></li>
+  <% end %>
+  <li><a href="#compare" data-toggle="tab">Compare Policies</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+   <% if quote.traveler_type == "Single" %>
+    <div class="tab-pane fade in active" id="<%= quote.traveler_type.downcase %>">
+      <%= render 'result_list', quote: quote, results: quote.results %>
+      <h2>Filter Results</h2>
+      <%= render 'result_list', quote: quote, results: quote.filtered_results, type: "filtered_results" %>
+    </div>
+  <% elsif quote.traveler_type == "Couple" %>
+    <% quote.results.each do |k, v| %>
+      <div class="tab-pane fade <% (k == "Couple") ? "in active" : "" %>" id="<%= k.downcase.gsub(" ", "").gsub("#", "") %>">
+        <%= render 'result_list', quote: quote, results: v, type: k %>
+      </div>
+    <% end %>
+  <% end %>
+  <div class="tab-pane fade" id="compare"></div>
+</div>

@@ -14,6 +14,8 @@ class Product < ActiveRecord::Base
 
   accepts_nested_attributes_for :versions
   
+  delegate :logo, to: :company
+  
   #scopes
   generate_scopes
   scope :has_preex, -> { preex_eq(true) }

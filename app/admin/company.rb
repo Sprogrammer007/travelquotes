@@ -69,6 +69,8 @@ ActiveAdmin.register Company do
 											status_tag("Not Active")
 										end
 									end
+									text_node link_to "Edit", edit_admin_product_path(p), class: "link_button right"
+									text_node link_to "View", edit_admin_product_path(p), class: "link_button right"
 					      end
 					    end
 						end

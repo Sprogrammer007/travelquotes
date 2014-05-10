@@ -66,6 +66,42 @@ ActiveAdmin.register AgeBracket do
 		end
 	end
 
+	show do |a|
+		attributes_table do
+			row "Product" do |a|
+					link_to a.product.name, admin_product_path(a.product_id)
+			end
+			row "Range" do |a|
+				"#{a.min_age} - #{a.max_age}"
+			end
+			row "Trip Duration" do |a|
+				"#{a.min_trip_duration} - #{a.max_trip_duration} (Days)"
+			end
+			row :preex do |a|
+				if a.preex
+					status_tag("Yes", :ok)
+				else
+					status_tag("No")
+				end
+			end
+		end
+
+		panel("Rates") do 
+			table_for a.rates do
+				column :rate
+				column :rate_type
+				column :sum_insured
+				column :effective_date
+				column :status do |r|
+					status_tag r.status, "#{r.status.downcase}"
+				end
+				column "" do |r|
+					text_node link_to "Edit", edit_admin_rate_path(r)
+				end
+			end	
+		end
+	end
+
 	form do |f|
 		f.inputs do
 			if params[:product_id]
@@ -92,6 +128,14 @@ ActiveAdmin.register AgeBracket do
 	end
 
 	controller do
+		def clean_params
+			params.require(:age_bracket).permit(:min_age, :max_age, :min_trip_duration, :max_trip_duration)
+		end
+
+		def clean_rate_params
+			params.require(:age_bracket).permit(:rates_attributes => [:rate, :rate_type, :sum_insured, :effective_date])
+		end
+
 		def index
 			#Hotfix for mass load
 			if params[:as] == "grid"
@@ -100,6 +144,17 @@ ActiveAdmin.register AgeBracket do
 				@per_page = 30
 			end
 			super
+		end
+
+		def update
+			Rails.logger.warn "#{clean_params}"
+			age = AgeBracket.find(params[:id])
+			age.update(clean_params)
+			params[:age_bracket][:rates_attributes].each_value do |attrs|
+				Rate.find(attrs[:id]).update(rate: attrs[:rate], rate_type: attrs[:rate_type],
+																		sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
+			end
+			redirect_to admin_age_bracket_path(age)
 		end
 	end	
 end

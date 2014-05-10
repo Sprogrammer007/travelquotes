@@ -41,6 +41,7 @@ ActiveAdmin.register Product do
 		column "Describition" do |p|
 			p.description.html_safe() if p.description
 		end
+		column "After 30 Days", :can_buy_after_30_days
 		column :preex
 		column :status
 		default_actions
@@ -113,9 +114,8 @@ ActiveAdmin.register Product do
 										end
 									end
 								end
-								row :more_details do
-									link_to "View", admin_version_path(version)
-								end
+								text_node link_to "Edit", edit_admin_version_path(version), class: "link_button right"
+								text_node link_to "View", admin_version_path(version), class: "link_button right"
 				      end
 	
 				    end

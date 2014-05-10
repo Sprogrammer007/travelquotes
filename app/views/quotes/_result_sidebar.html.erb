@@ -1,45 +1,49 @@
 <aside>
   <div class="row side_bar_widget">
     <div class="title">
-        <p>Your Quote</p>
+      <p>Your Quote</p>
     </div>
 
-      <div class="col-sm-6">
-        <p>Departure Date:</p>
-        <p>Return Date:</p>
-        <p>Trip Cost:</p>
-        <p>Traveler Age:</p>
-      </div>
-      <div class="col-sm-6">
-        <p><%= q.leave_home.strftime("%d, %m, %Y") %></p>
-        <p><%= q.return_home.strftime("%d, %m, %Y") %></p>
-        <p><%= q.trip_cost %></p>
-        <p><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(", ") %></p>
-      </div>
+    <div class="col-sm-6">
+      <p>Departure Date:</p>
+      <p>Return Date:</p>
+      <p>Trip Cost:</p>
+      <p>Traveler Age:</p>
+    </div>
+    <div class="col-sm-6">
+      <p><%= q.leave_home.strftime("%d, %m, %Y") %></p>
+      <p><%= q.return_home.strftime("%d, %m, %Y") %></p>
+      <p><%= q.trip_cost %></p>
+      <p><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(", ") %></p>
+    </div>
   </div>
 
   <div class="row side_bar_widget">
+
     <div class="title">
         <p>Your Current Filter</p>
     </div>
+
     <div class="current_filters">
-    <% if q.product_filters.any? %>
-      <ul>
-        <% q.product_filters.each do |filter| %>
-          <li>
-          <span class="filter"> <%= filter.name  %> <%= link_to "x", "#"%></span>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p>No Filters Selected</p>
-    <% end %>
+      <% if q.product_filters.any? %>
+        <ul class="list-group">
+          <% q.product_filters.each do |filter| %>
+            <li class="list-group-item list-group-item-success">
+              <%= filter.name  %> <%= link_to(raw("<span class='close'> &times;</span>"), remove_filters_quote_path(filter, quote_id: q.id), method: :post) %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p>No Filters Selected</p>
+      <% end %>
     </div>
   </div>
+
   <div class="row side_bar_widget">
     <div class="title">
         <p>Select Filter</p>
     </div>
+
     <div class="filter_selections clearfix">
       <%= form_tag url_for(:controller => 'quotes', :action => 'apply_filters') do -%>
         <%= hidden_field_tag "quote_id", q.id %>
@@ -51,7 +55,7 @@
             <% v.each do |filter| %>
               <li>
 
-              <%= check_box_tag "filters[][product_filter_id]", filter.id, nil, id: "filter_#{filter.id}" %>
+              <%= check_box_tag "filters[][product_filter_id]", filter.id, q.applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}" %>
               <%= label_tag "filter_#{filter.id}", "#{filter.name}" %>
               </li>
             <% end %>
@@ -61,6 +65,6 @@
         <%= submit_tag "Apply Filters", class: "filter_button btn-sm btn-info pull-right",  data: {:"loading-text" => "Loading..."} %>
       <% end %>
     </div>
-
   </div>
+
 </aside>

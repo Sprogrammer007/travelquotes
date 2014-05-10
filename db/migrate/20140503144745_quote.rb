@@ -3,6 +3,7 @@ class Quote < ActiveRecord::Migration
     create_table :quotes do |t|
       t.string :quote_id, index: true
       t.string :client_ip
+      t.string :quote_type
       t.datetime :leave_home
       t.datetime :return_home
       t.boolean :apply_from

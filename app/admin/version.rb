@@ -70,9 +70,9 @@ ActiveAdmin.register Version do
 
 			panel("Age Brackets", class: 'group single_show_version') do
 				ul do
-					p.age_brackets.each do |age|
+					p.age_brackets.order("min_age asc").each do |age|
 						li do
-							div class: "show_version_wrapper" do
+							div class: "show_version_wrapper group" do
 								attributes_table_for age  do
 									row :range
 									row "Trip Duration" do |a|
@@ -95,6 +95,9 @@ ActiveAdmin.register Version do
 										status_tag r.status, "#{r.status.downcase}"
 									end
 								end
+
+								text_node link_to "Edit", edit_admin_age_bracket_path(p), class: "link_button right"
+								text_node link_to "View", admin_age_bracket_path(p), class: "link_button right"
 							end
 						end
 					end

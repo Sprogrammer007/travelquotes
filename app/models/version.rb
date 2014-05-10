@@ -11,6 +11,8 @@ class Version < ActiveRecord::Base
 	accepts_nested_attributes_for :age_brackets
   accepts_nested_attributes_for :detail
 
+  delegate :product_filters, :logo, to: :product
+
   #Scopes
   generate_scopes
   scope :active, -> {status_eq(true)}

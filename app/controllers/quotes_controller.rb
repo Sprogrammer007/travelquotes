@@ -24,11 +24,18 @@ class QuotesController < ApplicationController
 	end
 
 	def apply_filters
+				Rails.logger.warn "#{@quote}"
 		if params[:filters]
 			AppliedFilter.create(permitted_filters[:filters]) do |a|
 				a.quote_id = params[:quote_id]
 			end
 		end
+		redirect_to :back
+	end
+
+	def remove_filters
+
+		AppliedFilter.where(product_filter_id: params[:id], quote_id: params[:quote_id]).delete_all
 		redirect_to :back
 	end
 

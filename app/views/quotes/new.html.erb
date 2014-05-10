@@ -46,11 +46,11 @@
 
     <div class="form-group row">
       <div class="col-sm-4"> 
-        <%= f.label :apply_from, "Do you currently reside in Canada", class: "control-label" %>
+        <%= f.label :apply_from, "Are you applying from within Canada?", class: "control-label" %>
         <div class="question_mark"><%= image_tag "question.png"  %></div>
       </div>
       <div class="col-sm-8">
-        <%= f.select(:apply_from, options_for_select(["Yes", "No"], "No"), {}, class: "form-control") %>
+        <%= f.select(:apply_from, options_for_select([["Yes", true], ["No", false]], false), {}, class: "form-control") %>
       </div>
     </div>
 

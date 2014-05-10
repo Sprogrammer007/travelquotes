@@ -29,11 +29,9 @@ ActiveAdmin.register Rate do
 	#Form
 	form do |f|
 		f.inputs do
-			f.input :age_bracket
-			f.input :sum_insured
-			f.input :preex
-			f.input :effective_date, :as => :datepicker, :input_html => { :readonly => true } 
 			f.input :rate
+			f.input :sum_insured
+			f.input :effective_date, :as => :datepicker, :input_html => { :readonly => true } 
 		end
 		f.actions
 	end

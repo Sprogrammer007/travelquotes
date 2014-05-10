@@ -2,12 +2,7 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 ready = ->
-  $(".filter_button").click (e)->
-    e.preventDefault()
-    btn = $(this)
-    btn.button "loading"
-    $.ajax().always ->
-      btn.button "reset"
+
       
   setMinDateTo = (input, inst) ->
     currentFromDate = $('#quote_leave_home').val()

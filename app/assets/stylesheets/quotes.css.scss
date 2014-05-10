@@ -332,7 +332,19 @@ aside .side_bar_widget {
   margin-bottom: 15px;
 }
 
+aside .list-group {
+  width: 90%;
+  margin: auto;
+  margin-bottom: 20px;
+}
 
+aside .list-group-item {
+  padding: 3px 15px;
+}
+
+aside .close {
+  line-height: 0.8em;
+}
 /* Result List */
 
 .result_list_wrapper ul {
