@@ -1,0 +1,75 @@
+  <div class="panel">
+    <h3>Age Bracket Details</h3>
+
+    <div class="panel_contents">
+      <div class="attributes_table" >
+        <table border="0" cellspacing="0" cellpadding="0">
+          <tbody>
+            <tr class="row">
+              <th>Product</th>
+              <td><%= @age.product.name %></td>
+            </tr>
+
+            <tr class="row">
+              <th>Versions</th>
+              <td>
+                <% @age.versions.each do |version| %>
+                  <%= "#{version.type} (#{version.detail_type})" %>
+                <% end %>
+              </td>
+            </tr>
+            <tr class="row">
+              <th>Range</th>
+              <td><%= @age.range  %></td>
+            </tr>
+            <tr class="row">
+              <th>Trip Duration</th>
+              <td>
+                <%= "#{@age.min_trip_duration} - #{@age.max_trip_duration}"   %>
+              </td>
+            </tr>
+   
+            <tr class="row">
+              <th>Pre-Existing Medical Conditions</th>
+              <td>
+                <% if @age.preex %>
+                  <span class="status_tag ok">Yes</span>
+                <% else %>
+                  <span class="status_tag">No</span>
+                <% end %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Current Rates</h3>
+    <div class="panel_contents group">
+      <%= form_tag url_for(:controller => 'admin/rates', :action => 'create_future') do %>
+        <%= render("admins/rate_table", rates: @age.rates.current) %>
+      <%= submit_tag "Add", class: "right" %>
+      <% end %>
+    </div>
+  </div>
+
+<div class="rates_panel">
+
+  <div class="panel small">
+    <h3>Future Rates</h3>
+    <div class="panel_contents">
+      <%= render("admins/rate_table", rates: @age.rates.future) %>
+    </div>
+  </div>
+
+  <div class="panel small">
+    <h3>Past Rates</h3>
+
+    <div class="panel_contents">
+      <%= render("admins/rate_table", rates: @age.rates.outdated) %>
+    </div>
+
+  </div>
+</div>
