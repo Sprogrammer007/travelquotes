@@ -143,17 +143,17 @@ ready = ->
 
   #Helper for new legal text category selection, works just like the
   #Age Bracket Filter helper
-  legal_text_sub_cat = $('#legal_text_policy_sub_category').html()
+  legal_text_sub_cat = $('#legal_text_legal_text_category_id').html()
 
-  $('#legal_text_policy_category').change ->
+  $('#legal_text_parent_category').change ->
     category_select = $(this).find(':selected').text()
     escaped = category_select.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1')
     options = $(legal_text_sub_cat).filter("optgroup[label='#{escaped}']").html()
 
     if options
-      $('#legal_text_policy_sub_category').html(options)
+      $('#legal_text_legal_text_category_id').html(options)
     else
-      $('#legal_text_policy_sub_category').html(legal_text_sub_cat)  
+      $('#legal_text_legal_text_category_id').html(legal_text_sub_cat)  
 
 $(document).ready(ready)
 $(document).on('page:load', ready)

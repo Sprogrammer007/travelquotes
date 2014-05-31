@@ -50,7 +50,9 @@ ActiveAdmin.register LegalText do
       else 
         f.input :product
       end
-      f.input :policy_type, :as => :select, :collection => ["Visitor Visa", "Student Visa"]
+      f.input :parent_category, :as => :select, :collection => options_for_select(LegalTextParentCategory.all.pluck(:name))
+      f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections)
+      f.input :policy_type, :as => :select, :collection => ["Visitor Visa", "Student Visa", "Both"]
       f.input :description, :as => :ckeditor
       f.input :effective_date, :as => :datepicker
       f.input :status, :as => :select, :collection => [["Active", true], ["No Active", false]]

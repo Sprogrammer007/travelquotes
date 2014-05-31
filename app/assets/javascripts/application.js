@@ -13,7 +13,7 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
-//= require bootstrap.min
+//= require bootstrap
 //= require quotes
 //= require jquery.ui.datepicker
 //=  require ckeditor/override

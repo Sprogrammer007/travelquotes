@@ -17,7 +17,8 @@ gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'ckeditor'
 gem 'devise'
-gem 
+gem 'bootstrap-sass', '~> 3.1.1'
+
 group :development do
   gem 'faker', '1.2.0'
   gem 'rspec-rails', '2.14.0'
