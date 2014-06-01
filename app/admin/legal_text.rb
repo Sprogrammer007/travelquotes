@@ -7,6 +7,9 @@ ActiveAdmin.register LegalText do
   index do
     selectable_column
     column :policy_type
+    column "Category" do |l|
+      l.legal_text_category.name() if l.legal_text_category()
+    end
     column :description do |l|
       l.description.html_safe() if l.description
     end
@@ -21,9 +24,19 @@ ActiveAdmin.register LegalText do
     actions defaults: true, dropdown: true
   end
 
+  action_item do
+    link_to("Sort Categories",  sort_admin_legal_text_categories_path()) 
+  end
+  
   show do |l|
     attributes_table do
       row :product
+      row "parent" do |l|
+        l.legal_text_category.legal_text_parent_category.name() if l.legal_text_category()
+      end
+      row "Category" do |l|
+        l.legal_text_category.name() if l.legal_text_category()
+      end
       row :policy_type
       row :description do |l|
         l.description.html_safe() if l.description

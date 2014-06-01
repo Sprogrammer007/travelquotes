@@ -155,6 +155,62 @@ ready = ->
     else
       $('#legal_text_legal_text_category_id').html(legal_text_sub_cat)  
 
+  #Sorter helpers
+
+  catEnter = (e)->
+    e.stopPropagation
+    overlay = " <div id='overlay'><h4>This Category Cannot Be Moved!</h4> </div>"
+    if $(this).siblings().length == 0
+      $(this).find('.sort_content').append(overlay)
+
+  catLeave = (e)->
+    e.stopPropagation
+    $(this).find('#overlay').remove()
+      
+  $('.category_sort').find('li').hover(catEnter, catLeave)
+  
+  $('.category_sort').find('li').click (e) ->
+    e.stopPropagation()
+    current_active = $('.active')
+    buttons = current_active.find('.sort_buttons')
+    if this != current_active.get(0)
+      if $(this).siblings().length != 0 
+        current_active.removeClass('active')
+        $(this).addClass('active')
+        $(this).children('.place_holder').append(buttons)
+
+  moveDown = (current, next, order)->
+    next.find('.order').attr('value', order)
+    next.attr("data-order", order)
+    order++
+    current.find('.order').attr('value', order)
+    current.attr("data-order", order)
+    next.insertBefore(current)
+
+  moveUp = (current, prev, order)->
+    prev.find('.order').attr('value', order)
+    prev.attr("data-order", order)
+    order--
+    current.find('.order').attr('value', order)
+    current.attr("data-order", order)
+    prev.insertAfter(current)
+
+  $('.sort_buttons button').click (e)->
+    e.preventDefault() 
+    parent = $(this).closest('li')
+    content = $(this).parent().next('.sort_content')
+    prev_category = parent.prev('li')
+    next_category = parent.next('li')
+    current_order = parseInt(parent.attr('data-order'))
+    if $(this).is('.sort_up') && parent.is(':first-child')
+      alert "You cannot move this category up anymore!"
+    else if $(this).is('.sort_down') && parent.is(':last-child')
+      alert "You cannot move this category down anymore!"
+    else if $(this).is('.sort_down')
+      moveDown(parent, next_category, current_order)
+    else
+      moveUp(parent, prev_category, current_order)
+
 $(document).ready(ready)
 $(document).on('page:load', ready)
 

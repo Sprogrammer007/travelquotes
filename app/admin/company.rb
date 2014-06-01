@@ -30,7 +30,8 @@ ActiveAdmin.register Company do
 			end
 		end
 		actions defaults: true, dropdown: true do |c|
-			item  "Add Policy", new_admin_product_path(id: c.id)
+			item  "Add Visitor Policy", new_admin_product_path(id: c.id)
+			item  "Add Student Policy", "#"
 			item  "Add Regions", add_admin_region_path(id: c.id)
 		end
 	end

@@ -3,7 +3,7 @@ ActiveAdmin.register Deductible do
 	include_import
 	preserve_default_filters!
 
-	menu :parent => "Companies"
+	menu :parent => "Products"
 
   permit_params :product_id, :amount, :mutiplier, :condition, :age
   

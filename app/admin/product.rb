@@ -1,7 +1,7 @@
 ActiveAdmin.register Product do
 	config.sort_order = "id_asc"
 	
-	menu :priority => 2
+	menu :priority => 2, :label => "Visitor Policy"
 
 	include_import
 
@@ -26,7 +26,7 @@ ActiveAdmin.register Product do
 	remove_filter :purchase_url
 
 	#Index Table
-	index do
+	index :title => "Visitor Policies" do
 		selectable_column
 		column :name, :sortable => :name do |resource|
 			editable_text_column resource, :name

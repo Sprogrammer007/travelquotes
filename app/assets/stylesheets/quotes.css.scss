@@ -3,6 +3,7 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 
+@import "bootstrap";
 /* universal */
 
 html {
@@ -563,9 +564,8 @@ h5.collapsed.arrow-black::before {
 /* Modal */
 .modal-body .row {
   border-bottom: 1px solid #E9E9E9; 
-  margin: 0 -20px;
+  margin: 0 -15px;
 }
-
 .modal-body .odd {
   background-color: #eee;
 }
@@ -598,10 +598,10 @@ h5.collapsed.arrow-black::before {
   cursor: pointer;
   color:#F33823;
 }
+
 .deductible-body {
   padding: 10px 20px 30px;
 }
-
 
 /* Other */
 .btn:focus {

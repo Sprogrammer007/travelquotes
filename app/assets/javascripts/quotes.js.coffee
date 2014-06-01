@@ -58,15 +58,15 @@ ready = ->
       current_mutiplier = 1
     rate_field.find('p').text("$#{calc_rate(baserate, current_mutiplier)}")
 
-
   # Compare
   checked_product = [] 
 
   $('a[data-toggle="tab"]').on 'shown.bs.tab',  (e)->
     id = $(e.relatedTarget ).attr('href')
-    $('#compare_tab').attr('data-toggle', '')
-    $('#compare_tab').parent('li').addClass('disabled')
-    $(id).find("input[type='checkbox']").each (i, e)->
+    if id != "#compare"
+      $('#compare_tab').attr('data-toggle', '')
+      $('#compare_tab').parent('li').addClass('disabled')
+      $(id).find("input[type='checkbox']").each (i, e)->
         if $(e).is(':checked')
           $(e).prop("checked", false);
           

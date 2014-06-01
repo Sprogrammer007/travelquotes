@@ -8,8 +8,7 @@ class LegalTextCategory < ActiveRecord::Base
     h = Hash.new 
     LegalTextParentCategory.all.map do |text| 
       if text.legal_text_categories
-        h[text.name] =  text.legal_text_categories.map { |l| [l.name , l.id]}
-      
+        h[text.name] =  text.legal_text_categories.map { |l| [l.name , l.id] }
       end
     end
     h

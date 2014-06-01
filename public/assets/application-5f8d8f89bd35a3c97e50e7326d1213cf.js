@@ -10336,6 +10336,3299 @@ if ( typeof noGlobal === strundefined ) {
 return jQuery;
 
 }));
+(function($, undefined) {
+
+/**
+ * Unobtrusive scripting adapter for jQuery
+ * https://github.com/rails/jquery-ujs
+ *
+ * Requires jQuery 1.7.0 or later.
+ *
+ * Released under the MIT license
+ *
+ */
+
+  // Cut down on the number of issues from people inadvertently including jquery_ujs twice
+  // by detecting and raising an error when it happens.
+  if ( $.rails !== undefined ) {
+    $.error('jquery-ujs has already been loaded!');
+  }
+
+  // Shorthand to make it a little easier to call public rails functions from within rails.js
+  var rails;
+  var $document = $(document);
+
+  $.rails = rails = {
+    // Link elements bound by jquery-ujs
+    linkClickSelector: 'a[data-confirm], a[data-method], a[data-remote], a[data-disable-with]',
+
+    // Button elements bound by jquery-ujs
+    buttonClickSelector: 'button[data-remote]',
+
+    // Select elements bound by jquery-ujs
+    inputChangeSelector: 'select[data-remote], input[data-remote], textarea[data-remote]',
+
+    // Form elements bound by jquery-ujs
+    formSubmitSelector: 'form',
+
+    // Form input elements bound by jquery-ujs
+    formInputClickSelector: 'form input[type=submit], form input[type=image], form button[type=submit], form button:not([type])',
+
+    // Form input elements disabled during form submission
+    disableSelector: 'input[data-disable-with], button[data-disable-with], textarea[data-disable-with]',
+
+    // Form input elements re-enabled after form submission
+    enableSelector: 'input[data-disable-with]:disabled, button[data-disable-with]:disabled, textarea[data-disable-with]:disabled',
+
+    // Form required input elements
+    requiredInputSelector: 'input[name][required]:not([disabled]),textarea[name][required]:not([disabled])',
+
+    // Form file input elements
+    fileInputSelector: 'input[type=file]',
+
+    // Link onClick disable selector with possible reenable after remote submission
+    linkDisableSelector: 'a[data-disable-with]',
+
+    // Make sure that every Ajax request sends the CSRF token
+    CSRFProtection: function(xhr) {
+      var token = $('meta[name="csrf-token"]').attr('content');
+      if (token) xhr.setRequestHeader('X-CSRF-Token', token);
+    },
+
+    // making sure that all forms have actual up-to-date token(cached forms contain old one)
+    refreshCSRFTokens: function(){
+      var csrfToken = $('meta[name=csrf-token]').attr('content');
+      var csrfParam = $('meta[name=csrf-param]').attr('content');
+      $('form input[name="' + csrfParam + '"]').val(csrfToken);
+    },
+
+    // Triggers an event on an element and returns false if the event result is false
+    fire: function(obj, name, data) {
+      var event = $.Event(name);
+      obj.trigger(event, data);
+      return event.result !== false;
+    },
+
+    // Default confirm dialog, may be overridden with custom confirm dialog in $.rails.confirm
+    confirm: function(message) {
+      return confirm(message);
+    },
+
+    // Default ajax function, may be overridden with custom function in $.rails.ajax
+    ajax: function(options) {
+      return $.ajax(options);
+    },
+
+    // Default way to get an element's href. May be overridden at $.rails.href.
+    href: function(element) {
+      return element.attr('href');
+    },
+
+    // Submits "remote" forms and links with ajax
+    handleRemote: function(element) {
+      var method, url, data, elCrossDomain, crossDomain, withCredentials, dataType, options;
+
+      if (rails.fire(element, 'ajax:before')) {
+        elCrossDomain = element.data('cross-domain');
+        crossDomain = elCrossDomain === undefined ? null : elCrossDomain;
+        withCredentials = element.data('with-credentials') || null;
+        dataType = element.data('type') || ($.ajaxSettings && $.ajaxSettings.dataType);
+
+        if (element.is('form')) {
+          method = element.attr('method');
+          url = element.attr('action');
+          data = element.serializeArray();
+          // memoized value from clicked submit button
+          var button = element.data('ujs:submit-button');
+          if (button) {
+            data.push(button);
+            element.data('ujs:submit-button', null);
+          }
+        } else if (element.is(rails.inputChangeSelector)) {
+          method = element.data('method');
+          url = element.data('url');
+          data = element.serialize();
+          if (element.data('params')) data = data + "&" + element.data('params');
+        } else if (element.is(rails.buttonClickSelector)) {
+          method = element.data('method') || 'get';
+          url = element.data('url');
+          data = element.serialize();
+          if (element.data('params')) data = data + "&" + element.data('params');
+        } else {
+          method = element.data('method');
+          url = rails.href(element);
+          data = element.data('params') || null;
+        }
+
+        options = {
+          type: method || 'GET', data: data, dataType: dataType,
+          // stopping the "ajax:beforeSend" event will cancel the ajax request
+          beforeSend: function(xhr, settings) {
+            if (settings.dataType === undefined) {
+              xhr.setRequestHeader('accept', '*/*;q=0.5, ' + settings.accepts.script);
+            }
+            return rails.fire(element, 'ajax:beforeSend', [xhr, settings]);
+          },
+          success: function(data, status, xhr) {
+            element.trigger('ajax:success', [data, status, xhr]);
+          },
+          complete: function(xhr, status) {
+            element.trigger('ajax:complete', [xhr, status]);
+          },
+          error: function(xhr, status, error) {
+            element.trigger('ajax:error', [xhr, status, error]);
+          },
+          crossDomain: crossDomain
+        };
+
+        // There is no withCredentials for IE6-8 when
+        // "Enable native XMLHTTP support" is disabled
+        if (withCredentials) {
+          options.xhrFields = {
+            withCredentials: withCredentials
+          };
+        }
+
+        // Only pass url to `ajax` options if not blank
+        if (url) { options.url = url; }
+
+        var jqxhr = rails.ajax(options);
+        element.trigger('ajax:send', jqxhr);
+        return jqxhr;
+      } else {
+        return false;
+      }
+    },
+
+    // Handles "data-method" on links such as:
+    // <a href="/users/5" data-method="delete" rel="nofollow" data-confirm="Are you sure?">Delete</a>
+    handleMethod: function(link) {
+      var href = rails.href(link),
+        method = link.data('method'),
+        target = link.attr('target'),
+        csrfToken = $('meta[name=csrf-token]').attr('content'),
+        csrfParam = $('meta[name=csrf-param]').attr('content'),
+        form = $('<form method="post" action="' + href + '"></form>'),
+        metadataInput = '<input name="_method" value="' + method + '" type="hidden" />';
+
+      if (csrfParam !== undefined && csrfToken !== undefined) {
+        metadataInput += '<input name="' + csrfParam + '" value="' + csrfToken + '" type="hidden" />';
+      }
+
+      if (target) { form.attr('target', target); }
+
+      form.hide().append(metadataInput).appendTo('body');
+      form.submit();
+    },
+
+    /* Disables form elements:
+      - Caches element value in 'ujs:enable-with' data store
+      - Replaces element text with value of 'data-disable-with' attribute
+      - Sets disabled property to true
+    */
+    disableFormElements: function(form) {
+      form.find(rails.disableSelector).each(function() {
+        var element = $(this), method = element.is('button') ? 'html' : 'val';
+        element.data('ujs:enable-with', element[method]());
+        element[method](element.data('disable-with'));
+        element.prop('disabled', true);
+      });
+    },
+
+    /* Re-enables disabled form elements:
+      - Replaces element text with cached value from 'ujs:enable-with' data store (created in `disableFormElements`)
+      - Sets disabled property to false
+    */
+    enableFormElements: function(form) {
+      form.find(rails.enableSelector).each(function() {
+        var element = $(this), method = element.is('button') ? 'html' : 'val';
+        if (element.data('ujs:enable-with')) element[method](element.data('ujs:enable-with'));
+        element.prop('disabled', false);
+      });
+    },
+
+   /* For 'data-confirm' attribute:
+      - Fires `confirm` event
+      - Shows the confirmation dialog
+      - Fires the `confirm:complete` event
+
+      Returns `true` if no function stops the chain and user chose yes; `false` otherwise.
+      Attaching a handler to the element's `confirm` event that returns a `falsy` value cancels the confirmation dialog.
+      Attaching a handler to the element's `confirm:complete` event that returns a `falsy` value makes this function
+      return false. The `confirm:complete` event is fired whether or not the user answered true or false to the dialog.
+   */
+    allowAction: function(element) {
+      var message = element.data('confirm'),
+          answer = false, callback;
+      if (!message) { return true; }
+
+      if (rails.fire(element, 'confirm')) {
+        answer = rails.confirm(message);
+        callback = rails.fire(element, 'confirm:complete', [answer]);
+      }
+      return answer && callback;
+    },
+
+    // Helper function which checks for blank inputs in a form that match the specified CSS selector
+    blankInputs: function(form, specifiedSelector, nonBlank) {
+      var inputs = $(), input, valueToCheck,
+          selector = specifiedSelector || 'input,textarea',
+          allInputs = form.find(selector);
+
+      allInputs.each(function() {
+        input = $(this);
+        valueToCheck = input.is('input[type=checkbox],input[type=radio]') ? input.is(':checked') : input.val();
+        // If nonBlank and valueToCheck are both truthy, or nonBlank and valueToCheck are both falsey
+        if (!valueToCheck === !nonBlank) {
+
+          // Don't count unchecked required radio if other radio with same name is checked
+          if (input.is('input[type=radio]') && allInputs.filter('input[type=radio]:checked[name="' + input.attr('name') + '"]').length) {
+            return true; // Skip to next input
+          }
+
+          inputs = inputs.add(input);
+        }
+      });
+      return inputs.length ? inputs : false;
+    },
+
+    // Helper function which checks for non-blank inputs in a form that match the specified CSS selector
+    nonBlankInputs: function(form, specifiedSelector) {
+      return rails.blankInputs(form, specifiedSelector, true); // true specifies nonBlank
+    },
+
+    // Helper function, needed to provide consistent behavior in IE
+    stopEverything: function(e) {
+      $(e.target).trigger('ujs:everythingStopped');
+      e.stopImmediatePropagation();
+      return false;
+    },
+
+    //  replace element's html with the 'data-disable-with' after storing original html
+    //  and prevent clicking on it
+    disableElement: function(element) {
+      element.data('ujs:enable-with', element.html()); // store enabled state
+      element.html(element.data('disable-with')); // set to disabled state
+      element.bind('click.railsDisable', function(e) { // prevent further clicking
+        return rails.stopEverything(e);
+      });
+    },
+
+    // restore element to its original state which was disabled by 'disableElement' above
+    enableElement: function(element) {
+      if (element.data('ujs:enable-with') !== undefined) {
+        element.html(element.data('ujs:enable-with')); // set to old enabled state
+        element.removeData('ujs:enable-with'); // clean up cache
+      }
+      element.unbind('click.railsDisable'); // enable element
+    }
+
+  };
+
+  if (rails.fire($document, 'rails:attachBindings')) {
+
+    $.ajaxPrefilter(function(options, originalOptions, xhr){ if ( !options.crossDomain ) { rails.CSRFProtection(xhr); }});
+
+    $document.delegate(rails.linkDisableSelector, 'ajax:complete', function() {
+        rails.enableElement($(this));
+    });
+
+    $document.delegate(rails.linkClickSelector, 'click.rails', function(e) {
+      var link = $(this), method = link.data('method'), data = link.data('params'), metaClick = e.metaKey || e.ctrlKey;
+      if (!rails.allowAction(link)) return rails.stopEverything(e);
+
+      if (!metaClick && link.is(rails.linkDisableSelector)) rails.disableElement(link);
+
+      if (link.data('remote') !== undefined) {
+        if (metaClick && (!method || method === 'GET') && !data) { return true; }
+
+        var handleRemote = rails.handleRemote(link);
+        // response from rails.handleRemote() will either be false or a deferred object promise.
+        if (handleRemote === false) {
+          rails.enableElement(link);
+        } else {
+          handleRemote.error( function() { rails.enableElement(link); } );
+        }
+        return false;
+
+      } else if (link.data('method')) {
+        rails.handleMethod(link);
+        return false;
+      }
+    });
+
+    $document.delegate(rails.buttonClickSelector, 'click.rails', function(e) {
+      var button = $(this);
+      if (!rails.allowAction(button)) return rails.stopEverything(e);
+
+      rails.handleRemote(button);
+      return false;
+    });
+
+    $document.delegate(rails.inputChangeSelector, 'change.rails', function(e) {
+      var link = $(this);
+      if (!rails.allowAction(link)) return rails.stopEverything(e);
+
+      rails.handleRemote(link);
+      return false;
+    });
+
+    $document.delegate(rails.formSubmitSelector, 'submit.rails', function(e) {
+      var form = $(this),
+        remote = form.data('remote') !== undefined,
+        blankRequiredInputs = rails.blankInputs(form, rails.requiredInputSelector),
+        nonBlankFileInputs = rails.nonBlankInputs(form, rails.fileInputSelector);
+
+      if (!rails.allowAction(form)) return rails.stopEverything(e);
+
+      // skip other logic when required values are missing or file upload is present
+      if (blankRequiredInputs && form.attr("novalidate") == undefined && rails.fire(form, 'ajax:aborted:required', [blankRequiredInputs])) {
+        return rails.stopEverything(e);
+      }
+
+      if (remote) {
+        if (nonBlankFileInputs) {
+          // slight timeout so that the submit button gets properly serialized
+          // (make it easy for event handler to serialize form without disabled values)
+          setTimeout(function(){ rails.disableFormElements(form); }, 13);
+          var aborted = rails.fire(form, 'ajax:aborted:file', [nonBlankFileInputs]);
+
+          // re-enable form elements if event bindings return false (canceling normal form submission)
+          if (!aborted) { setTimeout(function(){ rails.enableFormElements(form); }, 13); }
+
+          return aborted;
+        }
+
+        rails.handleRemote(form);
+        return false;
+
+      } else {
+        // slight timeout so that the submit button gets properly serialized
+        setTimeout(function(){ rails.disableFormElements(form); }, 13);
+      }
+    });
+
+    $document.delegate(rails.formInputClickSelector, 'click.rails', function(event) {
+      var button = $(this);
+
+      if (!rails.allowAction(button)) return rails.stopEverything(event);
+
+      // register the pressed submit button
+      var name = button.attr('name'),
+        data = name ? {name:name, value:button.val()} : null;
+
+      button.closest('form').data('ujs:submit-button', data);
+    });
+
+    $document.delegate(rails.formSubmitSelector, 'ajax:beforeSend.rails', function(event) {
+      if (this == event.target) rails.disableFormElements($(this));
+    });
+
+    $document.delegate(rails.formSubmitSelector, 'ajax:complete.rails', function(event) {
+      if (this == event.target) rails.enableFormElements($(this));
+    });
+
+    $(function(){
+      rails.refreshCSRFTokens();
+    });
+  }
+
+})( jQuery );
+(function() {
+  var CSRFToken, Click, ComponentUrl, Link, browserCompatibleDocumentParser, browserIsntBuggy, browserSupportsCustomEvents, browserSupportsPushState, browserSupportsTurbolinks, bypassOnLoadPopstate, cacheCurrentPage, cacheSize, changePage, constrainPageCacheTo, createDocument, currentState, enableTransitionCache, executeScriptTags, extractTitleAndBody, fetch, fetchHistory, fetchReplacement, historyStateIsDefined, initializeTurbolinks, installDocumentReadyPageEventTriggers, installHistoryChangeHandler, installJqueryAjaxSuccessPageUpdateTrigger, loadedAssets, pageCache, pageChangePrevented, pagesCached, popCookie, processResponse, recallScrollPosition, referer, reflectNewUrl, reflectRedirectedUrl, rememberCurrentState, rememberCurrentUrl, rememberReferer, removeNoscriptTags, requestMethodIsSafe, resetScrollPosition, transitionCacheEnabled, transitionCacheFor, triggerEvent, visit, xhr, _ref,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __slice = [].slice;
+
+  pageCache = {};
+
+  cacheSize = 10;
+
+  transitionCacheEnabled = false;
+
+  currentState = null;
+
+  loadedAssets = null;
+
+  referer = null;
+
+  createDocument = null;
+
+  xhr = null;
+
+  fetch = function(url) {
+    var cachedPage;
+    url = new ComponentUrl(url);
+    rememberReferer();
+    cacheCurrentPage();
+    reflectNewUrl(url);
+    if (transitionCacheEnabled && (cachedPage = transitionCacheFor(url.absolute))) {
+      fetchHistory(cachedPage);
+      return fetchReplacement(url);
+    } else {
+      return fetchReplacement(url, resetScrollPosition);
+    }
+  };
+
+  transitionCacheFor = function(url) {
+    var cachedPage;
+    cachedPage = pageCache[url];
+    if (cachedPage && !cachedPage.transitionCacheDisabled) {
+      return cachedPage;
+    }
+  };
+
+  enableTransitionCache = function(enable) {
+    if (enable == null) {
+      enable = true;
+    }
+    return transitionCacheEnabled = enable;
+  };
+
+  fetchReplacement = function(url, onLoadFunction) {
+    if (onLoadFunction == null) {
+      onLoadFunction = (function(_this) {
+        return function() {};
+      })(this);
+    }
+    triggerEvent('page:fetch', {
+      url: url.absolute
+    });
+    if (xhr != null) {
+      xhr.abort();
+    }
+    xhr = new XMLHttpRequest;
+    xhr.open('GET', url.withoutHashForIE10compatibility(), true);
+    xhr.setRequestHeader('Accept', 'text/html, application/xhtml+xml, application/xml');
+    xhr.setRequestHeader('X-XHR-Referer', referer);
+    xhr.onload = function() {
+      var doc;
+      triggerEvent('page:receive');
+      if (doc = processResponse()) {
+        changePage.apply(null, extractTitleAndBody(doc));
+        reflectRedirectedUrl();
+        onLoadFunction();
+        return triggerEvent('page:load');
+      } else {
+        return document.location.href = url.absolute;
+      }
+    };
+    xhr.onloadend = function() {
+      return xhr = null;
+    };
+    xhr.onerror = function() {
+      return document.location.href = url.absolute;
+    };
+    return xhr.send();
+  };
+
+  fetchHistory = function(cachedPage) {
+    if (xhr != null) {
+      xhr.abort();
+    }
+    changePage(cachedPage.title, cachedPage.body);
+    recallScrollPosition(cachedPage);
+    return triggerEvent('page:restore');
+  };
+
+  cacheCurrentPage = function() {
+    var currentStateUrl;
+    currentStateUrl = new ComponentUrl(currentState.url);
+    pageCache[currentStateUrl.absolute] = {
+      url: currentStateUrl.relative,
+      body: document.body,
+      title: document.title,
+      positionY: window.pageYOffset,
+      positionX: window.pageXOffset,
+      cachedAt: new Date().getTime(),
+      transitionCacheDisabled: document.querySelector('[data-no-transition-cache]') != null
+    };
+    return constrainPageCacheTo(cacheSize);
+  };
+
+  pagesCached = function(size) {
+    if (size == null) {
+      size = cacheSize;
+    }
+    if (/^[\d]+$/.test(size)) {
+      return cacheSize = parseInt(size);
+    }
+  };
+
+  constrainPageCacheTo = function(limit) {
+    var cacheTimesRecentFirst, key, pageCacheKeys, _i, _len, _results;
+    pageCacheKeys = Object.keys(pageCache);
+    cacheTimesRecentFirst = pageCacheKeys.map(function(url) {
+      return pageCache[url].cachedAt;
+    }).sort(function(a, b) {
+      return b - a;
+    });
+    _results = [];
+    for (_i = 0, _len = pageCacheKeys.length; _i < _len; _i++) {
+      key = pageCacheKeys[_i];
+      if (!(pageCache[key].cachedAt <= cacheTimesRecentFirst[limit])) {
+        continue;
+      }
+      triggerEvent('page:expire', pageCache[key]);
+      _results.push(delete pageCache[key]);
+    }
+    return _results;
+  };
+
+  changePage = function(title, body, csrfToken, runScripts) {
+    document.title = title;
+    document.documentElement.replaceChild(body, document.body);
+    if (csrfToken != null) {
+      CSRFToken.update(csrfToken);
+    }
+    if (runScripts) {
+      executeScriptTags();
+    }
+    currentState = window.history.state;
+    triggerEvent('page:change');
+    return triggerEvent('page:update');
+  };
+
+  executeScriptTags = function() {
+    var attr, copy, nextSibling, parentNode, script, scripts, _i, _j, _len, _len1, _ref, _ref1;
+    scripts = Array.prototype.slice.call(document.body.querySelectorAll('script:not([data-turbolinks-eval="false"])'));
+    for (_i = 0, _len = scripts.length; _i < _len; _i++) {
+      script = scripts[_i];
+      if (!((_ref = script.type) === '' || _ref === 'text/javascript')) {
+        continue;
+      }
+      copy = document.createElement('script');
+      _ref1 = script.attributes;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        attr = _ref1[_j];
+        copy.setAttribute(attr.name, attr.value);
+      }
+      copy.appendChild(document.createTextNode(script.innerHTML));
+      parentNode = script.parentNode, nextSibling = script.nextSibling;
+      parentNode.removeChild(script);
+      parentNode.insertBefore(copy, nextSibling);
+    }
+  };
+
+  removeNoscriptTags = function(node) {
+    node.innerHTML = node.innerHTML.replace(/<noscript[\S\s]*?<\/noscript>/ig, '');
+    return node;
+  };
+
+  reflectNewUrl = function(url) {
+    if ((url = new ComponentUrl(url)).absolute !== referer) {
+      return window.history.pushState({
+        turbolinks: true,
+        url: url.absolute
+      }, '', url.absolute);
+    }
+  };
+
+  reflectRedirectedUrl = function() {
+    var location, preservedHash;
+    if (location = xhr.getResponseHeader('X-XHR-Redirected-To')) {
+      location = new ComponentUrl(location);
+      preservedHash = location.hasNoHash() ? document.location.hash : '';
+      return window.history.replaceState(currentState, '', location.href + preservedHash);
+    }
+  };
+
+  rememberReferer = function() {
+    return referer = document.location.href;
+  };
+
+  rememberCurrentUrl = function() {
+    return window.history.replaceState({
+      turbolinks: true,
+      url: document.location.href
+    }, '', document.location.href);
+  };
+
+  rememberCurrentState = function() {
+    return currentState = window.history.state;
+  };
+
+  recallScrollPosition = function(page) {
+    return window.scrollTo(page.positionX, page.positionY);
+  };
+
+  resetScrollPosition = function() {
+    if (document.location.hash) {
+      return document.location.href = document.location.href;
+    } else {
+      return window.scrollTo(0, 0);
+    }
+  };
+
+  popCookie = function(name) {
+    var value, _ref;
+    value = ((_ref = document.cookie.match(new RegExp(name + "=(\\w+)"))) != null ? _ref[1].toUpperCase() : void 0) || '';
+    document.cookie = name + '=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/';
+    return value;
+  };
+
+  triggerEvent = function(name, data) {
+    var event;
+    event = document.createEvent('Events');
+    if (data) {
+      event.data = data;
+    }
+    event.initEvent(name, true, true);
+    return document.dispatchEvent(event);
+  };
+
+  pageChangePrevented = function() {
+    return !triggerEvent('page:before-change');
+  };
+
+  processResponse = function() {
+    var assetsChanged, clientOrServerError, doc, extractTrackAssets, intersection, validContent;
+    clientOrServerError = function() {
+      var _ref;
+      return (400 <= (_ref = xhr.status) && _ref < 600);
+    };
+    validContent = function() {
+      return xhr.getResponseHeader('Content-Type').match(/^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/);
+    };
+    extractTrackAssets = function(doc) {
+      var node, _i, _len, _ref, _results;
+      _ref = doc.head.childNodes;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        node = _ref[_i];
+        if ((typeof node.getAttribute === "function" ? node.getAttribute('data-turbolinks-track') : void 0) != null) {
+          _results.push(node.getAttribute('src') || node.getAttribute('href'));
+        }
+      }
+      return _results;
+    };
+    assetsChanged = function(doc) {
+      var fetchedAssets;
+      loadedAssets || (loadedAssets = extractTrackAssets(document));
+      fetchedAssets = extractTrackAssets(doc);
+      return fetchedAssets.length !== loadedAssets.length || intersection(fetchedAssets, loadedAssets).length !== loadedAssets.length;
+    };
+    intersection = function(a, b) {
+      var value, _i, _len, _ref, _results;
+      if (a.length > b.length) {
+        _ref = [b, a], a = _ref[0], b = _ref[1];
+      }
+      _results = [];
+      for (_i = 0, _len = a.length; _i < _len; _i++) {
+        value = a[_i];
+        if (__indexOf.call(b, value) >= 0) {
+          _results.push(value);
+        }
+      }
+      return _results;
+    };
+    if (!clientOrServerError() && validContent()) {
+      doc = createDocument(xhr.responseText);
+      if (doc && !assetsChanged(doc)) {
+        return doc;
+      }
+    }
+  };
+
+  extractTitleAndBody = function(doc) {
+    var title;
+    title = doc.querySelector('title');
+    return [title != null ? title.textContent : void 0, removeNoscriptTags(doc.body), CSRFToken.get(doc).token, 'runScripts'];
+  };
+
+  CSRFToken = {
+    get: function(doc) {
+      var tag;
+      if (doc == null) {
+        doc = document;
+      }
+      return {
+        node: tag = doc.querySelector('meta[name="csrf-token"]'),
+        token: tag != null ? typeof tag.getAttribute === "function" ? tag.getAttribute('content') : void 0 : void 0
+      };
+    },
+    update: function(latest) {
+      var current;
+      current = this.get();
+      if ((current.token != null) && (latest != null) && current.token !== latest) {
+        return current.node.setAttribute('content', latest);
+      }
+    }
+  };
+
+  browserCompatibleDocumentParser = function() {
+    var createDocumentUsingDOM, createDocumentUsingParser, createDocumentUsingWrite, e, testDoc, _ref;
+    createDocumentUsingParser = function(html) {
+      return (new DOMParser).parseFromString(html, 'text/html');
+    };
+    createDocumentUsingDOM = function(html) {
+      var doc;
+      doc = document.implementation.createHTMLDocument('');
+      doc.documentElement.innerHTML = html;
+      return doc;
+    };
+    createDocumentUsingWrite = function(html) {
+      var doc;
+      doc = document.implementation.createHTMLDocument('');
+      doc.open('replace');
+      doc.write(html);
+      doc.close();
+      return doc;
+    };
+    try {
+      if (window.DOMParser) {
+        testDoc = createDocumentUsingParser('<html><body><p>test');
+        return createDocumentUsingParser;
+      }
+    } catch (_error) {
+      e = _error;
+      testDoc = createDocumentUsingDOM('<html><body><p>test');
+      return createDocumentUsingDOM;
+    } finally {
+      if ((testDoc != null ? (_ref = testDoc.body) != null ? _ref.childNodes.length : void 0 : void 0) !== 1) {
+        return createDocumentUsingWrite;
+      }
+    }
+  };
+
+  ComponentUrl = (function() {
+    function ComponentUrl(original) {
+      this.original = original != null ? original : document.location.href;
+      if (this.original.constructor === ComponentUrl) {
+        return this.original;
+      }
+      this._parse();
+    }
+
+    ComponentUrl.prototype.withoutHash = function() {
+      return this.href.replace(this.hash, '');
+    };
+
+    ComponentUrl.prototype.withoutHashForIE10compatibility = function() {
+      return this.withoutHash();
+    };
+
+    ComponentUrl.prototype.hasNoHash = function() {
+      return this.hash.length === 0;
+    };
+
+    ComponentUrl.prototype._parse = function() {
+      var _ref, _ref1;
+      ((_ref = this.link) != null ? _ref : this.link = document.createElement('a')).href = this.original;
+      _ref1 = this.link, this.href = _ref1.href, this.protocol = _ref1.protocol, this.host = _ref1.host, this.hostname = _ref1.hostname, this.port = _ref1.port, this.pathname = _ref1.pathname, this.search = _ref1.search, this.hash = _ref1.hash;
+      this.origin = [this.protocol, '//', this.hostname].join('');
+      if (this.port.length !== 0) {
+        this.origin += ":" + this.port;
+      }
+      this.relative = [this.pathname, this.search, this.hash].join('');
+      return this.absolute = this.href;
+    };
+
+    return ComponentUrl;
+
+  })();
+
+  Link = (function(_super) {
+    __extends(Link, _super);
+
+    Link.HTML_EXTENSIONS = ['html'];
+
+    Link.allowExtensions = function() {
+      var extension, extensions, _i, _len;
+      extensions = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      for (_i = 0, _len = extensions.length; _i < _len; _i++) {
+        extension = extensions[_i];
+        Link.HTML_EXTENSIONS.push(extension);
+      }
+      return Link.HTML_EXTENSIONS;
+    };
+
+    function Link(link) {
+      this.link = link;
+      if (this.link.constructor === Link) {
+        return this.link;
+      }
+      this.original = this.link.href;
+      Link.__super__.constructor.apply(this, arguments);
+    }
+
+    Link.prototype.shouldIgnore = function() {
+      return this._crossOrigin() || this._anchored() || this._nonHtml() || this._optOut() || this._target();
+    };
+
+    Link.prototype._crossOrigin = function() {
+      return this.origin !== (new ComponentUrl).origin;
+    };
+
+    Link.prototype._anchored = function() {
+      var current;
+      return ((this.hash && this.withoutHash()) === (current = new ComponentUrl).withoutHash()) || (this.href === current.href + '#');
+    };
+
+    Link.prototype._nonHtml = function() {
+      return this.pathname.match(/\.[a-z]+$/g) && !this.pathname.match(new RegExp("\\.(?:" + (Link.HTML_EXTENSIONS.join('|')) + ")?$", 'g'));
+    };
+
+    Link.prototype._optOut = function() {
+      var ignore, link;
+      link = this.link;
+      while (!(ignore || link === document)) {
+        ignore = link.getAttribute('data-no-turbolink') != null;
+        link = link.parentNode;
+      }
+      return ignore;
+    };
+
+    Link.prototype._target = function() {
+      return this.link.target.length !== 0;
+    };
+
+    return Link;
+
+  })(ComponentUrl);
+
+  Click = (function() {
+    Click.installHandlerLast = function(event) {
+      if (!event.defaultPrevented) {
+        document.removeEventListener('click', Click.handle, false);
+        return document.addEventListener('click', Click.handle, false);
+      }
+    };
+
+    Click.handle = function(event) {
+      return new Click(event);
+    };
+
+    function Click(event) {
+      this.event = event;
+      if (this.event.defaultPrevented) {
+        return;
+      }
+      this._extractLink();
+      if (this._validForTurbolinks()) {
+        if (!pageChangePrevented()) {
+          visit(this.link.href);
+        }
+        this.event.preventDefault();
+      }
+    }
+
+    Click.prototype._extractLink = function() {
+      var link;
+      link = this.event.target;
+      while (!(!link.parentNode || link.nodeName === 'A')) {
+        link = link.parentNode;
+      }
+      if (link.nodeName === 'A' && link.href.length !== 0) {
+        return this.link = new Link(link);
+      }
+    };
+
+    Click.prototype._validForTurbolinks = function() {
+      return (this.link != null) && !(this.link.shouldIgnore() || this._nonStandardClick());
+    };
+
+    Click.prototype._nonStandardClick = function() {
+      return this.event.which > 1 || this.event.metaKey || this.event.ctrlKey || this.event.shiftKey || this.event.altKey;
+    };
+
+    return Click;
+
+  })();
+
+  bypassOnLoadPopstate = function(fn) {
+    return setTimeout(fn, 500);
+  };
+
+  installDocumentReadyPageEventTriggers = function() {
+    return document.addEventListener('DOMContentLoaded', (function() {
+      triggerEvent('page:change');
+      return triggerEvent('page:update');
+    }), true);
+  };
+
+  installJqueryAjaxSuccessPageUpdateTrigger = function() {
+    if (typeof jQuery !== 'undefined') {
+      return jQuery(document).on('ajaxSuccess', function(event, xhr, settings) {
+        if (!jQuery.trim(xhr.responseText)) {
+          return;
+        }
+        return triggerEvent('page:update');
+      });
+    }
+  };
+
+  installHistoryChangeHandler = function(event) {
+    var cachedPage, _ref;
+    if ((_ref = event.state) != null ? _ref.turbolinks : void 0) {
+      if (cachedPage = pageCache[(new ComponentUrl(event.state.url)).absolute]) {
+        cacheCurrentPage();
+        return fetchHistory(cachedPage);
+      } else {
+        return visit(event.target.location.href);
+      }
+    }
+  };
+
+  initializeTurbolinks = function() {
+    rememberCurrentUrl();
+    rememberCurrentState();
+    createDocument = browserCompatibleDocumentParser();
+    document.addEventListener('click', Click.installHandlerLast, true);
+    return bypassOnLoadPopstate(function() {
+      return window.addEventListener('popstate', installHistoryChangeHandler, false);
+    });
+  };
+
+  historyStateIsDefined = window.history.state !== void 0 || navigator.userAgent.match(/Firefox\/2[6|7]/);
+
+  browserSupportsPushState = window.history && window.history.pushState && window.history.replaceState && historyStateIsDefined;
+
+  browserIsntBuggy = !navigator.userAgent.match(/CriOS\//);
+
+  requestMethodIsSafe = (_ref = popCookie('request_method')) === 'GET' || _ref === '';
+
+  browserSupportsTurbolinks = browserSupportsPushState && browserIsntBuggy && requestMethodIsSafe;
+
+  browserSupportsCustomEvents = document.addEventListener && document.createEvent;
+
+  if (browserSupportsCustomEvents) {
+    installDocumentReadyPageEventTriggers();
+    installJqueryAjaxSuccessPageUpdateTrigger();
+  }
+
+  if (browserSupportsTurbolinks) {
+    visit = fetch;
+    initializeTurbolinks();
+  } else {
+    visit = function(url) {
+      return document.location.href = url;
+    };
+  }
+
+  this.Turbolinks = {
+    visit: visit,
+    pagesCached: pagesCached,
+    enableTransitionCache: enableTransitionCache,
+    allowLinkExtensions: Link.allowExtensions,
+    supported: browserSupportsTurbolinks
+  };
+
+}).call(this);
+/* ========================================================================
+ * Bootstrap: affix.js v3.1.1
+ * http://getbootstrap.com/javascript/#affix
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // AFFIX CLASS DEFINITION
+  // ======================
+
+  var Affix = function (element, options) {
+    this.options = $.extend({}, Affix.DEFAULTS, options)
+    this.$window = $(window)
+      .on('scroll.bs.affix.data-api', $.proxy(this.checkPosition, this))
+      .on('click.bs.affix.data-api',  $.proxy(this.checkPositionWithEventLoop, this))
+
+    this.$element     = $(element)
+    this.affixed      =
+    this.unpin        =
+    this.pinnedOffset = null
+
+    this.checkPosition()
+  }
+
+  Affix.RESET = 'affix affix-top affix-bottom'
+
+  Affix.DEFAULTS = {
+    offset: 0
+  }
+
+  Affix.prototype.getPinnedOffset = function () {
+    if (this.pinnedOffset) return this.pinnedOffset
+    this.$element.removeClass(Affix.RESET).addClass('affix')
+    var scrollTop = this.$window.scrollTop()
+    var position  = this.$element.offset()
+    return (this.pinnedOffset = position.top - scrollTop)
+  }
+
+  Affix.prototype.checkPositionWithEventLoop = function () {
+    setTimeout($.proxy(this.checkPosition, this), 1)
+  }
+
+  Affix.prototype.checkPosition = function () {
+    if (!this.$element.is(':visible')) return
+
+    var scrollHeight = $(document).height()
+    var scrollTop    = this.$window.scrollTop()
+    var position     = this.$element.offset()
+    var offset       = this.options.offset
+    var offsetTop    = offset.top
+    var offsetBottom = offset.bottom
+
+    if (typeof offset != 'object')         offsetBottom = offsetTop = offset
+    if (typeof offsetTop == 'function')    offsetTop    = offset.top(this.$element)
+    if (typeof offsetBottom == 'function') offsetBottom = offset.bottom(this.$element)
+
+    var affix = this.unpin   != null && (scrollTop + this.unpin <= position.top) ? false :
+                offsetBottom != null && (position.top + this.$element.height() >= scrollHeight - offsetBottom) ? 'bottom' :
+                offsetTop    != null && (scrollTop <= offsetTop) ? 'top' : false
+
+    if (this.affixed === affix) return
+    if (this.unpin != null) this.$element.css('top', '')
+
+    var affixType = 'affix' + (affix ? '-' + affix : '')
+    var e         = $.Event(affixType + '.bs.affix')
+
+    this.$element.trigger(e)
+
+    if (e.isDefaultPrevented()) return
+
+    this.affixed = affix
+    this.unpin = affix == 'bottom' ? this.getPinnedOffset() : null
+
+    this.$element
+      .removeClass(Affix.RESET)
+      .addClass(affixType)
+      .trigger($.Event(affixType.replace('affix', 'affixed')))
+
+    if (affix == 'bottom') {
+      this.$element.offset({ top: position.top })
+    }
+  }
+
+
+  // AFFIX PLUGIN DEFINITION
+  // =======================
+
+  var old = $.fn.affix
+
+  $.fn.affix = function (option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.affix')
+      var options = typeof option == 'object' && option
+
+      if (!data) $this.data('bs.affix', (data = new Affix(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  $.fn.affix.Constructor = Affix
+
+
+  // AFFIX NO CONFLICT
+  // =================
+
+  $.fn.affix.noConflict = function () {
+    $.fn.affix = old
+    return this
+  }
+
+
+  // AFFIX DATA-API
+  // ==============
+
+  $(window).on('load', function () {
+    $('[data-spy="affix"]').each(function () {
+      var $spy = $(this)
+      var data = $spy.data()
+
+      data.offset = data.offset || {}
+
+      if (data.offsetBottom) data.offset.bottom = data.offsetBottom
+      if (data.offsetTop)    data.offset.top    = data.offsetTop
+
+      $spy.affix(data)
+    })
+  })
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: alert.js v3.1.1
+ * http://getbootstrap.com/javascript/#alerts
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // ALERT CLASS DEFINITION
+  // ======================
+
+  var dismiss = '[data-dismiss="alert"]'
+  var Alert   = function (el) {
+    $(el).on('click', dismiss, this.close)
+  }
+
+  Alert.prototype.close = function (e) {
+    var $this    = $(this)
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = $(selector)
+
+    if (e) e.preventDefault()
+
+    if (!$parent.length) {
+      $parent = $this.hasClass('alert') ? $this : $this.parent()
+    }
+
+    $parent.trigger(e = $.Event('close.bs.alert'))
+
+    if (e.isDefaultPrevented()) return
+
+    $parent.removeClass('in')
+
+    function removeElement() {
+      $parent.trigger('closed.bs.alert').remove()
+    }
+
+    $.support.transition && $parent.hasClass('fade') ?
+      $parent
+        .one($.support.transition.end, removeElement)
+        .emulateTransitionEnd(150) :
+      removeElement()
+  }
+
+
+  // ALERT PLUGIN DEFINITION
+  // =======================
+
+  var old = $.fn.alert
+
+  $.fn.alert = function (option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.alert')
+
+      if (!data) $this.data('bs.alert', (data = new Alert(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  $.fn.alert.Constructor = Alert
+
+
+  // ALERT NO CONFLICT
+  // =================
+
+  $.fn.alert.noConflict = function () {
+    $.fn.alert = old
+    return this
+  }
+
+
+  // ALERT DATA-API
+  // ==============
+
+  $(document).on('click.bs.alert.data-api', dismiss, Alert.prototype.close)
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: button.js v3.1.1
+ * http://getbootstrap.com/javascript/#buttons
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // BUTTON PUBLIC CLASS DEFINITION
+  // ==============================
+
+  var Button = function (element, options) {
+    this.$element  = $(element)
+    this.options   = $.extend({}, Button.DEFAULTS, options)
+    this.isLoading = false
+  }
+
+  Button.DEFAULTS = {
+    loadingText: 'loading...'
+  }
+
+  Button.prototype.setState = function (state) {
+    var d    = 'disabled'
+    var $el  = this.$element
+    var val  = $el.is('input') ? 'val' : 'html'
+    var data = $el.data()
+
+    state = state + 'Text'
+
+    if (!data.resetText) $el.data('resetText', $el[val]())
+
+    $el[val](data[state] || this.options[state])
+
+    // push to event loop to allow forms to submit
+    setTimeout($.proxy(function () {
+      if (state == 'loadingText') {
+        this.isLoading = true
+        $el.addClass(d).attr(d, d)
+      } else if (this.isLoading) {
+        this.isLoading = false
+        $el.removeClass(d).removeAttr(d)
+      }
+    }, this), 0)
+  }
+
+  Button.prototype.toggle = function () {
+    var changed = true
+    var $parent = this.$element.closest('[data-toggle="buttons"]')
+
+    if ($parent.length) {
+      var $input = this.$element.find('input')
+      if ($input.prop('type') == 'radio') {
+        if ($input.prop('checked') && this.$element.hasClass('active')) changed = false
+        else $parent.find('.active').removeClass('active')
+      }
+      if (changed) $input.prop('checked', !this.$element.hasClass('active')).trigger('change')
+    }
+
+    if (changed) this.$element.toggleClass('active')
+  }
+
+
+  // BUTTON PLUGIN DEFINITION
+  // ========================
+
+  var old = $.fn.button
+
+  $.fn.button = function (option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.button')
+      var options = typeof option == 'object' && option
+
+      if (!data) $this.data('bs.button', (data = new Button(this, options)))
+
+      if (option == 'toggle') data.toggle()
+      else if (option) data.setState(option)
+    })
+  }
+
+  $.fn.button.Constructor = Button
+
+
+  // BUTTON NO CONFLICT
+  // ==================
+
+  $.fn.button.noConflict = function () {
+    $.fn.button = old
+    return this
+  }
+
+
+  // BUTTON DATA-API
+  // ===============
+
+  $(document).on('click.bs.button.data-api', '[data-toggle^=button]', function (e) {
+    var $btn = $(e.target)
+    if (!$btn.hasClass('btn')) $btn = $btn.closest('.btn')
+    $btn.button('toggle')
+    e.preventDefault()
+  })
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: carousel.js v3.1.1
+ * http://getbootstrap.com/javascript/#carousel
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // CAROUSEL CLASS DEFINITION
+  // =========================
+
+  var Carousel = function (element, options) {
+    this.$element    = $(element)
+    this.$indicators = this.$element.find('.carousel-indicators')
+    this.options     = options
+    this.paused      =
+    this.sliding     =
+    this.interval    =
+    this.$active     =
+    this.$items      = null
+
+    this.options.pause == 'hover' && this.$element
+      .on('mouseenter', $.proxy(this.pause, this))
+      .on('mouseleave', $.proxy(this.cycle, this))
+  }
+
+  Carousel.DEFAULTS = {
+    interval: 5000,
+    pause: 'hover',
+    wrap: true
+  }
+
+  Carousel.prototype.cycle =  function (e) {
+    e || (this.paused = false)
+
+    this.interval && clearInterval(this.interval)
+
+    this.options.interval
+      && !this.paused
+      && (this.interval = setInterval($.proxy(this.next, this), this.options.interval))
+
+    return this
+  }
+
+  Carousel.prototype.getActiveIndex = function () {
+    this.$active = this.$element.find('.item.active')
+    this.$items  = this.$active.parent().children('.item')
+
+    return this.$items.index(this.$active)
+  }
+
+  Carousel.prototype.to = function (pos) {
+    var that        = this
+    var activeIndex = this.getActiveIndex()
+
+    if (pos > (this.$items.length - 1) || pos < 0) return
+
+    if (this.sliding)       return this.$element.one('slid.bs.carousel', function () { that.to(pos) }) // yes, "slid". not a typo. past tense of "to slide".
+    if (activeIndex == pos) return this.pause().cycle()
+
+    return this.slide(pos > activeIndex ? 'next' : 'prev', $(this.$items[pos]))
+  }
+
+  Carousel.prototype.pause = function (e) {
+    e || (this.paused = true)
+
+    if (this.$element.find('.next, .prev').length && $.support.transition) {
+      this.$element.trigger($.support.transition.end)
+      this.cycle(true)
+    }
+
+    this.interval = clearInterval(this.interval)
+
+    return this
+  }
+
+  Carousel.prototype.next = function () {
+    if (this.sliding) return
+    return this.slide('next')
+  }
+
+  Carousel.prototype.prev = function () {
+    if (this.sliding) return
+    return this.slide('prev')
+  }
+
+  Carousel.prototype.slide = function (type, next) {
+    var $active   = this.$element.find('.item.active')
+    var $next     = next || $active[type]()
+    var isCycling = this.interval
+    var direction = type == 'next' ? 'left' : 'right'
+    var fallback  = type == 'next' ? 'first' : 'last'
+    var that      = this
+
+    if (!$next.length) {
+      if (!this.options.wrap) return
+      $next = this.$element.find('.item')[fallback]()
+    }
+
+    if ($next.hasClass('active')) return this.sliding = false
+
+    var e = $.Event('slide.bs.carousel', { relatedTarget: $next[0], direction: direction })
+    this.$element.trigger(e)
+    if (e.isDefaultPrevented()) return
+
+    this.sliding = true
+
+    isCycling && this.pause()
+
+    if (this.$indicators.length) {
+      this.$indicators.find('.active').removeClass('active')
+      this.$element.one('slid.bs.carousel', function () { // yes, "slid". not a typo. past tense of "to slide".
+        var $nextIndicator = $(that.$indicators.children()[that.getActiveIndex()])
+        $nextIndicator && $nextIndicator.addClass('active')
+      })
+    }
+
+    if ($.support.transition && this.$element.hasClass('slide')) {
+      $next.addClass(type)
+      $next[0].offsetWidth // force reflow
+      $active.addClass(direction)
+      $next.addClass(direction)
+      $active
+        .one($.support.transition.end, function () {
+          $next.removeClass([type, direction].join(' ')).addClass('active')
+          $active.removeClass(['active', direction].join(' '))
+          that.sliding = false
+          setTimeout(function () { that.$element.trigger('slid.bs.carousel') }, 0) // yes, "slid". not a typo. past tense of "to slide".
+        })
+        .emulateTransitionEnd($active.css('transition-duration').slice(0, -1) * 1000)
+    } else {
+      $active.removeClass('active')
+      $next.addClass('active')
+      this.sliding = false
+      this.$element.trigger('slid.bs.carousel') // yes, "slid". not a typo. past tense of "to slide".
+    }
+
+    isCycling && this.cycle()
+
+    return this
+  }
+
+
+  // CAROUSEL PLUGIN DEFINITION
+  // ==========================
+
+  var old = $.fn.carousel
+
+  $.fn.carousel = function (option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.carousel')
+      var options = $.extend({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
+      var action  = typeof option == 'string' ? option : options.slide
+
+      if (!data) $this.data('bs.carousel', (data = new Carousel(this, options)))
+      if (typeof option == 'number') data.to(option)
+      else if (action) data[action]()
+      else if (options.interval) data.pause().cycle()
+    })
+  }
+
+  $.fn.carousel.Constructor = Carousel
+
+
+  // CAROUSEL NO CONFLICT
+  // ====================
+
+  $.fn.carousel.noConflict = function () {
+    $.fn.carousel = old
+    return this
+  }
+
+
+  // CAROUSEL DATA-API
+  // =================
+
+  $(document).on('click.bs.carousel.data-api', '[data-slide], [data-slide-to]', function (e) {
+    var $this   = $(this), href
+    var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
+    var options = $.extend({}, $target.data(), $this.data())
+    var slideIndex = $this.attr('data-slide-to')
+    if (slideIndex) options.interval = false
+
+    $target.carousel(options)
+
+    if (slideIndex = $this.attr('data-slide-to')) {
+      $target.data('bs.carousel').to(slideIndex)
+    }
+
+    e.preventDefault()
+  })
+
+  $(window).on('load', function () {
+    $('[data-ride="carousel"]').each(function () {
+      var $carousel = $(this)
+      $carousel.carousel($carousel.data())
+    })
+  })
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: collapse.js v3.1.1
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.transitioning = null
+
+    if (this.options.parent) this.$parent = $(this.options.parent)
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var actives = this.$parent && this.$parent.find('> .panel > .in')
+
+    if (actives && actives.length) {
+      var hasData = actives.data('bs.collapse')
+      if (hasData && hasData.transitioning) return
+      actives.collapse('hide')
+      hasData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+
+    this.transitioning = 1
+
+    var complete = function (e) {
+      if (e && e.target != this.$element[0]) {
+        this.$element
+          .one($.support.transition.end, $.proxy(complete, this))
+        return
+      }
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('auto')
+      this.transitioning = 0
+      this.$element.trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one($.support.transition.end, $.proxy(complete, this))
+      .emulateTransitionEnd(350)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse')
+      .removeClass('in')
+
+    this.transitioning = 1
+
+    var complete = function (e) {
+      if (e && e.target != this.$element[0]) {
+        this.$element
+          .one($.support.transition.end, $.proxy(complete, this))
+        return
+      }
+      this.transitioning = 0
+      this.$element
+        .trigger('hidden.bs.collapse')
+        .removeClass('collapsing')
+        .addClass('collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one($.support.transition.end, $.proxy(complete, this))
+      .emulateTransitionEnd(350)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  var old = $.fn.collapse
+
+  $.fn.collapse = function (option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && option == 'show') option = !option
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this), href
+    var target  = $this.attr('data-target')
+        || e.preventDefault()
+        || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
+    var $target = $(target)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+    var parent  = $this.attr('data-parent')
+    var $parent = parent && $(parent)
+
+    if (!data || !data.transitioning) {
+      if ($parent) $parent.find('[data-toggle="collapse"][data-parent="' + parent + '"]').not($this).addClass('collapsed')
+      $this[$target.hasClass('in') ? 'addClass' : 'removeClass']('collapsed')
+    }
+
+    $target.collapse(option)
+  })
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: dropdown.js v3.1.1
+ * http://getbootstrap.com/javascript/#dropdowns
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // DROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle="dropdown"]'
+  var Dropdown = function (element) {
+    $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+    var $this = $(this)
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    clearMenus()
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $('<div class="dropdown-backdrop"/>').insertAfter($(this)).on('click', clearMenus)
+      }
+
+      var relatedTarget = { relatedTarget: this }
+      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.trigger('focus')
+
+      $parent
+        .toggleClass('open')
+        .trigger('shown.bs.dropdown', relatedTarget)
+    }
+
+    return false
+  }
+
+  Dropdown.prototype.keydown = function (e) {
+    if (!/(38|40|27)/.test(e.keyCode)) return
+
+    var $this = $(this)
+
+    e.preventDefault()
+    e.stopPropagation()
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    if (!isActive || (isActive && e.keyCode == 27)) {
+      if (e.which == 27) $parent.find(toggle).trigger('focus')
+      return $this.trigger('click')
+    }
+
+    var desc = ' li:not(.divider):visible a'
+    var $items = $parent.find('[role="menu"]' + desc + ', [role="listbox"]' + desc)
+
+    if (!$items.length) return
+
+    var index = $items.index($items.filter(':focus'))
+
+    if (e.keyCode == 38 && index > 0)                 index--                        // up
+    if (e.keyCode == 40 && index < $items.length - 1) index++                        // down
+    if (!~index)                                      index = 0
+
+    $items.eq(index).trigger('focus')
+  }
+
+  function clearMenus(e) {
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $parent = getParent($(this))
+      var relatedTarget = { relatedTarget: this }
+      if (!$parent.hasClass('open')) return
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+      if (e.isDefaultPrevented()) return
+      $parent.removeClass('open').trigger('hidden.bs.dropdown', relatedTarget)
+    })
+  }
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown = function (option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.dropdown')
+
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+    $.fn.dropdown = old
+    return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle + ', [role="menu"], [role="listbox"]', Dropdown.prototype.keydown)
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: tab.js v3.1.1
+ * http://getbootstrap.com/javascript/#tabs
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // TAB CLASS DEFINITION
+  // ====================
+
+  var Tab = function (element) {
+    this.element = $(element)
+  }
+
+  Tab.prototype.show = function () {
+    var $this    = this.element
+    var $ul      = $this.closest('ul:not(.dropdown-menu)')
+    var selector = $this.data('target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
+    }
+
+    if ($this.parent('li').hasClass('active')) return
+
+    var previous = $ul.find('.active:last a')[0]
+    var e        = $.Event('show.bs.tab', {
+      relatedTarget: previous
+    })
+
+    $this.trigger(e)
+
+    if (e.isDefaultPrevented()) return
+
+    var $target = $(selector)
+
+    this.activate($this.parent('li'), $ul)
+    this.activate($target, $target.parent(), function () {
+      $this.trigger({
+        type: 'shown.bs.tab',
+        relatedTarget: previous
+      })
+    })
+  }
+
+  Tab.prototype.activate = function (element, container, callback) {
+    var $active    = container.find('> .active')
+    var transition = callback
+      && $.support.transition
+      && $active.hasClass('fade')
+
+    function next() {
+      $active
+        .removeClass('active')
+        .find('> .dropdown-menu > .active')
+        .removeClass('active')
+
+      element.addClass('active')
+
+      if (transition) {
+        element[0].offsetWidth // reflow for transition
+        element.addClass('in')
+      } else {
+        element.removeClass('fade')
+      }
+
+      if (element.parent('.dropdown-menu')) {
+        element.closest('li.dropdown').addClass('active')
+      }
+
+      callback && callback()
+    }
+
+    transition ?
+      $active
+        .one($.support.transition.end, next)
+        .emulateTransitionEnd(150) :
+      next()
+
+    $active.removeClass('in')
+  }
+
+
+  // TAB PLUGIN DEFINITION
+  // =====================
+
+  var old = $.fn.tab
+
+  $.fn.tab = function ( option ) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.tab')
+
+      if (!data) $this.data('bs.tab', (data = new Tab(this)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  $.fn.tab.Constructor = Tab
+
+
+  // TAB NO CONFLICT
+  // ===============
+
+  $.fn.tab.noConflict = function () {
+    $.fn.tab = old
+    return this
+  }
+
+
+  // TAB DATA-API
+  // ============
+
+  $(document).on('click.bs.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
+    e.preventDefault()
+    $(this).tab('show')
+  })
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: transition.js v3.1.1
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false, $el = this
+    $(this).one($.support.transition.end, function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+  })
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: scrollspy.js v3.1.1
+ * http://getbootstrap.com/javascript/#scrollspy
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // SCROLLSPY CLASS DEFINITION
+  // ==========================
+
+  function ScrollSpy(element, options) {
+    var href
+    var process  = $.proxy(this.process, this)
+
+    this.$element       = $(element).is('body') ? $(window) : $(element)
+    this.$body          = $('body')
+    this.$scrollElement = this.$element.on('scroll.bs.scrollspy', process)
+    this.options        = $.extend({}, ScrollSpy.DEFAULTS, options)
+    this.selector       = (this.options.target
+      || ((href = $(element).attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
+      || '') + ' .nav li > a'
+    this.offsets        = $([])
+    this.targets        = $([])
+    this.activeTarget   = null
+
+    this.refresh()
+    this.process()
+  }
+
+  ScrollSpy.DEFAULTS = {
+    offset: 10
+  }
+
+  ScrollSpy.prototype.refresh = function () {
+    var offsetMethod = this.$element[0] == window ? 'offset' : 'position'
+
+    this.offsets = $([])
+    this.targets = $([])
+
+    var self     = this
+
+    this.$body
+      .find(this.selector)
+      .map(function () {
+        var $el   = $(this)
+        var href  = $el.data('target') || $el.attr('href')
+        var $href = /^#./.test(href) && $(href)
+
+        return ($href
+          && $href.length
+          && $href.is(':visible')
+          && [[ $href[offsetMethod]().top + (!$.isWindow(self.$scrollElement.get(0)) && self.$scrollElement.scrollTop()), href ]]) || null
+      })
+      .sort(function (a, b) { return a[0] - b[0] })
+      .each(function () {
+        self.offsets.push(this[0])
+        self.targets.push(this[1])
+      })
+  }
+
+  ScrollSpy.prototype.process = function () {
+    var scrollTop    = this.$scrollElement.scrollTop() + this.options.offset
+    var scrollHeight = this.$scrollElement[0].scrollHeight || Math.max(this.$body[0].scrollHeight, document.documentElement.scrollHeight)
+    var maxScroll    = scrollHeight - this.$scrollElement.height()
+    var offsets      = this.offsets
+    var targets      = this.targets
+    var activeTarget = this.activeTarget
+    var i
+
+    if (scrollTop >= maxScroll) {
+      return activeTarget != (i = targets.last()[0]) && this.activate(i)
+    }
+
+    if (activeTarget && scrollTop <= offsets[0]) {
+      return activeTarget != (i = targets[0]) && this.activate(i)
+    }
+
+    for (i = offsets.length; i--;) {
+      activeTarget != targets[i]
+        && scrollTop >= offsets[i]
+        && (!offsets[i + 1] || scrollTop <= offsets[i + 1])
+        && this.activate( targets[i] )
+    }
+  }
+
+  ScrollSpy.prototype.activate = function (target) {
+    this.activeTarget = target
+
+    $(this.selector)
+      .parentsUntil(this.options.target, '.active')
+      .removeClass('active')
+
+    var selector = this.selector +
+        '[data-target="' + target + '"],' +
+        this.selector + '[href="' + target + '"]'
+
+    var active = $(selector)
+      .parents('li')
+      .addClass('active')
+
+    if (active.parent('.dropdown-menu').length) {
+      active = active
+        .closest('li.dropdown')
+        .addClass('active')
+    }
+
+    active.trigger('activate.bs.scrollspy')
+  }
+
+
+  // SCROLLSPY PLUGIN DEFINITION
+  // ===========================
+
+  var old = $.fn.scrollspy
+
+  $.fn.scrollspy = function (option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.scrollspy')
+      var options = typeof option == 'object' && option
+
+      if (!data) $this.data('bs.scrollspy', (data = new ScrollSpy(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  $.fn.scrollspy.Constructor = ScrollSpy
+
+
+  // SCROLLSPY NO CONFLICT
+  // =====================
+
+  $.fn.scrollspy.noConflict = function () {
+    $.fn.scrollspy = old
+    return this
+  }
+
+
+  // SCROLLSPY DATA-API
+  // ==================
+
+  $(window).on('load.bs.scrollspy.data-api', function () {
+    $('[data-spy="scroll"]').each(function () {
+      var $spy = $(this)
+      $spy.scrollspy($spy.data())
+    })
+  })
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: modal.js v3.1.1
+ * http://getbootstrap.com/javascript/#modals
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // MODAL CLASS DEFINITION
+  // ======================
+
+  var Modal = function (element, options) {
+    this.options        = options
+    this.$body          = $(document.body)
+    this.$element       = $(element)
+    this.$backdrop      =
+    this.isShown        = null
+    this.scrollbarWidth = 0
+
+    if (this.options.remote) {
+      this.$element
+        .find('.modal-content')
+        .load(this.options.remote, $.proxy(function () {
+          this.$element.trigger('loaded.bs.modal')
+        }, this))
+    }
+  }
+
+  Modal.DEFAULTS = {
+    backdrop: true,
+    keyboard: true,
+    show: true
+  }
+
+  Modal.prototype.toggle = function (_relatedTarget) {
+    return this.isShown ? this.hide() : this.show(_relatedTarget)
+  }
+
+  Modal.prototype.show = function (_relatedTarget) {
+    var that = this
+    var e    = $.Event('show.bs.modal', { relatedTarget: _relatedTarget })
+
+    this.$element.trigger(e)
+
+    if (this.isShown || e.isDefaultPrevented()) return
+
+    this.isShown = true
+
+    this.checkScrollbar()
+    this.$body.addClass('modal-open')
+
+    this.setScrollbar()
+    this.escape()
+
+    this.$element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', $.proxy(this.hide, this))
+
+    this.backdrop(function () {
+      var transition = $.support.transition && that.$element.hasClass('fade')
+
+      if (!that.$element.parent().length) {
+        that.$element.appendTo(that.$body) // don't move modals dom position
+      }
+
+      that.$element
+        .show()
+        .scrollTop(0)
+
+      if (transition) {
+        that.$element[0].offsetWidth // force reflow
+      }
+
+      that.$element
+        .addClass('in')
+        .attr('aria-hidden', false)
+
+      that.enforceFocus()
+
+      var e = $.Event('shown.bs.modal', { relatedTarget: _relatedTarget })
+
+      transition ?
+        that.$element.find('.modal-dialog') // wait for modal to slide in
+          .one($.support.transition.end, function () {
+            that.$element.trigger('focus').trigger(e)
+          })
+          .emulateTransitionEnd(300) :
+        that.$element.trigger('focus').trigger(e)
+    })
+  }
+
+  Modal.prototype.hide = function (e) {
+    if (e) e.preventDefault()
+
+    e = $.Event('hide.bs.modal')
+
+    this.$element.trigger(e)
+
+    if (!this.isShown || e.isDefaultPrevented()) return
+
+    this.isShown = false
+
+    this.$body.removeClass('modal-open')
+
+    this.resetScrollbar()
+    this.escape()
+
+    $(document).off('focusin.bs.modal')
+
+    this.$element
+      .removeClass('in')
+      .attr('aria-hidden', true)
+      .off('click.dismiss.bs.modal')
+
+    $.support.transition && this.$element.hasClass('fade') ?
+      this.$element
+        .one($.support.transition.end, $.proxy(this.hideModal, this))
+        .emulateTransitionEnd(300) :
+      this.hideModal()
+  }
+
+  Modal.prototype.enforceFocus = function () {
+    $(document)
+      .off('focusin.bs.modal') // guard against infinite focus loop
+      .on('focusin.bs.modal', $.proxy(function (e) {
+        if (this.$element[0] !== e.target && !this.$element.has(e.target).length) {
+          this.$element.trigger('focus')
+        }
+      }, this))
+  }
+
+  Modal.prototype.escape = function () {
+    if (this.isShown && this.options.keyboard) {
+      this.$element.on('keyup.dismiss.bs.modal', $.proxy(function (e) {
+        e.which == 27 && this.hide()
+      }, this))
+    } else if (!this.isShown) {
+      this.$element.off('keyup.dismiss.bs.modal')
+    }
+  }
+
+  Modal.prototype.hideModal = function () {
+    var that = this
+    this.$element.hide()
+    this.backdrop(function () {
+      that.removeBackdrop()
+      that.$element.trigger('hidden.bs.modal')
+    })
+  }
+
+  Modal.prototype.removeBackdrop = function () {
+    this.$backdrop && this.$backdrop.remove()
+    this.$backdrop = null
+  }
+
+  Modal.prototype.backdrop = function (callback) {
+    var animate = this.$element.hasClass('fade') ? 'fade' : ''
+
+    if (this.isShown && this.options.backdrop) {
+      var doAnimate = $.support.transition && animate
+
+      this.$backdrop = $('<div class="modal-backdrop ' + animate + '" />')
+        .appendTo(this.$body)
+
+      this.$element.on('click.dismiss.bs.modal', $.proxy(function (e) {
+        if (e.target !== e.currentTarget) return
+        this.options.backdrop == 'static'
+          ? this.$element[0].focus.call(this.$element[0])
+          : this.hide.call(this)
+      }, this))
+
+      if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
+
+      this.$backdrop.addClass('in')
+
+      if (!callback) return
+
+      doAnimate ?
+        this.$backdrop
+          .one($.support.transition.end, callback)
+          .emulateTransitionEnd(150) :
+        callback()
+
+    } else if (!this.isShown && this.$backdrop) {
+      this.$backdrop.removeClass('in')
+
+      $.support.transition && this.$element.hasClass('fade') ?
+        this.$backdrop
+          .one($.support.transition.end, callback)
+          .emulateTransitionEnd(150) :
+        callback()
+
+    } else if (callback) {
+      callback()
+    }
+  }
+
+  Modal.prototype.checkScrollbar = function () {
+    if (document.body.clientWidth >= window.innerWidth) return
+    this.scrollbarWidth = this.scrollbarWidth || this.measureScrollbar()
+  }
+
+  Modal.prototype.setScrollbar =  function () {
+    var bodyPad = parseInt(this.$body.css('padding-right') || 0)
+    if (this.scrollbarWidth) this.$body.css('padding-right', bodyPad + this.scrollbarWidth)
+  }
+
+  Modal.prototype.resetScrollbar = function () {
+    this.$body.css('padding-right', '')
+  }
+
+  Modal.prototype.measureScrollbar = function () { // thx walsh
+    var scrollDiv = document.createElement('div')
+    scrollDiv.className = 'modal-scrollbar-measure'
+    this.$body.append(scrollDiv)
+    var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth
+    this.$body[0].removeChild(scrollDiv)
+    return scrollbarWidth
+  }
+
+
+  // MODAL PLUGIN DEFINITION
+  // =======================
+
+  var old = $.fn.modal
+
+  $.fn.modal = function (option, _relatedTarget) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.modal')
+      var options = $.extend({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data) $this.data('bs.modal', (data = new Modal(this, options)))
+      if (typeof option == 'string') data[option](_relatedTarget)
+      else if (options.show) data.show(_relatedTarget)
+    })
+  }
+
+  $.fn.modal.Constructor = Modal
+
+
+  // MODAL NO CONFLICT
+  // =================
+
+  $.fn.modal.noConflict = function () {
+    $.fn.modal = old
+    return this
+  }
+
+
+  // MODAL DATA-API
+  // ==============
+
+  $(document).on('click.bs.modal.data-api', '[data-toggle="modal"]', function (e) {
+    var $this   = $(this)
+    var href    = $this.attr('href')
+    var $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) //strip for ie7
+    var option  = $target.data('bs.modal') ? 'toggle' : $.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
+
+    if ($this.is('a')) e.preventDefault()
+
+    $target
+      .modal(option, this)
+      .one('hide', function () {
+        $this.is(':visible') && $this.trigger('focus')
+      })
+  })
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: tooltip.js v3.1.1
+ * http://getbootstrap.com/javascript/#tooltip
+ * Inspired by the original jQuery.tipsy by Jason Frame
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // TOOLTIP PUBLIC CLASS DEFINITION
+  // ===============================
+
+  var Tooltip = function (element, options) {
+    this.type       =
+    this.options    =
+    this.enabled    =
+    this.timeout    =
+    this.hoverState =
+    this.$element   = null
+
+    this.init('tooltip', element, options)
+  }
+
+  Tooltip.DEFAULTS = {
+    animation: true,
+    placement: 'top',
+    selector: false,
+    template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+    trigger: 'hover focus',
+    title: '',
+    delay: 0,
+    html: false,
+    container: false,
+    viewport: {
+      selector: 'body',
+      padding: 0
+    }
+  }
+
+  Tooltip.prototype.init = function (type, element, options) {
+    this.enabled   = true
+    this.type      = type
+    this.$element  = $(element)
+    this.options   = this.getOptions(options)
+    this.$viewport = this.options.viewport && $(this.options.viewport.selector || this.options.viewport)
+
+    var triggers = this.options.trigger.split(' ')
+
+    for (var i = triggers.length; i--;) {
+      var trigger = triggers[i]
+
+      if (trigger == 'click') {
+        this.$element.on('click.' + this.type, this.options.selector, $.proxy(this.toggle, this))
+      } else if (trigger != 'manual') {
+        var eventIn  = trigger == 'hover' ? 'mouseenter' : 'focusin'
+        var eventOut = trigger == 'hover' ? 'mouseleave' : 'focusout'
+
+        this.$element.on(eventIn  + '.' + this.type, this.options.selector, $.proxy(this.enter, this))
+        this.$element.on(eventOut + '.' + this.type, this.options.selector, $.proxy(this.leave, this))
+      }
+    }
+
+    this.options.selector ?
+      (this._options = $.extend({}, this.options, { trigger: 'manual', selector: '' })) :
+      this.fixTitle()
+  }
+
+  Tooltip.prototype.getDefaults = function () {
+    return Tooltip.DEFAULTS
+  }
+
+  Tooltip.prototype.getOptions = function (options) {
+    options = $.extend({}, this.getDefaults(), this.$element.data(), options)
+
+    if (options.delay && typeof options.delay == 'number') {
+      options.delay = {
+        show: options.delay,
+        hide: options.delay
+      }
+    }
+
+    return options
+  }
+
+  Tooltip.prototype.getDelegateOptions = function () {
+    var options  = {}
+    var defaults = this.getDefaults()
+
+    this._options && $.each(this._options, function (key, value) {
+      if (defaults[key] != value) options[key] = value
+    })
+
+    return options
+  }
+
+  Tooltip.prototype.enter = function (obj) {
+    var self = obj instanceof this.constructor ?
+      obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type)
+
+    clearTimeout(self.timeout)
+
+    self.hoverState = 'in'
+
+    if (!self.options.delay || !self.options.delay.show) return self.show()
+
+    self.timeout = setTimeout(function () {
+      if (self.hoverState == 'in') self.show()
+    }, self.options.delay.show)
+  }
+
+  Tooltip.prototype.leave = function (obj) {
+    var self = obj instanceof this.constructor ?
+      obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type)
+
+    clearTimeout(self.timeout)
+
+    self.hoverState = 'out'
+
+    if (!self.options.delay || !self.options.delay.hide) return self.hide()
+
+    self.timeout = setTimeout(function () {
+      if (self.hoverState == 'out') self.hide()
+    }, self.options.delay.hide)
+  }
+
+  Tooltip.prototype.show = function () {
+    var e = $.Event('show.bs.' + this.type)
+
+    if (this.hasContent() && this.enabled) {
+      this.$element.trigger(e)
+
+      if (e.isDefaultPrevented()) return
+      var that = this;
+
+      var $tip = this.tip()
+
+      this.setContent()
+
+      if (this.options.animation) $tip.addClass('fade')
+
+      var placement = typeof this.options.placement == 'function' ?
+        this.options.placement.call(this, $tip[0], this.$element[0]) :
+        this.options.placement
+
+      var autoToken = /\s?auto?\s?/i
+      var autoPlace = autoToken.test(placement)
+      if (autoPlace) placement = placement.replace(autoToken, '') || 'top'
+
+      $tip
+        .detach()
+        .css({ top: 0, left: 0, display: 'block' })
+        .addClass(placement)
+
+      this.options.container ? $tip.appendTo(this.options.container) : $tip.insertAfter(this.$element)
+
+      var pos          = this.getPosition()
+      var actualWidth  = $tip[0].offsetWidth
+      var actualHeight = $tip[0].offsetHeight
+
+      if (autoPlace) {
+        var orgPlacement = placement
+        var $parent      = this.$element.parent()
+        var parentDim    = this.getPosition($parent)
+
+        placement = placement == 'bottom' && pos.top   + pos.height       + actualHeight - parentDim.scroll > parentDim.height ? 'top'    :
+                    placement == 'top'    && pos.top   - parentDim.scroll - actualHeight < 0                                   ? 'bottom' :
+                    placement == 'right'  && pos.right + actualWidth      > parentDim.width                                    ? 'left'   :
+                    placement == 'left'   && pos.left  - actualWidth      < parentDim.left                                     ? 'right'  :
+                    placement
+
+        $tip
+          .removeClass(orgPlacement)
+          .addClass(placement)
+      }
+
+      var calculatedOffset = this.getCalculatedOffset(placement, pos, actualWidth, actualHeight)
+
+      this.applyPlacement(calculatedOffset, placement)
+      this.hoverState = null
+
+      var complete = function() {
+        that.$element.trigger('shown.bs.' + that.type)
+      }
+
+      $.support.transition && this.$tip.hasClass('fade') ?
+        $tip
+          .one($.support.transition.end, complete)
+          .emulateTransitionEnd(150) :
+        complete()
+    }
+  }
+
+  Tooltip.prototype.applyPlacement = function (offset, placement) {
+    var $tip   = this.tip()
+    var width  = $tip[0].offsetWidth
+    var height = $tip[0].offsetHeight
+
+    // manually read margins because getBoundingClientRect includes difference
+    var marginTop = parseInt($tip.css('margin-top'), 10)
+    var marginLeft = parseInt($tip.css('margin-left'), 10)
+
+    // we must check for NaN for ie 8/9
+    if (isNaN(marginTop))  marginTop  = 0
+    if (isNaN(marginLeft)) marginLeft = 0
+
+    offset.top  = offset.top  + marginTop
+    offset.left = offset.left + marginLeft
+
+    // $.fn.offset doesn't round pixel values
+    // so we use setOffset directly with our own function B-0
+    $.offset.setOffset($tip[0], $.extend({
+      using: function (props) {
+        $tip.css({
+          top: Math.round(props.top),
+          left: Math.round(props.left)
+        })
+      }
+    }, offset), 0)
+
+    $tip.addClass('in')
+
+    // check to see if placing tip in new offset caused the tip to resize itself
+    var actualWidth  = $tip[0].offsetWidth
+    var actualHeight = $tip[0].offsetHeight
+
+    if (placement == 'top' && actualHeight != height) {
+      offset.top = offset.top + height - actualHeight
+    }
+
+    var delta = this.getViewportAdjustedDelta(placement, offset, actualWidth, actualHeight)
+
+    if (delta.left) offset.left += delta.left
+    else offset.top += delta.top
+
+    var arrowDelta          = delta.left ? delta.left * 2 - width + actualWidth : delta.top * 2 - height + actualHeight
+    var arrowPosition       = delta.left ? 'left'        : 'top'
+    var arrowOffsetPosition = delta.left ? 'offsetWidth' : 'offsetHeight'
+
+    $tip.offset(offset)
+    this.replaceArrow(arrowDelta, $tip[0][arrowOffsetPosition], arrowPosition)
+  }
+
+  Tooltip.prototype.replaceArrow = function (delta, dimension, position) {
+    this.arrow().css(position, delta ? (50 * (1 - delta / dimension) + '%') : '')
+  }
+
+  Tooltip.prototype.setContent = function () {
+    var $tip  = this.tip()
+    var title = this.getTitle()
+
+    $tip.find('.tooltip-inner')[this.options.html ? 'html' : 'text'](title)
+    $tip.removeClass('fade in top bottom left right')
+  }
+
+  Tooltip.prototype.hide = function () {
+    var that = this
+    var $tip = this.tip()
+    var e    = $.Event('hide.bs.' + this.type)
+
+    function complete() {
+      if (that.hoverState != 'in') $tip.detach()
+      that.$element.trigger('hidden.bs.' + that.type)
+    }
+
+    this.$element.trigger(e)
+
+    if (e.isDefaultPrevented()) return
+
+    $tip.removeClass('in')
+
+    $.support.transition && this.$tip.hasClass('fade') ?
+      $tip
+        .one($.support.transition.end, complete)
+        .emulateTransitionEnd(150) :
+      complete()
+
+    this.hoverState = null
+
+    return this
+  }
+
+  Tooltip.prototype.fixTitle = function () {
+    var $e = this.$element
+    if ($e.attr('title') || typeof($e.attr('data-original-title')) != 'string') {
+      $e.attr('data-original-title', $e.attr('title') || '').attr('title', '')
+    }
+  }
+
+  Tooltip.prototype.hasContent = function () {
+    return this.getTitle()
+  }
+
+  Tooltip.prototype.getPosition = function ($element) {
+    $element   = $element || this.$element
+    var el     = $element[0]
+    var isBody = el.tagName == 'BODY'
+    return $.extend({}, (typeof el.getBoundingClientRect == 'function') ? el.getBoundingClientRect() : null, {
+      scroll: isBody ? document.documentElement.scrollTop || document.body.scrollTop : $element.scrollTop(),
+      width:  isBody ? $(window).width()  : $element.outerWidth(),
+      height: isBody ? $(window).height() : $element.outerHeight()
+    }, isBody ? {top: 0, left: 0} : $element.offset())
+  }
+
+  Tooltip.prototype.getCalculatedOffset = function (placement, pos, actualWidth, actualHeight) {
+    return placement == 'bottom' ? { top: pos.top + pos.height,   left: pos.left + pos.width / 2 - actualWidth / 2  } :
+           placement == 'top'    ? { top: pos.top - actualHeight, left: pos.left + pos.width / 2 - actualWidth / 2  } :
+           placement == 'left'   ? { top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth } :
+        /* placement == 'right' */ { top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width   }
+
+  }
+
+  Tooltip.prototype.getViewportAdjustedDelta = function (placement, pos, actualWidth, actualHeight) {
+    var delta = { top: 0, left: 0 }
+    if (!this.$viewport) return delta
+
+    var viewportPadding = this.options.viewport && this.options.viewport.padding || 0
+    var viewportDimensions = this.getPosition(this.$viewport)
+
+    if (/right|left/.test(placement)) {
+      var topEdgeOffset    = pos.top - viewportPadding - viewportDimensions.scroll
+      var bottomEdgeOffset = pos.top + viewportPadding - viewportDimensions.scroll + actualHeight
+      if (topEdgeOffset < viewportDimensions.top) { // top overflow
+        delta.top = viewportDimensions.top - topEdgeOffset
+      } else if (bottomEdgeOffset > viewportDimensions.top + viewportDimensions.height) { // bottom overflow
+        delta.top = viewportDimensions.top + viewportDimensions.height - bottomEdgeOffset
+      }
+    } else {
+      var leftEdgeOffset  = pos.left - viewportPadding
+      var rightEdgeOffset = pos.left + viewportPadding + actualWidth
+      if (leftEdgeOffset < viewportDimensions.left) { // left overflow
+        delta.left = viewportDimensions.left - leftEdgeOffset
+      } else if (rightEdgeOffset > viewportDimensions.width) { // right overflow
+        delta.left = viewportDimensions.left + viewportDimensions.width - rightEdgeOffset
+      }
+    }
+
+    return delta
+  }
+
+  Tooltip.prototype.getTitle = function () {
+    var title
+    var $e = this.$element
+    var o  = this.options
+
+    title = $e.attr('data-original-title')
+      || (typeof o.title == 'function' ? o.title.call($e[0]) :  o.title)
+
+    return title
+  }
+
+  Tooltip.prototype.tip = function () {
+    return this.$tip = this.$tip || $(this.options.template)
+  }
+
+  Tooltip.prototype.arrow = function () {
+    return this.$arrow = this.$arrow || this.tip().find('.tooltip-arrow')
+  }
+
+  Tooltip.prototype.validate = function () {
+    if (!this.$element[0].parentNode) {
+      this.hide()
+      this.$element = null
+      this.options  = null
+    }
+  }
+
+  Tooltip.prototype.enable = function () {
+    this.enabled = true
+  }
+
+  Tooltip.prototype.disable = function () {
+    this.enabled = false
+  }
+
+  Tooltip.prototype.toggleEnabled = function () {
+    this.enabled = !this.enabled
+  }
+
+  Tooltip.prototype.toggle = function (e) {
+    var self = e ? $(e.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type) : this
+    self.tip().hasClass('in') ? self.leave(self) : self.enter(self)
+  }
+
+  Tooltip.prototype.destroy = function () {
+    clearTimeout(this.timeout)
+    this.hide().$element.off('.' + this.type).removeData('bs.' + this.type)
+  }
+
+
+  // TOOLTIP PLUGIN DEFINITION
+  // =========================
+
+  var old = $.fn.tooltip
+
+  $.fn.tooltip = function (option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.tooltip')
+      var options = typeof option == 'object' && option
+
+      if (!data && option == 'destroy') return
+      if (!data) $this.data('bs.tooltip', (data = new Tooltip(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  $.fn.tooltip.Constructor = Tooltip
+
+
+  // TOOLTIP NO CONFLICT
+  // ===================
+
+  $.fn.tooltip.noConflict = function () {
+    $.fn.tooltip = old
+    return this
+  }
+
+}(jQuery);
+/* ========================================================================
+ * Bootstrap: popover.js v3.1.1
+ * http://getbootstrap.com/javascript/#popovers
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
+
++function ($) {
+  'use strict';
+
+  // POPOVER PUBLIC CLASS DEFINITION
+  // ===============================
+
+  var Popover = function (element, options) {
+    this.init('popover', element, options)
+  }
+
+  if (!$.fn.tooltip) throw new Error('Popover requires tooltip.js')
+
+  Popover.DEFAULTS = $.extend({}, $.fn.tooltip.Constructor.DEFAULTS, {
+    placement: 'right',
+    trigger: 'click',
+    content: '',
+    template: '<div class="popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+  })
+
+
+  // NOTE: POPOVER EXTENDS tooltip.js
+  // ================================
+
+  Popover.prototype = $.extend({}, $.fn.tooltip.Constructor.prototype)
+
+  Popover.prototype.constructor = Popover
+
+  Popover.prototype.getDefaults = function () {
+    return Popover.DEFAULTS
+  }
+
+  Popover.prototype.setContent = function () {
+    var $tip    = this.tip()
+    var title   = this.getTitle()
+    var content = this.getContent()
+
+    $tip.find('.popover-title')[this.options.html ? 'html' : 'text'](title)
+    $tip.find('.popover-content').empty()[ // we use append for html objects to maintain js events
+      this.options.html ? (typeof content == 'string' ? 'html' : 'append') : 'text'
+    ](content)
+
+    $tip.removeClass('fade top bottom left right in')
+
+    // IE8 doesn't accept hiding via the `:empty` pseudo selector, we have to do
+    // this manually by checking the contents.
+    if (!$tip.find('.popover-title').html()) $tip.find('.popover-title').hide()
+  }
+
+  Popover.prototype.hasContent = function () {
+    return this.getTitle() || this.getContent()
+  }
+
+  Popover.prototype.getContent = function () {
+    var $e = this.$element
+    var o  = this.options
+
+    return $e.attr('data-content')
+      || (typeof o.content == 'function' ?
+            o.content.call($e[0]) :
+            o.content)
+  }
+
+  Popover.prototype.arrow = function () {
+    return this.$arrow = this.$arrow || this.tip().find('.arrow')
+  }
+
+  Popover.prototype.tip = function () {
+    if (!this.$tip) this.$tip = $(this.options.template)
+    return this.$tip
+  }
+
+
+  // POPOVER PLUGIN DEFINITION
+  // =========================
+
+  var old = $.fn.popover
+
+  $.fn.popover = function (option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.popover')
+      var options = typeof option == 'object' && option
+
+      if (!data && option == 'destroy') return
+      if (!data) $this.data('bs.popover', (data = new Popover(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  $.fn.popover.Constructor = Popover
+
+
+  // POPOVER NO CONFLICT
+  // ===================
+
+  $.fn.popover.noConflict = function () {
+    $.fn.popover = old
+    return this
+  }
+
+}(jQuery);
+
+
+
+
+
+
+
+
+
+
+
+
+(function() {
+  var ready;
+
+  ready = function() {
+    var addDatePicker, calc_rate, checked_product, currentTravelTypeSelection, current_mutiplier, deductibleChange, dependentHide, setMinDateTo, trip_length;
+    $('.email-pop').popover({
+      animation: true,
+      html: true,
+      trigger: 'click',
+      placement: 'bottom',
+      container: 'body'
+    });
+    $('.email-pop').on('shown.bs.popover', function() {
+      return $('.email-confirm-button').click(function(e) {
+        var url;
+        e.preventDefault();
+        url = $(this).attr('href');
+        return $.post(url, {}, void 0, "script");
+      });
+    });
+    trip_length = parseInt($('.trip_length').text());
+    current_mutiplier = void 0;
+    calc_rate = function(a, b) {
+      return parseFloat(Math.round((a * b) * 100) / 100).toFixed(2);
+    };
+    deductibleChange = function() {
+      var rate, rate_element, selected;
+      rate_element = $('.modal-body').find('#rate');
+      rate = rate_element.data('rate');
+      selected = $(this).find(':selected').val().split("-");
+      current_mutiplier = selected[0];
+      if (selected[0] !== "None") {
+        rate = rate_element.data('rate') * current_mutiplier;
+      }
+      return rate_element.text("$" + (calc_rate(rate, trip_length)));
+    };
+    $('#detail_modal').modal({
+      show: false,
+      remote: false
+    });
+    $('.detail_modal').click(function(e) {
+      var drate, rate, url;
+      e.preventDefault();
+      rate = $(this).find('a').data('rate');
+      drate = calc_rate(rate, trip_length);
+      url = $(this).children('a').attr("href");
+      return $.post(url, {
+        rate: rate
+      }, void 0, "script").done(function() {
+        $('.modal-body').find('#rate').text("$" + drate);
+        $('.modal-body').find('.number_dates').text("" + trip_length + " Days");
+        $('.modal-body').find('.deductible_select').change(deductibleChange);
+        return $('#detail_modal').modal('show');
+      });
+    });
+    $('.list_deduct').change(function() {
+      var baserate, rate_field, selected;
+      selected = $(this).find(':selected').val().split("-");
+      current_mutiplier = selected[0];
+      rate_field = $(this).parents('.result_item_wrapper').find('.rate');
+      baserate = rate_field.data('baserate');
+      if (selected[0] === "None") {
+        current_mutiplier = 1;
+      }
+      return rate_field.find('p').text("$" + (calc_rate(baserate, current_mutiplier)));
+    });
+    checked_product = [];
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+      var id;
+      id = $(e.relatedTarget).attr('href');
+      if (id !== "#compare") {
+        $('#compare_tab').attr('data-toggle', '');
+        $('#compare_tab').parent('li').addClass('disabled');
+        return $(id).find("input[type='checkbox']").each(function(i, e) {
+          if ($(e).is(':checked')) {
+            return $(e).prop("checked", false);
+          }
+        });
+      }
+    });
+    $('#compare_tab').on("click", function(e) {
+      var url;
+      url = $(this).data('url');
+      e.preventDefault();
+      if (checked_product.length > 4) {
+        alert("For the best comparison, please keep the number of policy below 4!");
+        return false;
+      } else if (checked_product.length >= 2) {
+        $.post(url, {
+          products: checked_product
+        }, void 0, "script");
+      }
+    });
+    $('.compare_results').change(function(e) {
+      var inputs, name, products;
+      name = $(this).attr("name");
+      inputs = $("input[name='" + name + "']");
+      products = [];
+      inputs.each(function(i, e) {
+        var rate;
+        if ($(e).is(':checked')) {
+          rate = $(e).parents('.result_item_wrapper').find('.rate p').text().replace("$", "");
+          return products.push({
+            rate: rate,
+            id: parseInt($(e).val())
+          });
+        }
+      });
+      if (products.length >= 2) {
+        $('#compare_tab').attr('data-toggle', 'tab');
+        $('#compare_tab').parent('li').removeClass('disabled');
+      } else {
+        $('#compare_tab').attr('data-toggle', '');
+        $('#compare_tab').parent('li').addClass('disabled');
+      }
+      checked_product = products;
+      e.preventDefault();
+    });
+    $('.remove_filter').click(function(e) {
+      var id;
+      e.preventDefault();
+      id = $(this).data('id');
+      if ($("#" + id).is(':checked')) {
+        $("#" + id).click();
+      }
+      return false;
+    });
+    $('.quote_filters').change(function(e) {
+      var id, quote_id, remove_url, url;
+      id = $(this).attr('value');
+      url = $(this).parents('form').attr('action');
+      quote_id = parseInt(url.match(/\d+\.?\d*/g));
+      remove_url = "/quotes/" + quote_id + "/remove_filters";
+      if ($(this).is(':checked')) {
+        $.post(url, {
+          filter_id: id
+        }, void 0, "script");
+      } else {
+        $.post(remove_url, {
+          filter_id: id
+        }, void 0, "script");
+      }
+    });
+    setMinDateTo = function(input, inst) {
+      var currentFromDate;
+      currentFromDate = $('#quote_leave_home').val();
+      if (currentFromDate) {
+        return $(input).datepicker("option", "minDate", currentFromDate);
+      }
+    };
+    addDatePicker = function(element) {
+      element.datepicker({
+        dateFormat: "yy-mm-dd",
+        altFormat: "yy/mm/dd",
+        constrainInput: true,
+        changeYear: true,
+        changeMonth: true,
+        yearRange: "-100:+0"
+      });
+      if (element.selector === "#quote_return_home") {
+        return element.datepicker("option", "beforeShow", setMinDateTo);
+      }
+    };
+    addDatePicker($('#quote_leave_home'));
+    addDatePicker($('#quote_return_home'));
+    addDatePicker($('#quote_arrival_date'));
+    addDatePicker($('#quote_renew_expire_date'));
+    $('#quote_leave_home').change(function() {
+      var currentTo, selectedFrom;
+      selectedFrom = $('#quote_leave_home').datepicker('getDate');
+      currentTo = $('#quote_return_home').datepicker('getDate');
+      if (currentTo && currentTo < selectedFrom) {
+        $('#quote_leave_home').datepicker("setDate", selectedFrom);
+        return $('#quote_leave_home').datepicker("option", "minDate", selectedFrom);
+      }
+    });
+    $('#quote_apply_from').change(function() {
+      if ($(this).find(':selected').text() === "Yes") {
+        $('.arrival_date').fadeIn();
+        $('.renew').fadeIn();
+        return $('.renew_expire_date').fadeIn();
+      } else {
+        $('.arrival_date').fadeOut();
+        $('.renew').fadeOut();
+        return $('.renew_expire_date').fadeOut();
+      }
+    });
+    currentTravelTypeSelection = $('#quote_traveler_type').find(':selected').text();
+    dependentHide = function(hide) {
+      if (hide) {
+        $('.family_member').fadeOut();
+        return $('.dependent_fields').fadeOut();
+      } else {
+        $('.family_member').fadeIn();
+        return $('.dependent_fields').fadeIn();
+      }
+    };
+    addDatePicker($('#quote_traveler_members_attributes_0_birthday'));
+    $('#quote_traveler_type').focus(function() {
+      return currentTravelTypeSelection = $(this).find(':selected').text();
+    });
+    $('#quote_traveler_type').change(function() {
+      var adult_fields, dependent_fields, type;
+      type = $(this).find(':selected').text();
+      adult_fields = $('.adult_fields').children();
+      dependent_fields = $('.dependent_fields').children('.member_fields_group');
+      if (type === "Couple" && currentTravelTypeSelection === "Single") {
+        $('.add_adult_fields').click();
+        dependentHide(true);
+      } else if (type === "Couple" && currentTravelTypeSelection === "Family" && adult_fields.length === 1) {
+        dependent_fields.remove();
+        $('.add_adult_fields').click();
+        dependentHide(true);
+      } else if (type === "Couple" && currentTravelTypeSelection === "Family") {
+        dependent_fields.remove();
+        dependentHide(true);
+      } else if (type === "Single" && currentTravelTypeSelection === "Couple") {
+        $('.remove_adult_fields').click();
+        dependentHide(true);
+      } else if (type === "Single" && currentTravelTypeSelection === "Family" && adult_fields.length === 1) {
+        dependent_fields.remove();
+      } else if (type === "Single" && currentTravelTypeSelection === "Family") {
+        dependent_fields.remove();
+        $('.remove_adult_fields').click();
+        dependentHide(true);
+        dependentHide(true);
+      } else if (type === "Family" && currentTravelTypeSelection === "Couple") {
+        $('.add_dependent_fields').click();
+        dependentHide(false);
+      } else if (type === "Family" && currentTravelTypeSelection === "Single") {
+        $('.add_adult_fields').click();
+        $('.add_dependent_fields').click();
+        dependentHide(false);
+      } else {
+
+      }
+      return currentTravelTypeSelection = type;
+    });
+    $('.add_adult_fields').on('click', function(event) {
+      var member_fields, regexp, time;
+      time = new Date().getTime();
+      regexp = new RegExp($(this).data('id'), 'g');
+      member_fields = $('.adult_fields').children();
+      if (member_fields.length >= 2) {
+        alert("You Cannot Have more then 2 Adults");
+      } else {
+        member_fields.last().after($(this).data('fields').replace(regexp, time));
+        addDatePicker($("#quote_traveler_members_attributes_" + time + "_birthday"));
+      }
+      return event.preventDefault();
+    });
+    $('.remove_adult_fields').on('click', function(event) {
+      var member_fields;
+      member_fields = $('.adult_fields').children();
+      if (member_fields.length >= 2) {
+        member_fields.last().remove();
+      } else {
+        alert("You must have atleast 1 Adult");
+      }
+      return event.preventDefault();
+    });
+    $('.add_dependent_fields').on('click', function(event) {
+      var member_fields, regexp, time;
+      $(this).show();
+      time = new Date().getTime();
+      regexp = new RegExp($(this).data('id'), 'g');
+      member_fields = $('.dependent_fields').children('.member_fields_group');
+      if (member_fields.length === 0) {
+        $('.dependent_fields').append($(this).data('fields').replace(regexp, time).replace("Adult", "Dependent"));
+        addDatePicker($("#quote_traveler_members_attributes_" + time + "_birthday"));
+      } else if (member_fields.length >= 16) {
+        alert("Cannot have more than 16 dependent");
+      } else {
+        member_fields.last().after($(this).data('fields').replace(regexp, time).replace("Adult", "Dependent"));
+        addDatePicker($("#quote_traveler_members_attributes_" + time + "_birthday"));
+      }
+      return event.preventDefault();
+    });
+    return $('.remove_dependent_fields').on('click', function(event) {
+      var adult_fields, dependent_fields;
+      dependent_fields = $('.dependent_fields').children('.member_fields_group');
+      adult_fields = $('.adult_fields').children();
+      if (dependent_fields.length >= 2) {
+        dependent_fields.last().remove();
+      } else if (dependent_fields.length === 1 && adult_fields.length === 2) {
+        dependent_fields.last().remove();
+        $('#quote_traveler_type').val("Couple");
+        dependentHide(true);
+      } else if (dependent_fields.length === 1 && adult_fields.length === 1) {
+        dependent_fields.last().remove();
+        $('#quote_traveler_type').val("Single");
+        dependentHide(true);
+      }
+      return event.preventDefault();
+    });
+  };
+
+  $(document).ready(ready);
+
+  $(document).on('page:load', ready);
+
+}).call(this);
 /*!
  * jQuery UI Core 1.10.4
  * http://jqueryui.com
@@ -12698,6869 +15991,6 @@ $.datepicker.uuid = new Date().getTime();
 $.datepicker.version = "1.10.4";
 
 })(jQuery);
-/*!
- * jQuery UI Widget 1.10.4
- * http://jqueryui.com
- *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/jQuery.widget/
- */
-
-(function( $, undefined ) {
-
-var uuid = 0,
-	slice = Array.prototype.slice,
-	_cleanData = $.cleanData;
-$.cleanData = function( elems ) {
-	for ( var i = 0, elem; (elem = elems[i]) != null; i++ ) {
-		try {
-			$( elem ).triggerHandler( "remove" );
-		// http://bugs.jquery.com/ticket/8235
-		} catch( e ) {}
-	}
-	_cleanData( elems );
-};
-
-$.widget = function( name, base, prototype ) {
-	var fullName, existingConstructor, constructor, basePrototype,
-		// proxiedPrototype allows the provided prototype to remain unmodified
-		// so that it can be used as a mixin for multiple widgets (#8876)
-		proxiedPrototype = {},
-		namespace = name.split( "." )[ 0 ];
-
-	name = name.split( "." )[ 1 ];
-	fullName = namespace + "-" + name;
-
-	if ( !prototype ) {
-		prototype = base;
-		base = $.Widget;
-	}
-
-	// create selector for plugin
-	$.expr[ ":" ][ fullName.toLowerCase() ] = function( elem ) {
-		return !!$.data( elem, fullName );
-	};
-
-	$[ namespace ] = $[ namespace ] || {};
-	existingConstructor = $[ namespace ][ name ];
-	constructor = $[ namespace ][ name ] = function( options, element ) {
-		// allow instantiation without "new" keyword
-		if ( !this._createWidget ) {
-			return new constructor( options, element );
-		}
-
-		// allow instantiation without initializing for simple inheritance
-		// must use "new" keyword (the code above always passes args)
-		if ( arguments.length ) {
-			this._createWidget( options, element );
-		}
-	};
-	// extend with the existing constructor to carry over any static properties
-	$.extend( constructor, existingConstructor, {
-		version: prototype.version,
-		// copy the object used to create the prototype in case we need to
-		// redefine the widget later
-		_proto: $.extend( {}, prototype ),
-		// track widgets that inherit from this widget in case this widget is
-		// redefined after a widget inherits from it
-		_childConstructors: []
-	});
-
-	basePrototype = new base();
-	// we need to make the options hash a property directly on the new instance
-	// otherwise we'll modify the options hash on the prototype that we're
-	// inheriting from
-	basePrototype.options = $.widget.extend( {}, basePrototype.options );
-	$.each( prototype, function( prop, value ) {
-		if ( !$.isFunction( value ) ) {
-			proxiedPrototype[ prop ] = value;
-			return;
-		}
-		proxiedPrototype[ prop ] = (function() {
-			var _super = function() {
-					return base.prototype[ prop ].apply( this, arguments );
-				},
-				_superApply = function( args ) {
-					return base.prototype[ prop ].apply( this, args );
-				};
-			return function() {
-				var __super = this._super,
-					__superApply = this._superApply,
-					returnValue;
-
-				this._super = _super;
-				this._superApply = _superApply;
-
-				returnValue = value.apply( this, arguments );
-
-				this._super = __super;
-				this._superApply = __superApply;
-
-				return returnValue;
-			};
-		})();
-	});
-	constructor.prototype = $.widget.extend( basePrototype, {
-		// TODO: remove support for widgetEventPrefix
-		// always use the name + a colon as the prefix, e.g., draggable:start
-		// don't prefix for widgets that aren't DOM-based
-		widgetEventPrefix: existingConstructor ? (basePrototype.widgetEventPrefix || name) : name
-	}, proxiedPrototype, {
-		constructor: constructor,
-		namespace: namespace,
-		widgetName: name,
-		widgetFullName: fullName
-	});
-
-	// If this widget is being redefined then we need to find all widgets that
-	// are inheriting from it and redefine all of them so that they inherit from
-	// the new version of this widget. We're essentially trying to replace one
-	// level in the prototype chain.
-	if ( existingConstructor ) {
-		$.each( existingConstructor._childConstructors, function( i, child ) {
-			var childPrototype = child.prototype;
-
-			// redefine the child widget using the same prototype that was
-			// originally used, but inherit from the new version of the base
-			$.widget( childPrototype.namespace + "." + childPrototype.widgetName, constructor, child._proto );
-		});
-		// remove the list of existing child constructors from the old constructor
-		// so the old child constructors can be garbage collected
-		delete existingConstructor._childConstructors;
-	} else {
-		base._childConstructors.push( constructor );
-	}
-
-	$.widget.bridge( name, constructor );
-};
-
-$.widget.extend = function( target ) {
-	var input = slice.call( arguments, 1 ),
-		inputIndex = 0,
-		inputLength = input.length,
-		key,
-		value;
-	for ( ; inputIndex < inputLength; inputIndex++ ) {
-		for ( key in input[ inputIndex ] ) {
-			value = input[ inputIndex ][ key ];
-			if ( input[ inputIndex ].hasOwnProperty( key ) && value !== undefined ) {
-				// Clone objects
-				if ( $.isPlainObject( value ) ) {
-					target[ key ] = $.isPlainObject( target[ key ] ) ?
-						$.widget.extend( {}, target[ key ], value ) :
-						// Don't extend strings, arrays, etc. with objects
-						$.widget.extend( {}, value );
-				// Copy everything else by reference
-				} else {
-					target[ key ] = value;
-				}
-			}
-		}
-	}
-	return target;
-};
-
-$.widget.bridge = function( name, object ) {
-	var fullName = object.prototype.widgetFullName || name;
-	$.fn[ name ] = function( options ) {
-		var isMethodCall = typeof options === "string",
-			args = slice.call( arguments, 1 ),
-			returnValue = this;
-
-		// allow multiple hashes to be passed on init
-		options = !isMethodCall && args.length ?
-			$.widget.extend.apply( null, [ options ].concat(args) ) :
-			options;
-
-		if ( isMethodCall ) {
-			this.each(function() {
-				var methodValue,
-					instance = $.data( this, fullName );
-				if ( !instance ) {
-					return $.error( "cannot call methods on " + name + " prior to initialization; " +
-						"attempted to call method '" + options + "'" );
-				}
-				if ( !$.isFunction( instance[options] ) || options.charAt( 0 ) === "_" ) {
-					return $.error( "no such method '" + options + "' for " + name + " widget instance" );
-				}
-				methodValue = instance[ options ].apply( instance, args );
-				if ( methodValue !== instance && methodValue !== undefined ) {
-					returnValue = methodValue && methodValue.jquery ?
-						returnValue.pushStack( methodValue.get() ) :
-						methodValue;
-					return false;
-				}
-			});
-		} else {
-			this.each(function() {
-				var instance = $.data( this, fullName );
-				if ( instance ) {
-					instance.option( options || {} )._init();
-				} else {
-					$.data( this, fullName, new object( options, this ) );
-				}
-			});
-		}
-
-		return returnValue;
-	};
-};
-
-$.Widget = function( /* options, element */ ) {};
-$.Widget._childConstructors = [];
-
-$.Widget.prototype = {
-	widgetName: "widget",
-	widgetEventPrefix: "",
-	defaultElement: "<div>",
-	options: {
-		disabled: false,
-
-		// callbacks
-		create: null
-	},
-	_createWidget: function( options, element ) {
-		element = $( element || this.defaultElement || this )[ 0 ];
-		this.element = $( element );
-		this.uuid = uuid++;
-		this.eventNamespace = "." + this.widgetName + this.uuid;
-		this.options = $.widget.extend( {},
-			this.options,
-			this._getCreateOptions(),
-			options );
-
-		this.bindings = $();
-		this.hoverable = $();
-		this.focusable = $();
-
-		if ( element !== this ) {
-			$.data( element, this.widgetFullName, this );
-			this._on( true, this.element, {
-				remove: function( event ) {
-					if ( event.target === element ) {
-						this.destroy();
-					}
-				}
-			});
-			this.document = $( element.style ?
-				// element within the document
-				element.ownerDocument :
-				// element is window or document
-				element.document || element );
-			this.window = $( this.document[0].defaultView || this.document[0].parentWindow );
-		}
-
-		this._create();
-		this._trigger( "create", null, this._getCreateEventData() );
-		this._init();
-	},
-	_getCreateOptions: $.noop,
-	_getCreateEventData: $.noop,
-	_create: $.noop,
-	_init: $.noop,
-
-	destroy: function() {
-		this._destroy();
-		// we can probably remove the unbind calls in 2.0
-		// all event bindings should go through this._on()
-		this.element
-			.unbind( this.eventNamespace )
-			// 1.9 BC for #7810
-			// TODO remove dual storage
-			.removeData( this.widgetName )
-			.removeData( this.widgetFullName )
-			// support: jquery <1.6.3
-			// http://bugs.jquery.com/ticket/9413
-			.removeData( $.camelCase( this.widgetFullName ) );
-		this.widget()
-			.unbind( this.eventNamespace )
-			.removeAttr( "aria-disabled" )
-			.removeClass(
-				this.widgetFullName + "-disabled " +
-				"ui-state-disabled" );
-
-		// clean up events and states
-		this.bindings.unbind( this.eventNamespace );
-		this.hoverable.removeClass( "ui-state-hover" );
-		this.focusable.removeClass( "ui-state-focus" );
-	},
-	_destroy: $.noop,
-
-	widget: function() {
-		return this.element;
-	},
-
-	option: function( key, value ) {
-		var options = key,
-			parts,
-			curOption,
-			i;
-
-		if ( arguments.length === 0 ) {
-			// don't return a reference to the internal hash
-			return $.widget.extend( {}, this.options );
-		}
-
-		if ( typeof key === "string" ) {
-			// handle nested keys, e.g., "foo.bar" => { foo: { bar: ___ } }
-			options = {};
-			parts = key.split( "." );
-			key = parts.shift();
-			if ( parts.length ) {
-				curOption = options[ key ] = $.widget.extend( {}, this.options[ key ] );
-				for ( i = 0; i < parts.length - 1; i++ ) {
-					curOption[ parts[ i ] ] = curOption[ parts[ i ] ] || {};
-					curOption = curOption[ parts[ i ] ];
-				}
-				key = parts.pop();
-				if ( arguments.length === 1 ) {
-					return curOption[ key ] === undefined ? null : curOption[ key ];
-				}
-				curOption[ key ] = value;
-			} else {
-				if ( arguments.length === 1 ) {
-					return this.options[ key ] === undefined ? null : this.options[ key ];
-				}
-				options[ key ] = value;
-			}
-		}
-
-		this._setOptions( options );
-
-		return this;
-	},
-	_setOptions: function( options ) {
-		var key;
-
-		for ( key in options ) {
-			this._setOption( key, options[ key ] );
-		}
-
-		return this;
-	},
-	_setOption: function( key, value ) {
-		this.options[ key ] = value;
-
-		if ( key === "disabled" ) {
-			this.widget()
-				.toggleClass( this.widgetFullName + "-disabled ui-state-disabled", !!value )
-				.attr( "aria-disabled", value );
-			this.hoverable.removeClass( "ui-state-hover" );
-			this.focusable.removeClass( "ui-state-focus" );
-		}
-
-		return this;
-	},
-
-	enable: function() {
-		return this._setOption( "disabled", false );
-	},
-	disable: function() {
-		return this._setOption( "disabled", true );
-	},
-
-	_on: function( suppressDisabledCheck, element, handlers ) {
-		var delegateElement,
-			instance = this;
-
-		// no suppressDisabledCheck flag, shuffle arguments
-		if ( typeof suppressDisabledCheck !== "boolean" ) {
-			handlers = element;
-			element = suppressDisabledCheck;
-			suppressDisabledCheck = false;
-		}
-
-		// no element argument, shuffle and use this.element
-		if ( !handlers ) {
-			handlers = element;
-			element = this.element;
-			delegateElement = this.widget();
-		} else {
-			// accept selectors, DOM elements
-			element = delegateElement = $( element );
-			this.bindings = this.bindings.add( element );
-		}
-
-		$.each( handlers, function( event, handler ) {
-			function handlerProxy() {
-				// allow widgets to customize the disabled handling
-				// - disabled as an array instead of boolean
-				// - disabled class as method for disabling individual parts
-				if ( !suppressDisabledCheck &&
-						( instance.options.disabled === true ||
-							$( this ).hasClass( "ui-state-disabled" ) ) ) {
-					return;
-				}
-				return ( typeof handler === "string" ? instance[ handler ] : handler )
-					.apply( instance, arguments );
-			}
-
-			// copy the guid so direct unbinding works
-			if ( typeof handler !== "string" ) {
-				handlerProxy.guid = handler.guid =
-					handler.guid || handlerProxy.guid || $.guid++;
-			}
-
-			var match = event.match( /^(\w+)\s*(.*)$/ ),
-				eventName = match[1] + instance.eventNamespace,
-				selector = match[2];
-			if ( selector ) {
-				delegateElement.delegate( selector, eventName, handlerProxy );
-			} else {
-				element.bind( eventName, handlerProxy );
-			}
-		});
-	},
-
-	_off: function( element, eventName ) {
-		eventName = (eventName || "").split( " " ).join( this.eventNamespace + " " ) + this.eventNamespace;
-		element.unbind( eventName ).undelegate( eventName );
-	},
-
-	_delay: function( handler, delay ) {
-		function handlerProxy() {
-			return ( typeof handler === "string" ? instance[ handler ] : handler )
-				.apply( instance, arguments );
-		}
-		var instance = this;
-		return setTimeout( handlerProxy, delay || 0 );
-	},
-
-	_hoverable: function( element ) {
-		this.hoverable = this.hoverable.add( element );
-		this._on( element, {
-			mouseenter: function( event ) {
-				$( event.currentTarget ).addClass( "ui-state-hover" );
-			},
-			mouseleave: function( event ) {
-				$( event.currentTarget ).removeClass( "ui-state-hover" );
-			}
-		});
-	},
-
-	_focusable: function( element ) {
-		this.focusable = this.focusable.add( element );
-		this._on( element, {
-			focusin: function( event ) {
-				$( event.currentTarget ).addClass( "ui-state-focus" );
-			},
-			focusout: function( event ) {
-				$( event.currentTarget ).removeClass( "ui-state-focus" );
-			}
-		});
-	},
-
-	_trigger: function( type, event, data ) {
-		var prop, orig,
-			callback = this.options[ type ];
-
-		data = data || {};
-		event = $.Event( event );
-		event.type = ( type === this.widgetEventPrefix ?
-			type :
-			this.widgetEventPrefix + type ).toLowerCase();
-		// the original event may come from any element
-		// so we need to reset the target on the new event
-		event.target = this.element[ 0 ];
-
-		// copy original event properties over to the new event
-		orig = event.originalEvent;
-		if ( orig ) {
-			for ( prop in orig ) {
-				if ( !( prop in event ) ) {
-					event[ prop ] = orig[ prop ];
-				}
-			}
-		}
-
-		this.element.trigger( event, data );
-		return !( $.isFunction( callback ) &&
-			callback.apply( this.element[0], [ event ].concat( data ) ) === false ||
-			event.isDefaultPrevented() );
-	}
-};
-
-$.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
-	$.Widget.prototype[ "_" + method ] = function( element, options, callback ) {
-		if ( typeof options === "string" ) {
-			options = { effect: options };
-		}
-		var hasOptions,
-			effectName = !options ?
-				method :
-				options === true || typeof options === "number" ?
-					defaultEffect :
-					options.effect || defaultEffect;
-		options = options || {};
-		if ( typeof options === "number" ) {
-			options = { duration: options };
-		}
-		hasOptions = !$.isEmptyObject( options );
-		options.complete = callback;
-		if ( options.delay ) {
-			element.delay( options.delay );
-		}
-		if ( hasOptions && $.effects && $.effects.effect[ effectName ] ) {
-			element[ method ]( options );
-		} else if ( effectName !== method && element[ effectName ] ) {
-			element[ effectName ]( options.duration, options.easing, callback );
-		} else {
-			element.queue(function( next ) {
-				$( this )[ method ]();
-				if ( callback ) {
-					callback.call( element[ 0 ] );
-				}
-				next();
-			});
-		}
-	};
-});
-
-})( jQuery );
-
-
-
-/*!
- * jQuery UI Button 1.10.4
- * http://jqueryui.com
- *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/button/
- *
- * Depends:
- *	jquery.ui.core.js
- *	jquery.ui.widget.js
- */
-
-(function( $, undefined ) {
-
-var lastActive,
-	baseClasses = "ui-button ui-widget ui-state-default ui-corner-all",
-	typeClasses = "ui-button-icons-only ui-button-icon-only ui-button-text-icons ui-button-text-icon-primary ui-button-text-icon-secondary ui-button-text-only",
-	formResetHandler = function() {
-		var form = $( this );
-		setTimeout(function() {
-			form.find( ":ui-button" ).button( "refresh" );
-		}, 1 );
-	},
-	radioGroup = function( radio ) {
-		var name = radio.name,
-			form = radio.form,
-			radios = $( [] );
-		if ( name ) {
-			name = name.replace( /'/g, "\\'" );
-			if ( form ) {
-				radios = $( form ).find( "[name='" + name + "']" );
-			} else {
-				radios = $( "[name='" + name + "']", radio.ownerDocument )
-					.filter(function() {
-						return !this.form;
-					});
-			}
-		}
-		return radios;
-	};
-
-$.widget( "ui.button", {
-	version: "1.10.4",
-	defaultElement: "<button>",
-	options: {
-		disabled: null,
-		text: true,
-		label: null,
-		icons: {
-			primary: null,
-			secondary: null
-		}
-	},
-	_create: function() {
-		this.element.closest( "form" )
-			.unbind( "reset" + this.eventNamespace )
-			.bind( "reset" + this.eventNamespace, formResetHandler );
-
-		if ( typeof this.options.disabled !== "boolean" ) {
-			this.options.disabled = !!this.element.prop( "disabled" );
-		} else {
-			this.element.prop( "disabled", this.options.disabled );
-		}
-
-		this._determineButtonType();
-		this.hasTitle = !!this.buttonElement.attr( "title" );
-
-		var that = this,
-			options = this.options,
-			toggleButton = this.type === "checkbox" || this.type === "radio",
-			activeClass = !toggleButton ? "ui-state-active" : "";
-
-		if ( options.label === null ) {
-			options.label = (this.type === "input" ? this.buttonElement.val() : this.buttonElement.html());
-		}
-
-		this._hoverable( this.buttonElement );
-
-		this.buttonElement
-			.addClass( baseClasses )
-			.attr( "role", "button" )
-			.bind( "mouseenter" + this.eventNamespace, function() {
-				if ( options.disabled ) {
-					return;
-				}
-				if ( this === lastActive ) {
-					$( this ).addClass( "ui-state-active" );
-				}
-			})
-			.bind( "mouseleave" + this.eventNamespace, function() {
-				if ( options.disabled ) {
-					return;
-				}
-				$( this ).removeClass( activeClass );
-			})
-			.bind( "click" + this.eventNamespace, function( event ) {
-				if ( options.disabled ) {
-					event.preventDefault();
-					event.stopImmediatePropagation();
-				}
-			});
-
-		// Can't use _focusable() because the element that receives focus
-		// and the element that gets the ui-state-focus class are different
-		this._on({
-			focus: function() {
-				this.buttonElement.addClass( "ui-state-focus" );
-			},
-			blur: function() {
-				this.buttonElement.removeClass( "ui-state-focus" );
-			}
-		});
-
-		if ( toggleButton ) {
-			this.element.bind( "change" + this.eventNamespace, function() {
-				that.refresh();
-			});
-		}
-
-		if ( this.type === "checkbox" ) {
-			this.buttonElement.bind( "click" + this.eventNamespace, function() {
-				if ( options.disabled ) {
-					return false;
-				}
-			});
-		} else if ( this.type === "radio" ) {
-			this.buttonElement.bind( "click" + this.eventNamespace, function() {
-				if ( options.disabled ) {
-					return false;
-				}
-				$( this ).addClass( "ui-state-active" );
-				that.buttonElement.attr( "aria-pressed", "true" );
-
-				var radio = that.element[ 0 ];
-				radioGroup( radio )
-					.not( radio )
-					.map(function() {
-						return $( this ).button( "widget" )[ 0 ];
-					})
-					.removeClass( "ui-state-active" )
-					.attr( "aria-pressed", "false" );
-			});
-		} else {
-			this.buttonElement
-				.bind( "mousedown" + this.eventNamespace, function() {
-					if ( options.disabled ) {
-						return false;
-					}
-					$( this ).addClass( "ui-state-active" );
-					lastActive = this;
-					that.document.one( "mouseup", function() {
-						lastActive = null;
-					});
-				})
-				.bind( "mouseup" + this.eventNamespace, function() {
-					if ( options.disabled ) {
-						return false;
-					}
-					$( this ).removeClass( "ui-state-active" );
-				})
-				.bind( "keydown" + this.eventNamespace, function(event) {
-					if ( options.disabled ) {
-						return false;
-					}
-					if ( event.keyCode === $.ui.keyCode.SPACE || event.keyCode === $.ui.keyCode.ENTER ) {
-						$( this ).addClass( "ui-state-active" );
-					}
-				})
-				// see #8559, we bind to blur here in case the button element loses
-				// focus between keydown and keyup, it would be left in an "active" state
-				.bind( "keyup" + this.eventNamespace + " blur" + this.eventNamespace, function() {
-					$( this ).removeClass( "ui-state-active" );
-				});
-
-			if ( this.buttonElement.is("a") ) {
-				this.buttonElement.keyup(function(event) {
-					if ( event.keyCode === $.ui.keyCode.SPACE ) {
-						// TODO pass through original event correctly (just as 2nd argument doesn't work)
-						$( this ).click();
-					}
-				});
-			}
-		}
-
-		// TODO: pull out $.Widget's handling for the disabled option into
-		// $.Widget.prototype._setOptionDisabled so it's easy to proxy and can
-		// be overridden by individual plugins
-		this._setOption( "disabled", options.disabled );
-		this._resetButton();
-	},
-
-	_determineButtonType: function() {
-		var ancestor, labelSelector, checked;
-
-		if ( this.element.is("[type=checkbox]") ) {
-			this.type = "checkbox";
-		} else if ( this.element.is("[type=radio]") ) {
-			this.type = "radio";
-		} else if ( this.element.is("input") ) {
-			this.type = "input";
-		} else {
-			this.type = "button";
-		}
-
-		if ( this.type === "checkbox" || this.type === "radio" ) {
-			// we don't search against the document in case the element
-			// is disconnected from the DOM
-			ancestor = this.element.parents().last();
-			labelSelector = "label[for='" + this.element.attr("id") + "']";
-			this.buttonElement = ancestor.find( labelSelector );
-			if ( !this.buttonElement.length ) {
-				ancestor = ancestor.length ? ancestor.siblings() : this.element.siblings();
-				this.buttonElement = ancestor.filter( labelSelector );
-				if ( !this.buttonElement.length ) {
-					this.buttonElement = ancestor.find( labelSelector );
-				}
-			}
-			this.element.addClass( "ui-helper-hidden-accessible" );
-
-			checked = this.element.is( ":checked" );
-			if ( checked ) {
-				this.buttonElement.addClass( "ui-state-active" );
-			}
-			this.buttonElement.prop( "aria-pressed", checked );
-		} else {
-			this.buttonElement = this.element;
-		}
-	},
-
-	widget: function() {
-		return this.buttonElement;
-	},
-
-	_destroy: function() {
-		this.element
-			.removeClass( "ui-helper-hidden-accessible" );
-		this.buttonElement
-			.removeClass( baseClasses + " ui-state-active " + typeClasses )
-			.removeAttr( "role" )
-			.removeAttr( "aria-pressed" )
-			.html( this.buttonElement.find(".ui-button-text").html() );
-
-		if ( !this.hasTitle ) {
-			this.buttonElement.removeAttr( "title" );
-		}
-	},
-
-	_setOption: function( key, value ) {
-		this._super( key, value );
-		if ( key === "disabled" ) {
-			this.element.prop( "disabled", !!value );
-			if ( value ) {
-				this.buttonElement.removeClass( "ui-state-focus" );
-			}
-			return;
-		}
-		this._resetButton();
-	},
-
-	refresh: function() {
-		//See #8237 & #8828
-		var isDisabled = this.element.is( "input, button" ) ? this.element.is( ":disabled" ) : this.element.hasClass( "ui-button-disabled" );
-
-		if ( isDisabled !== this.options.disabled ) {
-			this._setOption( "disabled", isDisabled );
-		}
-		if ( this.type === "radio" ) {
-			radioGroup( this.element[0] ).each(function() {
-				if ( $( this ).is( ":checked" ) ) {
-					$( this ).button( "widget" )
-						.addClass( "ui-state-active" )
-						.attr( "aria-pressed", "true" );
-				} else {
-					$( this ).button( "widget" )
-						.removeClass( "ui-state-active" )
-						.attr( "aria-pressed", "false" );
-				}
-			});
-		} else if ( this.type === "checkbox" ) {
-			if ( this.element.is( ":checked" ) ) {
-				this.buttonElement
-					.addClass( "ui-state-active" )
-					.attr( "aria-pressed", "true" );
-			} else {
-				this.buttonElement
-					.removeClass( "ui-state-active" )
-					.attr( "aria-pressed", "false" );
-			}
-		}
-	},
-
-	_resetButton: function() {
-		if ( this.type === "input" ) {
-			if ( this.options.label ) {
-				this.element.val( this.options.label );
-			}
-			return;
-		}
-		var buttonElement = this.buttonElement.removeClass( typeClasses ),
-			buttonText = $( "<span></span>", this.document[0] )
-				.addClass( "ui-button-text" )
-				.html( this.options.label )
-				.appendTo( buttonElement.empty() )
-				.text(),
-			icons = this.options.icons,
-			multipleIcons = icons.primary && icons.secondary,
-			buttonClasses = [];
-
-		if ( icons.primary || icons.secondary ) {
-			if ( this.options.text ) {
-				buttonClasses.push( "ui-button-text-icon" + ( multipleIcons ? "s" : ( icons.primary ? "-primary" : "-secondary" ) ) );
-			}
-
-			if ( icons.primary ) {
-				buttonElement.prepend( "<span class='ui-button-icon-primary ui-icon " + icons.primary + "'></span>" );
-			}
-
-			if ( icons.secondary ) {
-				buttonElement.append( "<span class='ui-button-icon-secondary ui-icon " + icons.secondary + "'></span>" );
-			}
-
-			if ( !this.options.text ) {
-				buttonClasses.push( multipleIcons ? "ui-button-icons-only" : "ui-button-icon-only" );
-
-				if ( !this.hasTitle ) {
-					buttonElement.attr( "title", $.trim( buttonText ) );
-				}
-			}
-		} else {
-			buttonClasses.push( "ui-button-text-only" );
-		}
-		buttonElement.addClass( buttonClasses.join( " " ) );
-	}
-});
-
-$.widget( "ui.buttonset", {
-	version: "1.10.4",
-	options: {
-		items: "button, input[type=button], input[type=submit], input[type=reset], input[type=checkbox], input[type=radio], a, :data(ui-button)"
-	},
-
-	_create: function() {
-		this.element.addClass( "ui-buttonset" );
-	},
-
-	_init: function() {
-		this.refresh();
-	},
-
-	_setOption: function( key, value ) {
-		if ( key === "disabled" ) {
-			this.buttons.button( "option", key, value );
-		}
-
-		this._super( key, value );
-	},
-
-	refresh: function() {
-		var rtl = this.element.css( "direction" ) === "rtl";
-
-		this.buttons = this.element.find( this.options.items )
-			.filter( ":ui-button" )
-				.button( "refresh" )
-			.end()
-			.not( ":ui-button" )
-				.button()
-			.end()
-			.map(function() {
-				return $( this ).button( "widget" )[ 0 ];
-			})
-				.removeClass( "ui-corner-all ui-corner-left ui-corner-right" )
-				.filter( ":first" )
-					.addClass( rtl ? "ui-corner-right" : "ui-corner-left" )
-				.end()
-				.filter( ":last" )
-					.addClass( rtl ? "ui-corner-left" : "ui-corner-right" )
-				.end()
-			.end();
-	},
-
-	_destroy: function() {
-		this.element.removeClass( "ui-buttonset" );
-		this.buttons
-			.map(function() {
-				return $( this ).button( "widget" )[ 0 ];
-			})
-				.removeClass( "ui-corner-left ui-corner-right" )
-			.end()
-			.button( "destroy" );
-	}
-});
-
-}( jQuery ) );
-
-
-
-/*!
- * jQuery UI Mouse 1.10.4
- * http://jqueryui.com
- *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/mouse/
- *
- * Depends:
- *	jquery.ui.widget.js
- */
-
-(function( $, undefined ) {
-
-var mouseHandled = false;
-$( document ).mouseup( function() {
-	mouseHandled = false;
-});
-
-$.widget("ui.mouse", {
-	version: "1.10.4",
-	options: {
-		cancel: "input,textarea,button,select,option",
-		distance: 1,
-		delay: 0
-	},
-	_mouseInit: function() {
-		var that = this;
-
-		this.element
-			.bind("mousedown."+this.widgetName, function(event) {
-				return that._mouseDown(event);
-			})
-			.bind("click."+this.widgetName, function(event) {
-				if (true === $.data(event.target, that.widgetName + ".preventClickEvent")) {
-					$.removeData(event.target, that.widgetName + ".preventClickEvent");
-					event.stopImmediatePropagation();
-					return false;
-				}
-			});
-
-		this.started = false;
-	},
-
-	// TODO: make sure destroying one instance of mouse doesn't mess with
-	// other instances of mouse
-	_mouseDestroy: function() {
-		this.element.unbind("."+this.widgetName);
-		if ( this._mouseMoveDelegate ) {
-			$(document)
-				.unbind("mousemove."+this.widgetName, this._mouseMoveDelegate)
-				.unbind("mouseup."+this.widgetName, this._mouseUpDelegate);
-		}
-	},
-
-	_mouseDown: function(event) {
-		// don't let more than one widget handle mouseStart
-		if( mouseHandled ) { return; }
-
-		// we may have missed mouseup (out of window)
-		(this._mouseStarted && this._mouseUp(event));
-
-		this._mouseDownEvent = event;
-
-		var that = this,
-			btnIsLeft = (event.which === 1),
-			// event.target.nodeName works around a bug in IE 8 with
-			// disabled inputs (#7620)
-			elIsCancel = (typeof this.options.cancel === "string" && event.target.nodeName ? $(event.target).closest(this.options.cancel).length : false);
-		if (!btnIsLeft || elIsCancel || !this._mouseCapture(event)) {
-			return true;
-		}
-
-		this.mouseDelayMet = !this.options.delay;
-		if (!this.mouseDelayMet) {
-			this._mouseDelayTimer = setTimeout(function() {
-				that.mouseDelayMet = true;
-			}, this.options.delay);
-		}
-
-		if (this._mouseDistanceMet(event) && this._mouseDelayMet(event)) {
-			this._mouseStarted = (this._mouseStart(event) !== false);
-			if (!this._mouseStarted) {
-				event.preventDefault();
-				return true;
-			}
-		}
-
-		// Click event may never have fired (Gecko & Opera)
-		if (true === $.data(event.target, this.widgetName + ".preventClickEvent")) {
-			$.removeData(event.target, this.widgetName + ".preventClickEvent");
-		}
-
-		// these delegates are required to keep context
-		this._mouseMoveDelegate = function(event) {
-			return that._mouseMove(event);
-		};
-		this._mouseUpDelegate = function(event) {
-			return that._mouseUp(event);
-		};
-		$(document)
-			.bind("mousemove."+this.widgetName, this._mouseMoveDelegate)
-			.bind("mouseup."+this.widgetName, this._mouseUpDelegate);
-
-		event.preventDefault();
-
-		mouseHandled = true;
-		return true;
-	},
-
-	_mouseMove: function(event) {
-		// IE mouseup check - mouseup happened when mouse was out of window
-		if ($.ui.ie && ( !document.documentMode || document.documentMode < 9 ) && !event.button) {
-			return this._mouseUp(event);
-		}
-
-		if (this._mouseStarted) {
-			this._mouseDrag(event);
-			return event.preventDefault();
-		}
-
-		if (this._mouseDistanceMet(event) && this._mouseDelayMet(event)) {
-			this._mouseStarted =
-				(this._mouseStart(this._mouseDownEvent, event) !== false);
-			(this._mouseStarted ? this._mouseDrag(event) : this._mouseUp(event));
-		}
-
-		return !this._mouseStarted;
-	},
-
-	_mouseUp: function(event) {
-		$(document)
-			.unbind("mousemove."+this.widgetName, this._mouseMoveDelegate)
-			.unbind("mouseup."+this.widgetName, this._mouseUpDelegate);
-
-		if (this._mouseStarted) {
-			this._mouseStarted = false;
-
-			if (event.target === this._mouseDownEvent.target) {
-				$.data(event.target, this.widgetName + ".preventClickEvent", true);
-			}
-
-			this._mouseStop(event);
-		}
-
-		return false;
-	},
-
-	_mouseDistanceMet: function(event) {
-		return (Math.max(
-				Math.abs(this._mouseDownEvent.pageX - event.pageX),
-				Math.abs(this._mouseDownEvent.pageY - event.pageY)
-			) >= this.options.distance
-		);
-	},
-
-	_mouseDelayMet: function(/* event */) {
-		return this.mouseDelayMet;
-	},
-
-	// These are placeholder methods, to be overriden by extending plugin
-	_mouseStart: function(/* event */) {},
-	_mouseDrag: function(/* event */) {},
-	_mouseStop: function(/* event */) {},
-	_mouseCapture: function(/* event */) { return true; }
-});
-
-})(jQuery);
-
-
-
-
-/*!
- * jQuery UI Draggable 1.10.4
- * http://jqueryui.com
- *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/draggable/
- *
- * Depends:
- *	jquery.ui.core.js
- *	jquery.ui.mouse.js
- *	jquery.ui.widget.js
- */
-
-(function( $, undefined ) {
-
-$.widget("ui.draggable", $.ui.mouse, {
-	version: "1.10.4",
-	widgetEventPrefix: "drag",
-	options: {
-		addClasses: true,
-		appendTo: "parent",
-		axis: false,
-		connectToSortable: false,
-		containment: false,
-		cursor: "auto",
-		cursorAt: false,
-		grid: false,
-		handle: false,
-		helper: "original",
-		iframeFix: false,
-		opacity: false,
-		refreshPositions: false,
-		revert: false,
-		revertDuration: 500,
-		scope: "default",
-		scroll: true,
-		scrollSensitivity: 20,
-		scrollSpeed: 20,
-		snap: false,
-		snapMode: "both",
-		snapTolerance: 20,
-		stack: false,
-		zIndex: false,
-
-		// callbacks
-		drag: null,
-		start: null,
-		stop: null
-	},
-	_create: function() {
-
-		if (this.options.helper === "original" && !(/^(?:r|a|f)/).test(this.element.css("position"))) {
-			this.element[0].style.position = "relative";
-		}
-		if (this.options.addClasses){
-			this.element.addClass("ui-draggable");
-		}
-		if (this.options.disabled){
-			this.element.addClass("ui-draggable-disabled");
-		}
-
-		this._mouseInit();
-
-	},
-
-	_destroy: function() {
-		this.element.removeClass( "ui-draggable ui-draggable-dragging ui-draggable-disabled" );
-		this._mouseDestroy();
-	},
-
-	_mouseCapture: function(event) {
-
-		var o = this.options;
-
-		// among others, prevent a drag on a resizable-handle
-		if (this.helper || o.disabled || $(event.target).closest(".ui-resizable-handle").length > 0) {
-			return false;
-		}
-
-		//Quit if we're not on a valid handle
-		this.handle = this._getHandle(event);
-		if (!this.handle) {
-			return false;
-		}
-
-		$(o.iframeFix === true ? "iframe" : o.iframeFix).each(function() {
-			$("<div class='ui-draggable-iframeFix' style='background: #fff;'></div>")
-			.css({
-				width: this.offsetWidth+"px", height: this.offsetHeight+"px",
-				position: "absolute", opacity: "0.001", zIndex: 1000
-			})
-			.css($(this).offset())
-			.appendTo("body");
-		});
-
-		return true;
-
-	},
-
-	_mouseStart: function(event) {
-
-		var o = this.options;
-
-		//Create and append the visible helper
-		this.helper = this._createHelper(event);
-
-		this.helper.addClass("ui-draggable-dragging");
-
-		//Cache the helper size
-		this._cacheHelperProportions();
-
-		//If ddmanager is used for droppables, set the global draggable
-		if($.ui.ddmanager) {
-			$.ui.ddmanager.current = this;
-		}
-
-		/*
-		 * - Position generation -
-		 * This block generates everything position related - it's the core of draggables.
-		 */
-
-		//Cache the margins of the original element
-		this._cacheMargins();
-
-		//Store the helper's css position
-		this.cssPosition = this.helper.css( "position" );
-		this.scrollParent = this.helper.scrollParent();
-		this.offsetParent = this.helper.offsetParent();
-		this.offsetParentCssPosition = this.offsetParent.css( "position" );
-
-		//The element's absolute position on the page minus margins
-		this.offset = this.positionAbs = this.element.offset();
-		this.offset = {
-			top: this.offset.top - this.margins.top,
-			left: this.offset.left - this.margins.left
-		};
-
-		//Reset scroll cache
-		this.offset.scroll = false;
-
-		$.extend(this.offset, {
-			click: { //Where the click happened, relative to the element
-				left: event.pageX - this.offset.left,
-				top: event.pageY - this.offset.top
-			},
-			parent: this._getParentOffset(),
-			relative: this._getRelativeOffset() //This is a relative to absolute position minus the actual position calculation - only used for relative positioned helper
-		});
-
-		//Generate the original position
-		this.originalPosition = this.position = this._generatePosition(event);
-		this.originalPageX = event.pageX;
-		this.originalPageY = event.pageY;
-
-		//Adjust the mouse offset relative to the helper if "cursorAt" is supplied
-		(o.cursorAt && this._adjustOffsetFromHelper(o.cursorAt));
-
-		//Set a containment if given in the options
-		this._setContainment();
-
-		//Trigger event + callbacks
-		if(this._trigger("start", event) === false) {
-			this._clear();
-			return false;
-		}
-
-		//Recache the helper size
-		this._cacheHelperProportions();
-
-		//Prepare the droppable offsets
-		if ($.ui.ddmanager && !o.dropBehaviour) {
-			$.ui.ddmanager.prepareOffsets(this, event);
-		}
-
-
-		this._mouseDrag(event, true); //Execute the drag once - this causes the helper not to be visible before getting its correct position
-
-		//If the ddmanager is used for droppables, inform the manager that dragging has started (see #5003)
-		if ( $.ui.ddmanager ) {
-			$.ui.ddmanager.dragStart(this, event);
-		}
-
-		return true;
-	},
-
-	_mouseDrag: function(event, noPropagation) {
-		// reset any necessary cached properties (see #5009)
-		if ( this.offsetParentCssPosition === "fixed" ) {
-			this.offset.parent = this._getParentOffset();
-		}
-
-		//Compute the helpers position
-		this.position = this._generatePosition(event);
-		this.positionAbs = this._convertPositionTo("absolute");
-
-		//Call plugins and callbacks and use the resulting position if something is returned
-		if (!noPropagation) {
-			var ui = this._uiHash();
-			if(this._trigger("drag", event, ui) === false) {
-				this._mouseUp({});
-				return false;
-			}
-			this.position = ui.position;
-		}
-
-		if(!this.options.axis || this.options.axis !== "y") {
-			this.helper[0].style.left = this.position.left+"px";
-		}
-		if(!this.options.axis || this.options.axis !== "x") {
-			this.helper[0].style.top = this.position.top+"px";
-		}
-		if($.ui.ddmanager) {
-			$.ui.ddmanager.drag(this, event);
-		}
-
-		return false;
-	},
-
-	_mouseStop: function(event) {
-
-		//If we are using droppables, inform the manager about the drop
-		var that = this,
-			dropped = false;
-		if ($.ui.ddmanager && !this.options.dropBehaviour) {
-			dropped = $.ui.ddmanager.drop(this, event);
-		}
-
-		//if a drop comes from outside (a sortable)
-		if(this.dropped) {
-			dropped = this.dropped;
-			this.dropped = false;
-		}
-
-		//if the original element is no longer in the DOM don't bother to continue (see #8269)
-		if ( this.options.helper === "original" && !$.contains( this.element[ 0 ].ownerDocument, this.element[ 0 ] ) ) {
-			return false;
-		}
-
-		if((this.options.revert === "invalid" && !dropped) || (this.options.revert === "valid" && dropped) || this.options.revert === true || ($.isFunction(this.options.revert) && this.options.revert.call(this.element, dropped))) {
-			$(this.helper).animate(this.originalPosition, parseInt(this.options.revertDuration, 10), function() {
-				if(that._trigger("stop", event) !== false) {
-					that._clear();
-				}
-			});
-		} else {
-			if(this._trigger("stop", event) !== false) {
-				this._clear();
-			}
-		}
-
-		return false;
-	},
-
-	_mouseUp: function(event) {
-		//Remove frame helpers
-		$("div.ui-draggable-iframeFix").each(function() {
-			this.parentNode.removeChild(this);
-		});
-
-		//If the ddmanager is used for droppables, inform the manager that dragging has stopped (see #5003)
-		if( $.ui.ddmanager ) {
-			$.ui.ddmanager.dragStop(this, event);
-		}
-
-		return $.ui.mouse.prototype._mouseUp.call(this, event);
-	},
-
-	cancel: function() {
-
-		if(this.helper.is(".ui-draggable-dragging")) {
-			this._mouseUp({});
-		} else {
-			this._clear();
-		}
-
-		return this;
-
-	},
-
-	_getHandle: function(event) {
-		return this.options.handle ?
-			!!$( event.target ).closest( this.element.find( this.options.handle ) ).length :
-			true;
-	},
-
-	_createHelper: function(event) {
-
-		var o = this.options,
-			helper = $.isFunction(o.helper) ? $(o.helper.apply(this.element[0], [event])) : (o.helper === "clone" ? this.element.clone().removeAttr("id") : this.element);
-
-		if(!helper.parents("body").length) {
-			helper.appendTo((o.appendTo === "parent" ? this.element[0].parentNode : o.appendTo));
-		}
-
-		if(helper[0] !== this.element[0] && !(/(fixed|absolute)/).test(helper.css("position"))) {
-			helper.css("position", "absolute");
-		}
-
-		return helper;
-
-	},
-
-	_adjustOffsetFromHelper: function(obj) {
-		if (typeof obj === "string") {
-			obj = obj.split(" ");
-		}
-		if ($.isArray(obj)) {
-			obj = {left: +obj[0], top: +obj[1] || 0};
-		}
-		if ("left" in obj) {
-			this.offset.click.left = obj.left + this.margins.left;
-		}
-		if ("right" in obj) {
-			this.offset.click.left = this.helperProportions.width - obj.right + this.margins.left;
-		}
-		if ("top" in obj) {
-			this.offset.click.top = obj.top + this.margins.top;
-		}
-		if ("bottom" in obj) {
-			this.offset.click.top = this.helperProportions.height - obj.bottom + this.margins.top;
-		}
-	},
-
-	_getParentOffset: function() {
-
-		//Get the offsetParent and cache its position
-		var po = this.offsetParent.offset();
-
-		// This is a special case where we need to modify a offset calculated on start, since the following happened:
-		// 1. The position of the helper is absolute, so it's position is calculated based on the next positioned parent
-		// 2. The actual offset parent is a child of the scroll parent, and the scroll parent isn't the document, which means that
-		//    the scroll is included in the initial calculation of the offset of the parent, and never recalculated upon drag
-		if(this.cssPosition === "absolute" && this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) {
-			po.left += this.scrollParent.scrollLeft();
-			po.top += this.scrollParent.scrollTop();
-		}
-
-		//This needs to be actually done for all browsers, since pageX/pageY includes this information
-		//Ugly IE fix
-		if((this.offsetParent[0] === document.body) ||
-			(this.offsetParent[0].tagName && this.offsetParent[0].tagName.toLowerCase() === "html" && $.ui.ie)) {
-			po = { top: 0, left: 0 };
-		}
-
-		return {
-			top: po.top + (parseInt(this.offsetParent.css("borderTopWidth"),10) || 0),
-			left: po.left + (parseInt(this.offsetParent.css("borderLeftWidth"),10) || 0)
-		};
-
-	},
-
-	_getRelativeOffset: function() {
-
-		if(this.cssPosition === "relative") {
-			var p = this.element.position();
-			return {
-				top: p.top - (parseInt(this.helper.css("top"),10) || 0) + this.scrollParent.scrollTop(),
-				left: p.left - (parseInt(this.helper.css("left"),10) || 0) + this.scrollParent.scrollLeft()
-			};
-		} else {
-			return { top: 0, left: 0 };
-		}
-
-	},
-
-	_cacheMargins: function() {
-		this.margins = {
-			left: (parseInt(this.element.css("marginLeft"),10) || 0),
-			top: (parseInt(this.element.css("marginTop"),10) || 0),
-			right: (parseInt(this.element.css("marginRight"),10) || 0),
-			bottom: (parseInt(this.element.css("marginBottom"),10) || 0)
-		};
-	},
-
-	_cacheHelperProportions: function() {
-		this.helperProportions = {
-			width: this.helper.outerWidth(),
-			height: this.helper.outerHeight()
-		};
-	},
-
-	_setContainment: function() {
-
-		var over, c, ce,
-			o = this.options;
-
-		if ( !o.containment ) {
-			this.containment = null;
-			return;
-		}
-
-		if ( o.containment === "window" ) {
-			this.containment = [
-				$( window ).scrollLeft() - this.offset.relative.left - this.offset.parent.left,
-				$( window ).scrollTop() - this.offset.relative.top - this.offset.parent.top,
-				$( window ).scrollLeft() + $( window ).width() - this.helperProportions.width - this.margins.left,
-				$( window ).scrollTop() + ( $( window ).height() || document.body.parentNode.scrollHeight ) - this.helperProportions.height - this.margins.top
-			];
-			return;
-		}
-
-		if ( o.containment === "document") {
-			this.containment = [
-				0,
-				0,
-				$( document ).width() - this.helperProportions.width - this.margins.left,
-				( $( document ).height() || document.body.parentNode.scrollHeight ) - this.helperProportions.height - this.margins.top
-			];
-			return;
-		}
-
-		if ( o.containment.constructor === Array ) {
-			this.containment = o.containment;
-			return;
-		}
-
-		if ( o.containment === "parent" ) {
-			o.containment = this.helper[ 0 ].parentNode;
-		}
-
-		c = $( o.containment );
-		ce = c[ 0 ];
-
-		if( !ce ) {
-			return;
-		}
-
-		over = c.css( "overflow" ) !== "hidden";
-
-		this.containment = [
-			( parseInt( c.css( "borderLeftWidth" ), 10 ) || 0 ) + ( parseInt( c.css( "paddingLeft" ), 10 ) || 0 ),
-			( parseInt( c.css( "borderTopWidth" ), 10 ) || 0 ) + ( parseInt( c.css( "paddingTop" ), 10 ) || 0 ) ,
-			( over ? Math.max( ce.scrollWidth, ce.offsetWidth ) : ce.offsetWidth ) - ( parseInt( c.css( "borderRightWidth" ), 10 ) || 0 ) - ( parseInt( c.css( "paddingRight" ), 10 ) || 0 ) - this.helperProportions.width - this.margins.left - this.margins.right,
-			( over ? Math.max( ce.scrollHeight, ce.offsetHeight ) : ce.offsetHeight ) - ( parseInt( c.css( "borderBottomWidth" ), 10 ) || 0 ) - ( parseInt( c.css( "paddingBottom" ), 10 ) || 0 ) - this.helperProportions.height - this.margins.top  - this.margins.bottom
-		];
-		this.relative_container = c;
-	},
-
-	_convertPositionTo: function(d, pos) {
-
-		if(!pos) {
-			pos = this.position;
-		}
-
-		var mod = d === "absolute" ? 1 : -1,
-			scroll = this.cssPosition === "absolute" && !( this.scrollParent[ 0 ] !== document && $.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) ? this.offsetParent : this.scrollParent;
-
-		//Cache the scroll
-		if (!this.offset.scroll) {
-			this.offset.scroll = {top : scroll.scrollTop(), left : scroll.scrollLeft()};
-		}
-
-		return {
-			top: (
-				pos.top	+																// The absolute mouse position
-				this.offset.relative.top * mod +										// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.top * mod -										// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : this.offset.scroll.top ) * mod )
-			),
-			left: (
-				pos.left +																// The absolute mouse position
-				this.offset.relative.left * mod +										// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.left * mod	-										// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : this.offset.scroll.left ) * mod )
-			)
-		};
-
-	},
-
-	_generatePosition: function(event) {
-
-		var containment, co, top, left,
-			o = this.options,
-			scroll = this.cssPosition === "absolute" && !( this.scrollParent[ 0 ] !== document && $.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) ? this.offsetParent : this.scrollParent,
-			pageX = event.pageX,
-			pageY = event.pageY;
-
-		//Cache the scroll
-		if (!this.offset.scroll) {
-			this.offset.scroll = {top : scroll.scrollTop(), left : scroll.scrollLeft()};
-		}
-
-		/*
-		 * - Position constraining -
-		 * Constrain the position to a mix of grid, containment.
-		 */
-
-		// If we are not dragging yet, we won't check for options
-		if ( this.originalPosition ) {
-			if ( this.containment ) {
-				if ( this.relative_container ){
-					co = this.relative_container.offset();
-					containment = [
-						this.containment[ 0 ] + co.left,
-						this.containment[ 1 ] + co.top,
-						this.containment[ 2 ] + co.left,
-						this.containment[ 3 ] + co.top
-					];
-				}
-				else {
-					containment = this.containment;
-				}
-
-				if(event.pageX - this.offset.click.left < containment[0]) {
-					pageX = containment[0] + this.offset.click.left;
-				}
-				if(event.pageY - this.offset.click.top < containment[1]) {
-					pageY = containment[1] + this.offset.click.top;
-				}
-				if(event.pageX - this.offset.click.left > containment[2]) {
-					pageX = containment[2] + this.offset.click.left;
-				}
-				if(event.pageY - this.offset.click.top > containment[3]) {
-					pageY = containment[3] + this.offset.click.top;
-				}
-			}
-
-			if(o.grid) {
-				//Check for grid elements set to 0 to prevent divide by 0 error causing invalid argument errors in IE (see ticket #6950)
-				top = o.grid[1] ? this.originalPageY + Math.round((pageY - this.originalPageY) / o.grid[1]) * o.grid[1] : this.originalPageY;
-				pageY = containment ? ((top - this.offset.click.top >= containment[1] || top - this.offset.click.top > containment[3]) ? top : ((top - this.offset.click.top >= containment[1]) ? top - o.grid[1] : top + o.grid[1])) : top;
-
-				left = o.grid[0] ? this.originalPageX + Math.round((pageX - this.originalPageX) / o.grid[0]) * o.grid[0] : this.originalPageX;
-				pageX = containment ? ((left - this.offset.click.left >= containment[0] || left - this.offset.click.left > containment[2]) ? left : ((left - this.offset.click.left >= containment[0]) ? left - o.grid[0] : left + o.grid[0])) : left;
-			}
-
-		}
-
-		return {
-			top: (
-				pageY -																	// The absolute mouse position
-				this.offset.click.top	-												// Click offset (relative to the element)
-				this.offset.relative.top -												// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.top +												// The offsetParent's offset without borders (offset + border)
-				( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : this.offset.scroll.top )
-			),
-			left: (
-				pageX -																	// The absolute mouse position
-				this.offset.click.left -												// Click offset (relative to the element)
-				this.offset.relative.left -												// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.left +												// The offsetParent's offset without borders (offset + border)
-				( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : this.offset.scroll.left )
-			)
-		};
-
-	},
-
-	_clear: function() {
-		this.helper.removeClass("ui-draggable-dragging");
-		if(this.helper[0] !== this.element[0] && !this.cancelHelperRemoval) {
-			this.helper.remove();
-		}
-		this.helper = null;
-		this.cancelHelperRemoval = false;
-	},
-
-	// From now on bulk stuff - mainly helpers
-
-	_trigger: function(type, event, ui) {
-		ui = ui || this._uiHash();
-		$.ui.plugin.call(this, type, [event, ui]);
-		//The absolute position has to be recalculated after plugins
-		if(type === "drag") {
-			this.positionAbs = this._convertPositionTo("absolute");
-		}
-		return $.Widget.prototype._trigger.call(this, type, event, ui);
-	},
-
-	plugins: {},
-
-	_uiHash: function() {
-		return {
-			helper: this.helper,
-			position: this.position,
-			originalPosition: this.originalPosition,
-			offset: this.positionAbs
-		};
-	}
-
-});
-
-$.ui.plugin.add("draggable", "connectToSortable", {
-	start: function(event, ui) {
-
-		var inst = $(this).data("ui-draggable"), o = inst.options,
-			uiSortable = $.extend({}, ui, { item: inst.element });
-		inst.sortables = [];
-		$(o.connectToSortable).each(function() {
-			var sortable = $.data(this, "ui-sortable");
-			if (sortable && !sortable.options.disabled) {
-				inst.sortables.push({
-					instance: sortable,
-					shouldRevert: sortable.options.revert
-				});
-				sortable.refreshPositions();	// Call the sortable's refreshPositions at drag start to refresh the containerCache since the sortable container cache is used in drag and needs to be up to date (this will ensure it's initialised as well as being kept in step with any changes that might have happened on the page).
-				sortable._trigger("activate", event, uiSortable);
-			}
-		});
-
-	},
-	stop: function(event, ui) {
-
-		//If we are still over the sortable, we fake the stop event of the sortable, but also remove helper
-		var inst = $(this).data("ui-draggable"),
-			uiSortable = $.extend({}, ui, { item: inst.element });
-
-		$.each(inst.sortables, function() {
-			if(this.instance.isOver) {
-
-				this.instance.isOver = 0;
-
-				inst.cancelHelperRemoval = true; //Don't remove the helper in the draggable instance
-				this.instance.cancelHelperRemoval = false; //Remove it in the sortable instance (so sortable plugins like revert still work)
-
-				//The sortable revert is supported, and we have to set a temporary dropped variable on the draggable to support revert: "valid/invalid"
-				if(this.shouldRevert) {
-					this.instance.options.revert = this.shouldRevert;
-				}
-
-				//Trigger the stop of the sortable
-				this.instance._mouseStop(event);
-
-				this.instance.options.helper = this.instance.options._helper;
-
-				//If the helper has been the original item, restore properties in the sortable
-				if(inst.options.helper === "original") {
-					this.instance.currentItem.css({ top: "auto", left: "auto" });
-				}
-
-			} else {
-				this.instance.cancelHelperRemoval = false; //Remove the helper in the sortable instance
-				this.instance._trigger("deactivate", event, uiSortable);
-			}
-
-		});
-
-	},
-	drag: function(event, ui) {
-
-		var inst = $(this).data("ui-draggable"), that = this;
-
-		$.each(inst.sortables, function() {
-
-			var innermostIntersecting = false,
-				thisSortable = this;
-
-			//Copy over some variables to allow calling the sortable's native _intersectsWith
-			this.instance.positionAbs = inst.positionAbs;
-			this.instance.helperProportions = inst.helperProportions;
-			this.instance.offset.click = inst.offset.click;
-
-			if(this.instance._intersectsWith(this.instance.containerCache)) {
-				innermostIntersecting = true;
-				$.each(inst.sortables, function () {
-					this.instance.positionAbs = inst.positionAbs;
-					this.instance.helperProportions = inst.helperProportions;
-					this.instance.offset.click = inst.offset.click;
-					if (this !== thisSortable &&
-						this.instance._intersectsWith(this.instance.containerCache) &&
-						$.contains(thisSortable.instance.element[0], this.instance.element[0])
-					) {
-						innermostIntersecting = false;
-					}
-					return innermostIntersecting;
-				});
-			}
-
-
-			if(innermostIntersecting) {
-				//If it intersects, we use a little isOver variable and set it once, so our move-in stuff gets fired only once
-				if(!this.instance.isOver) {
-
-					this.instance.isOver = 1;
-					//Now we fake the start of dragging for the sortable instance,
-					//by cloning the list group item, appending it to the sortable and using it as inst.currentItem
-					//We can then fire the start event of the sortable with our passed browser event, and our own helper (so it doesn't create a new one)
-					this.instance.currentItem = $(that).clone().removeAttr("id").appendTo(this.instance.element).data("ui-sortable-item", true);
-					this.instance.options._helper = this.instance.options.helper; //Store helper option to later restore it
-					this.instance.options.helper = function() { return ui.helper[0]; };
-
-					event.target = this.instance.currentItem[0];
-					this.instance._mouseCapture(event, true);
-					this.instance._mouseStart(event, true, true);
-
-					//Because the browser event is way off the new appended portlet, we modify a couple of variables to reflect the changes
-					this.instance.offset.click.top = inst.offset.click.top;
-					this.instance.offset.click.left = inst.offset.click.left;
-					this.instance.offset.parent.left -= inst.offset.parent.left - this.instance.offset.parent.left;
-					this.instance.offset.parent.top -= inst.offset.parent.top - this.instance.offset.parent.top;
-
-					inst._trigger("toSortable", event);
-					inst.dropped = this.instance.element; //draggable revert needs that
-					//hack so receive/update callbacks work (mostly)
-					inst.currentItem = inst.element;
-					this.instance.fromOutside = inst;
-
-				}
-
-				//Provided we did all the previous steps, we can fire the drag event of the sortable on every draggable drag, when it intersects with the sortable
-				if(this.instance.currentItem) {
-					this.instance._mouseDrag(event);
-				}
-
-			} else {
-
-				//If it doesn't intersect with the sortable, and it intersected before,
-				//we fake the drag stop of the sortable, but make sure it doesn't remove the helper by using cancelHelperRemoval
-				if(this.instance.isOver) {
-
-					this.instance.isOver = 0;
-					this.instance.cancelHelperRemoval = true;
-
-					//Prevent reverting on this forced stop
-					this.instance.options.revert = false;
-
-					// The out event needs to be triggered independently
-					this.instance._trigger("out", event, this.instance._uiHash(this.instance));
-
-					this.instance._mouseStop(event, true);
-					this.instance.options.helper = this.instance.options._helper;
-
-					//Now we remove our currentItem, the list group clone again, and the placeholder, and animate the helper back to it's original size
-					this.instance.currentItem.remove();
-					if(this.instance.placeholder) {
-						this.instance.placeholder.remove();
-					}
-
-					inst._trigger("fromSortable", event);
-					inst.dropped = false; //draggable revert needs that
-				}
-
-			}
-
-		});
-
-	}
-});
-
-$.ui.plugin.add("draggable", "cursor", {
-	start: function() {
-		var t = $("body"), o = $(this).data("ui-draggable").options;
-		if (t.css("cursor")) {
-			o._cursor = t.css("cursor");
-		}
-		t.css("cursor", o.cursor);
-	},
-	stop: function() {
-		var o = $(this).data("ui-draggable").options;
-		if (o._cursor) {
-			$("body").css("cursor", o._cursor);
-		}
-	}
-});
-
-$.ui.plugin.add("draggable", "opacity", {
-	start: function(event, ui) {
-		var t = $(ui.helper), o = $(this).data("ui-draggable").options;
-		if(t.css("opacity")) {
-			o._opacity = t.css("opacity");
-		}
-		t.css("opacity", o.opacity);
-	},
-	stop: function(event, ui) {
-		var o = $(this).data("ui-draggable").options;
-		if(o._opacity) {
-			$(ui.helper).css("opacity", o._opacity);
-		}
-	}
-});
-
-$.ui.plugin.add("draggable", "scroll", {
-	start: function() {
-		var i = $(this).data("ui-draggable");
-		if(i.scrollParent[0] !== document && i.scrollParent[0].tagName !== "HTML") {
-			i.overflowOffset = i.scrollParent.offset();
-		}
-	},
-	drag: function( event ) {
-
-		var i = $(this).data("ui-draggable"), o = i.options, scrolled = false;
-
-		if(i.scrollParent[0] !== document && i.scrollParent[0].tagName !== "HTML") {
-
-			if(!o.axis || o.axis !== "x") {
-				if((i.overflowOffset.top + i.scrollParent[0].offsetHeight) - event.pageY < o.scrollSensitivity) {
-					i.scrollParent[0].scrollTop = scrolled = i.scrollParent[0].scrollTop + o.scrollSpeed;
-				} else if(event.pageY - i.overflowOffset.top < o.scrollSensitivity) {
-					i.scrollParent[0].scrollTop = scrolled = i.scrollParent[0].scrollTop - o.scrollSpeed;
-				}
-			}
-
-			if(!o.axis || o.axis !== "y") {
-				if((i.overflowOffset.left + i.scrollParent[0].offsetWidth) - event.pageX < o.scrollSensitivity) {
-					i.scrollParent[0].scrollLeft = scrolled = i.scrollParent[0].scrollLeft + o.scrollSpeed;
-				} else if(event.pageX - i.overflowOffset.left < o.scrollSensitivity) {
-					i.scrollParent[0].scrollLeft = scrolled = i.scrollParent[0].scrollLeft - o.scrollSpeed;
-				}
-			}
-
-		} else {
-
-			if(!o.axis || o.axis !== "x") {
-				if(event.pageY - $(document).scrollTop() < o.scrollSensitivity) {
-					scrolled = $(document).scrollTop($(document).scrollTop() - o.scrollSpeed);
-				} else if($(window).height() - (event.pageY - $(document).scrollTop()) < o.scrollSensitivity) {
-					scrolled = $(document).scrollTop($(document).scrollTop() + o.scrollSpeed);
-				}
-			}
-
-			if(!o.axis || o.axis !== "y") {
-				if(event.pageX - $(document).scrollLeft() < o.scrollSensitivity) {
-					scrolled = $(document).scrollLeft($(document).scrollLeft() - o.scrollSpeed);
-				} else if($(window).width() - (event.pageX - $(document).scrollLeft()) < o.scrollSensitivity) {
-					scrolled = $(document).scrollLeft($(document).scrollLeft() + o.scrollSpeed);
-				}
-			}
-
-		}
-
-		if(scrolled !== false && $.ui.ddmanager && !o.dropBehaviour) {
-			$.ui.ddmanager.prepareOffsets(i, event);
-		}
-
-	}
-});
-
-$.ui.plugin.add("draggable", "snap", {
-	start: function() {
-
-		var i = $(this).data("ui-draggable"),
-			o = i.options;
-
-		i.snapElements = [];
-
-		$(o.snap.constructor !== String ? ( o.snap.items || ":data(ui-draggable)" ) : o.snap).each(function() {
-			var $t = $(this),
-				$o = $t.offset();
-			if(this !== i.element[0]) {
-				i.snapElements.push({
-					item: this,
-					width: $t.outerWidth(), height: $t.outerHeight(),
-					top: $o.top, left: $o.left
-				});
-			}
-		});
-
-	},
-	drag: function(event, ui) {
-
-		var ts, bs, ls, rs, l, r, t, b, i, first,
-			inst = $(this).data("ui-draggable"),
-			o = inst.options,
-			d = o.snapTolerance,
-			x1 = ui.offset.left, x2 = x1 + inst.helperProportions.width,
-			y1 = ui.offset.top, y2 = y1 + inst.helperProportions.height;
-
-		for (i = inst.snapElements.length - 1; i >= 0; i--){
-
-			l = inst.snapElements[i].left;
-			r = l + inst.snapElements[i].width;
-			t = inst.snapElements[i].top;
-			b = t + inst.snapElements[i].height;
-
-			if ( x2 < l - d || x1 > r + d || y2 < t - d || y1 > b + d || !$.contains( inst.snapElements[ i ].item.ownerDocument, inst.snapElements[ i ].item ) ) {
-				if(inst.snapElements[i].snapping) {
-					(inst.options.snap.release && inst.options.snap.release.call(inst.element, event, $.extend(inst._uiHash(), { snapItem: inst.snapElements[i].item })));
-				}
-				inst.snapElements[i].snapping = false;
-				continue;
-			}
-
-			if(o.snapMode !== "inner") {
-				ts = Math.abs(t - y2) <= d;
-				bs = Math.abs(b - y1) <= d;
-				ls = Math.abs(l - x2) <= d;
-				rs = Math.abs(r - x1) <= d;
-				if(ts) {
-					ui.position.top = inst._convertPositionTo("relative", { top: t - inst.helperProportions.height, left: 0 }).top - inst.margins.top;
-				}
-				if(bs) {
-					ui.position.top = inst._convertPositionTo("relative", { top: b, left: 0 }).top - inst.margins.top;
-				}
-				if(ls) {
-					ui.position.left = inst._convertPositionTo("relative", { top: 0, left: l - inst.helperProportions.width }).left - inst.margins.left;
-				}
-				if(rs) {
-					ui.position.left = inst._convertPositionTo("relative", { top: 0, left: r }).left - inst.margins.left;
-				}
-			}
-
-			first = (ts || bs || ls || rs);
-
-			if(o.snapMode !== "outer") {
-				ts = Math.abs(t - y1) <= d;
-				bs = Math.abs(b - y2) <= d;
-				ls = Math.abs(l - x1) <= d;
-				rs = Math.abs(r - x2) <= d;
-				if(ts) {
-					ui.position.top = inst._convertPositionTo("relative", { top: t, left: 0 }).top - inst.margins.top;
-				}
-				if(bs) {
-					ui.position.top = inst._convertPositionTo("relative", { top: b - inst.helperProportions.height, left: 0 }).top - inst.margins.top;
-				}
-				if(ls) {
-					ui.position.left = inst._convertPositionTo("relative", { top: 0, left: l }).left - inst.margins.left;
-				}
-				if(rs) {
-					ui.position.left = inst._convertPositionTo("relative", { top: 0, left: r - inst.helperProportions.width }).left - inst.margins.left;
-				}
-			}
-
-			if(!inst.snapElements[i].snapping && (ts || bs || ls || rs || first)) {
-				(inst.options.snap.snap && inst.options.snap.snap.call(inst.element, event, $.extend(inst._uiHash(), { snapItem: inst.snapElements[i].item })));
-			}
-			inst.snapElements[i].snapping = (ts || bs || ls || rs || first);
-
-		}
-
-	}
-});
-
-$.ui.plugin.add("draggable", "stack", {
-	start: function() {
-		var min,
-			o = this.data("ui-draggable").options,
-			group = $.makeArray($(o.stack)).sort(function(a,b) {
-				return (parseInt($(a).css("zIndex"),10) || 0) - (parseInt($(b).css("zIndex"),10) || 0);
-			});
-
-		if (!group.length) { return; }
-
-		min = parseInt($(group[0]).css("zIndex"), 10) || 0;
-		$(group).each(function(i) {
-			$(this).css("zIndex", min + i);
-		});
-		this.css("zIndex", (min + group.length));
-	}
-});
-
-$.ui.plugin.add("draggable", "zIndex", {
-	start: function(event, ui) {
-		var t = $(ui.helper), o = $(this).data("ui-draggable").options;
-		if(t.css("zIndex")) {
-			o._zIndex = t.css("zIndex");
-		}
-		t.css("zIndex", o.zIndex);
-	},
-	stop: function(event, ui) {
-		var o = $(this).data("ui-draggable").options;
-		if(o._zIndex) {
-			$(ui.helper).css("zIndex", o._zIndex);
-		}
-	}
-});
-
-})(jQuery);
-/*!
- * jQuery UI Position 1.10.4
- * http://jqueryui.com
- *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/position/
- */
-
-(function( $, undefined ) {
-
-$.ui = $.ui || {};
-
-var cachedScrollbarWidth,
-	max = Math.max,
-	abs = Math.abs,
-	round = Math.round,
-	rhorizontal = /left|center|right/,
-	rvertical = /top|center|bottom/,
-	roffset = /[\+\-]\d+(\.[\d]+)?%?/,
-	rposition = /^\w+/,
-	rpercent = /%$/,
-	_position = $.fn.position;
-
-function getOffsets( offsets, width, height ) {
-	return [
-		parseFloat( offsets[ 0 ] ) * ( rpercent.test( offsets[ 0 ] ) ? width / 100 : 1 ),
-		parseFloat( offsets[ 1 ] ) * ( rpercent.test( offsets[ 1 ] ) ? height / 100 : 1 )
-	];
-}
-
-function parseCss( element, property ) {
-	return parseInt( $.css( element, property ), 10 ) || 0;
-}
-
-function getDimensions( elem ) {
-	var raw = elem[0];
-	if ( raw.nodeType === 9 ) {
-		return {
-			width: elem.width(),
-			height: elem.height(),
-			offset: { top: 0, left: 0 }
-		};
-	}
-	if ( $.isWindow( raw ) ) {
-		return {
-			width: elem.width(),
-			height: elem.height(),
-			offset: { top: elem.scrollTop(), left: elem.scrollLeft() }
-		};
-	}
-	if ( raw.preventDefault ) {
-		return {
-			width: 0,
-			height: 0,
-			offset: { top: raw.pageY, left: raw.pageX }
-		};
-	}
-	return {
-		width: elem.outerWidth(),
-		height: elem.outerHeight(),
-		offset: elem.offset()
-	};
-}
-
-$.position = {
-	scrollbarWidth: function() {
-		if ( cachedScrollbarWidth !== undefined ) {
-			return cachedScrollbarWidth;
-		}
-		var w1, w2,
-			div = $( "<div style='display:block;position:absolute;width:50px;height:50px;overflow:hidden;'><div style='height:100px;width:auto;'></div></div>" ),
-			innerDiv = div.children()[0];
-
-		$( "body" ).append( div );
-		w1 = innerDiv.offsetWidth;
-		div.css( "overflow", "scroll" );
-
-		w2 = innerDiv.offsetWidth;
-
-		if ( w1 === w2 ) {
-			w2 = div[0].clientWidth;
-		}
-
-		div.remove();
-
-		return (cachedScrollbarWidth = w1 - w2);
-	},
-	getScrollInfo: function( within ) {
-		var overflowX = within.isWindow || within.isDocument ? "" :
-				within.element.css( "overflow-x" ),
-			overflowY = within.isWindow || within.isDocument ? "" :
-				within.element.css( "overflow-y" ),
-			hasOverflowX = overflowX === "scroll" ||
-				( overflowX === "auto" && within.width < within.element[0].scrollWidth ),
-			hasOverflowY = overflowY === "scroll" ||
-				( overflowY === "auto" && within.height < within.element[0].scrollHeight );
-		return {
-			width: hasOverflowY ? $.position.scrollbarWidth() : 0,
-			height: hasOverflowX ? $.position.scrollbarWidth() : 0
-		};
-	},
-	getWithinInfo: function( element ) {
-		var withinElement = $( element || window ),
-			isWindow = $.isWindow( withinElement[0] ),
-			isDocument = !!withinElement[ 0 ] && withinElement[ 0 ].nodeType === 9;
-		return {
-			element: withinElement,
-			isWindow: isWindow,
-			isDocument: isDocument,
-			offset: withinElement.offset() || { left: 0, top: 0 },
-			scrollLeft: withinElement.scrollLeft(),
-			scrollTop: withinElement.scrollTop(),
-			width: isWindow ? withinElement.width() : withinElement.outerWidth(),
-			height: isWindow ? withinElement.height() : withinElement.outerHeight()
-		};
-	}
-};
-
-$.fn.position = function( options ) {
-	if ( !options || !options.of ) {
-		return _position.apply( this, arguments );
-	}
-
-	// make a copy, we don't want to modify arguments
-	options = $.extend( {}, options );
-
-	var atOffset, targetWidth, targetHeight, targetOffset, basePosition, dimensions,
-		target = $( options.of ),
-		within = $.position.getWithinInfo( options.within ),
-		scrollInfo = $.position.getScrollInfo( within ),
-		collision = ( options.collision || "flip" ).split( " " ),
-		offsets = {};
-
-	dimensions = getDimensions( target );
-	if ( target[0].preventDefault ) {
-		// force left top to allow flipping
-		options.at = "left top";
-	}
-	targetWidth = dimensions.width;
-	targetHeight = dimensions.height;
-	targetOffset = dimensions.offset;
-	// clone to reuse original targetOffset later
-	basePosition = $.extend( {}, targetOffset );
-
-	// force my and at to have valid horizontal and vertical positions
-	// if a value is missing or invalid, it will be converted to center
-	$.each( [ "my", "at" ], function() {
-		var pos = ( options[ this ] || "" ).split( " " ),
-			horizontalOffset,
-			verticalOffset;
-
-		if ( pos.length === 1) {
-			pos = rhorizontal.test( pos[ 0 ] ) ?
-				pos.concat( [ "center" ] ) :
-				rvertical.test( pos[ 0 ] ) ?
-					[ "center" ].concat( pos ) :
-					[ "center", "center" ];
-		}
-		pos[ 0 ] = rhorizontal.test( pos[ 0 ] ) ? pos[ 0 ] : "center";
-		pos[ 1 ] = rvertical.test( pos[ 1 ] ) ? pos[ 1 ] : "center";
-
-		// calculate offsets
-		horizontalOffset = roffset.exec( pos[ 0 ] );
-		verticalOffset = roffset.exec( pos[ 1 ] );
-		offsets[ this ] = [
-			horizontalOffset ? horizontalOffset[ 0 ] : 0,
-			verticalOffset ? verticalOffset[ 0 ] : 0
-		];
-
-		// reduce to just the positions without the offsets
-		options[ this ] = [
-			rposition.exec( pos[ 0 ] )[ 0 ],
-			rposition.exec( pos[ 1 ] )[ 0 ]
-		];
-	});
-
-	// normalize collision option
-	if ( collision.length === 1 ) {
-		collision[ 1 ] = collision[ 0 ];
-	}
-
-	if ( options.at[ 0 ] === "right" ) {
-		basePosition.left += targetWidth;
-	} else if ( options.at[ 0 ] === "center" ) {
-		basePosition.left += targetWidth / 2;
-	}
-
-	if ( options.at[ 1 ] === "bottom" ) {
-		basePosition.top += targetHeight;
-	} else if ( options.at[ 1 ] === "center" ) {
-		basePosition.top += targetHeight / 2;
-	}
-
-	atOffset = getOffsets( offsets.at, targetWidth, targetHeight );
-	basePosition.left += atOffset[ 0 ];
-	basePosition.top += atOffset[ 1 ];
-
-	return this.each(function() {
-		var collisionPosition, using,
-			elem = $( this ),
-			elemWidth = elem.outerWidth(),
-			elemHeight = elem.outerHeight(),
-			marginLeft = parseCss( this, "marginLeft" ),
-			marginTop = parseCss( this, "marginTop" ),
-			collisionWidth = elemWidth + marginLeft + parseCss( this, "marginRight" ) + scrollInfo.width,
-			collisionHeight = elemHeight + marginTop + parseCss( this, "marginBottom" ) + scrollInfo.height,
-			position = $.extend( {}, basePosition ),
-			myOffset = getOffsets( offsets.my, elem.outerWidth(), elem.outerHeight() );
-
-		if ( options.my[ 0 ] === "right" ) {
-			position.left -= elemWidth;
-		} else if ( options.my[ 0 ] === "center" ) {
-			position.left -= elemWidth / 2;
-		}
-
-		if ( options.my[ 1 ] === "bottom" ) {
-			position.top -= elemHeight;
-		} else if ( options.my[ 1 ] === "center" ) {
-			position.top -= elemHeight / 2;
-		}
-
-		position.left += myOffset[ 0 ];
-		position.top += myOffset[ 1 ];
-
-		// if the browser doesn't support fractions, then round for consistent results
-		if ( !$.support.offsetFractions ) {
-			position.left = round( position.left );
-			position.top = round( position.top );
-		}
-
-		collisionPosition = {
-			marginLeft: marginLeft,
-			marginTop: marginTop
-		};
-
-		$.each( [ "left", "top" ], function( i, dir ) {
-			if ( $.ui.position[ collision[ i ] ] ) {
-				$.ui.position[ collision[ i ] ][ dir ]( position, {
-					targetWidth: targetWidth,
-					targetHeight: targetHeight,
-					elemWidth: elemWidth,
-					elemHeight: elemHeight,
-					collisionPosition: collisionPosition,
-					collisionWidth: collisionWidth,
-					collisionHeight: collisionHeight,
-					offset: [ atOffset[ 0 ] + myOffset[ 0 ], atOffset [ 1 ] + myOffset[ 1 ] ],
-					my: options.my,
-					at: options.at,
-					within: within,
-					elem : elem
-				});
-			}
-		});
-
-		if ( options.using ) {
-			// adds feedback as second argument to using callback, if present
-			using = function( props ) {
-				var left = targetOffset.left - position.left,
-					right = left + targetWidth - elemWidth,
-					top = targetOffset.top - position.top,
-					bottom = top + targetHeight - elemHeight,
-					feedback = {
-						target: {
-							element: target,
-							left: targetOffset.left,
-							top: targetOffset.top,
-							width: targetWidth,
-							height: targetHeight
-						},
-						element: {
-							element: elem,
-							left: position.left,
-							top: position.top,
-							width: elemWidth,
-							height: elemHeight
-						},
-						horizontal: right < 0 ? "left" : left > 0 ? "right" : "center",
-						vertical: bottom < 0 ? "top" : top > 0 ? "bottom" : "middle"
-					};
-				if ( targetWidth < elemWidth && abs( left + right ) < targetWidth ) {
-					feedback.horizontal = "center";
-				}
-				if ( targetHeight < elemHeight && abs( top + bottom ) < targetHeight ) {
-					feedback.vertical = "middle";
-				}
-				if ( max( abs( left ), abs( right ) ) > max( abs( top ), abs( bottom ) ) ) {
-					feedback.important = "horizontal";
-				} else {
-					feedback.important = "vertical";
-				}
-				options.using.call( this, props, feedback );
-			};
-		}
-
-		elem.offset( $.extend( position, { using: using } ) );
-	});
-};
-
-$.ui.position = {
-	fit: {
-		left: function( position, data ) {
-			var within = data.within,
-				withinOffset = within.isWindow ? within.scrollLeft : within.offset.left,
-				outerWidth = within.width,
-				collisionPosLeft = position.left - data.collisionPosition.marginLeft,
-				overLeft = withinOffset - collisionPosLeft,
-				overRight = collisionPosLeft + data.collisionWidth - outerWidth - withinOffset,
-				newOverRight;
-
-			// element is wider than within
-			if ( data.collisionWidth > outerWidth ) {
-				// element is initially over the left side of within
-				if ( overLeft > 0 && overRight <= 0 ) {
-					newOverRight = position.left + overLeft + data.collisionWidth - outerWidth - withinOffset;
-					position.left += overLeft - newOverRight;
-				// element is initially over right side of within
-				} else if ( overRight > 0 && overLeft <= 0 ) {
-					position.left = withinOffset;
-				// element is initially over both left and right sides of within
-				} else {
-					if ( overLeft > overRight ) {
-						position.left = withinOffset + outerWidth - data.collisionWidth;
-					} else {
-						position.left = withinOffset;
-					}
-				}
-			// too far left -> align with left edge
-			} else if ( overLeft > 0 ) {
-				position.left += overLeft;
-			// too far right -> align with right edge
-			} else if ( overRight > 0 ) {
-				position.left -= overRight;
-			// adjust based on position and margin
-			} else {
-				position.left = max( position.left - collisionPosLeft, position.left );
-			}
-		},
-		top: function( position, data ) {
-			var within = data.within,
-				withinOffset = within.isWindow ? within.scrollTop : within.offset.top,
-				outerHeight = data.within.height,
-				collisionPosTop = position.top - data.collisionPosition.marginTop,
-				overTop = withinOffset - collisionPosTop,
-				overBottom = collisionPosTop + data.collisionHeight - outerHeight - withinOffset,
-				newOverBottom;
-
-			// element is taller than within
-			if ( data.collisionHeight > outerHeight ) {
-				// element is initially over the top of within
-				if ( overTop > 0 && overBottom <= 0 ) {
-					newOverBottom = position.top + overTop + data.collisionHeight - outerHeight - withinOffset;
-					position.top += overTop - newOverBottom;
-				// element is initially over bottom of within
-				} else if ( overBottom > 0 && overTop <= 0 ) {
-					position.top = withinOffset;
-				// element is initially over both top and bottom of within
-				} else {
-					if ( overTop > overBottom ) {
-						position.top = withinOffset + outerHeight - data.collisionHeight;
-					} else {
-						position.top = withinOffset;
-					}
-				}
-			// too far up -> align with top
-			} else if ( overTop > 0 ) {
-				position.top += overTop;
-			// too far down -> align with bottom edge
-			} else if ( overBottom > 0 ) {
-				position.top -= overBottom;
-			// adjust based on position and margin
-			} else {
-				position.top = max( position.top - collisionPosTop, position.top );
-			}
-		}
-	},
-	flip: {
-		left: function( position, data ) {
-			var within = data.within,
-				withinOffset = within.offset.left + within.scrollLeft,
-				outerWidth = within.width,
-				offsetLeft = within.isWindow ? within.scrollLeft : within.offset.left,
-				collisionPosLeft = position.left - data.collisionPosition.marginLeft,
-				overLeft = collisionPosLeft - offsetLeft,
-				overRight = collisionPosLeft + data.collisionWidth - outerWidth - offsetLeft,
-				myOffset = data.my[ 0 ] === "left" ?
-					-data.elemWidth :
-					data.my[ 0 ] === "right" ?
-						data.elemWidth :
-						0,
-				atOffset = data.at[ 0 ] === "left" ?
-					data.targetWidth :
-					data.at[ 0 ] === "right" ?
-						-data.targetWidth :
-						0,
-				offset = -2 * data.offset[ 0 ],
-				newOverRight,
-				newOverLeft;
-
-			if ( overLeft < 0 ) {
-				newOverRight = position.left + myOffset + atOffset + offset + data.collisionWidth - outerWidth - withinOffset;
-				if ( newOverRight < 0 || newOverRight < abs( overLeft ) ) {
-					position.left += myOffset + atOffset + offset;
-				}
-			}
-			else if ( overRight > 0 ) {
-				newOverLeft = position.left - data.collisionPosition.marginLeft + myOffset + atOffset + offset - offsetLeft;
-				if ( newOverLeft > 0 || abs( newOverLeft ) < overRight ) {
-					position.left += myOffset + atOffset + offset;
-				}
-			}
-		},
-		top: function( position, data ) {
-			var within = data.within,
-				withinOffset = within.offset.top + within.scrollTop,
-				outerHeight = within.height,
-				offsetTop = within.isWindow ? within.scrollTop : within.offset.top,
-				collisionPosTop = position.top - data.collisionPosition.marginTop,
-				overTop = collisionPosTop - offsetTop,
-				overBottom = collisionPosTop + data.collisionHeight - outerHeight - offsetTop,
-				top = data.my[ 1 ] === "top",
-				myOffset = top ?
-					-data.elemHeight :
-					data.my[ 1 ] === "bottom" ?
-						data.elemHeight :
-						0,
-				atOffset = data.at[ 1 ] === "top" ?
-					data.targetHeight :
-					data.at[ 1 ] === "bottom" ?
-						-data.targetHeight :
-						0,
-				offset = -2 * data.offset[ 1 ],
-				newOverTop,
-				newOverBottom;
-			if ( overTop < 0 ) {
-				newOverBottom = position.top + myOffset + atOffset + offset + data.collisionHeight - outerHeight - withinOffset;
-				if ( ( position.top + myOffset + atOffset + offset) > overTop && ( newOverBottom < 0 || newOverBottom < abs( overTop ) ) ) {
-					position.top += myOffset + atOffset + offset;
-				}
-			}
-			else if ( overBottom > 0 ) {
-				newOverTop = position.top - data.collisionPosition.marginTop + myOffset + atOffset + offset - offsetTop;
-				if ( ( position.top + myOffset + atOffset + offset) > overBottom && ( newOverTop > 0 || abs( newOverTop ) < overBottom ) ) {
-					position.top += myOffset + atOffset + offset;
-				}
-			}
-		}
-	},
-	flipfit: {
-		left: function() {
-			$.ui.position.flip.left.apply( this, arguments );
-			$.ui.position.fit.left.apply( this, arguments );
-		},
-		top: function() {
-			$.ui.position.flip.top.apply( this, arguments );
-			$.ui.position.fit.top.apply( this, arguments );
-		}
-	}
-};
-
-// fraction support test
-(function () {
-	var testElement, testElementParent, testElementStyle, offsetLeft, i,
-		body = document.getElementsByTagName( "body" )[ 0 ],
-		div = document.createElement( "div" );
-
-	//Create a "fake body" for testing based on method used in jQuery.support
-	testElement = document.createElement( body ? "div" : "body" );
-	testElementStyle = {
-		visibility: "hidden",
-		width: 0,
-		height: 0,
-		border: 0,
-		margin: 0,
-		background: "none"
-	};
-	if ( body ) {
-		$.extend( testElementStyle, {
-			position: "absolute",
-			left: "-1000px",
-			top: "-1000px"
-		});
-	}
-	for ( i in testElementStyle ) {
-		testElement.style[ i ] = testElementStyle[ i ];
-	}
-	testElement.appendChild( div );
-	testElementParent = body || document.documentElement;
-	testElementParent.insertBefore( testElement, testElementParent.firstChild );
-
-	div.style.cssText = "position: absolute; left: 10.7432222px;";
-
-	offsetLeft = $( div ).offset().left;
-	$.support.offsetFractions = offsetLeft > 10 && offsetLeft < 11;
-
-	testElement.innerHTML = "";
-	testElementParent.removeChild( testElement );
-})();
-
-}( jQuery ) );
-
-
-
-
-/*!
- * jQuery UI Resizable 1.10.4
- * http://jqueryui.com
- *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/resizable/
- *
- * Depends:
- *	jquery.ui.core.js
- *	jquery.ui.mouse.js
- *	jquery.ui.widget.js
- */
-
-(function( $, undefined ) {
-
-function num(v) {
-	return parseInt(v, 10) || 0;
-}
-
-function isNumber(value) {
-	return !isNaN(parseInt(value, 10));
-}
-
-$.widget("ui.resizable", $.ui.mouse, {
-	version: "1.10.4",
-	widgetEventPrefix: "resize",
-	options: {
-		alsoResize: false,
-		animate: false,
-		animateDuration: "slow",
-		animateEasing: "swing",
-		aspectRatio: false,
-		autoHide: false,
-		containment: false,
-		ghost: false,
-		grid: false,
-		handles: "e,s,se",
-		helper: false,
-		maxHeight: null,
-		maxWidth: null,
-		minHeight: 10,
-		minWidth: 10,
-		// See #7960
-		zIndex: 90,
-
-		// callbacks
-		resize: null,
-		start: null,
-		stop: null
-	},
-	_create: function() {
-
-		var n, i, handle, axis, hname,
-			that = this,
-			o = this.options;
-		this.element.addClass("ui-resizable");
-
-		$.extend(this, {
-			_aspectRatio: !!(o.aspectRatio),
-			aspectRatio: o.aspectRatio,
-			originalElement: this.element,
-			_proportionallyResizeElements: [],
-			_helper: o.helper || o.ghost || o.animate ? o.helper || "ui-resizable-helper" : null
-		});
-
-		//Wrap the element if it cannot hold child nodes
-		if(this.element[0].nodeName.match(/canvas|textarea|input|select|button|img/i)) {
-
-			//Create a wrapper element and set the wrapper to the new current internal element
-			this.element.wrap(
-				$("<div class='ui-wrapper' style='overflow: hidden;'></div>").css({
-					position: this.element.css("position"),
-					width: this.element.outerWidth(),
-					height: this.element.outerHeight(),
-					top: this.element.css("top"),
-					left: this.element.css("left")
-				})
-			);
-
-			//Overwrite the original this.element
-			this.element = this.element.parent().data(
-				"ui-resizable", this.element.data("ui-resizable")
-			);
-
-			this.elementIsWrapper = true;
-
-			//Move margins to the wrapper
-			this.element.css({ marginLeft: this.originalElement.css("marginLeft"), marginTop: this.originalElement.css("marginTop"), marginRight: this.originalElement.css("marginRight"), marginBottom: this.originalElement.css("marginBottom") });
-			this.originalElement.css({ marginLeft: 0, marginTop: 0, marginRight: 0, marginBottom: 0});
-
-			//Prevent Safari textarea resize
-			this.originalResizeStyle = this.originalElement.css("resize");
-			this.originalElement.css("resize", "none");
-
-			//Push the actual element to our proportionallyResize internal array
-			this._proportionallyResizeElements.push(this.originalElement.css({ position: "static", zoom: 1, display: "block" }));
-
-			// avoid IE jump (hard set the margin)
-			this.originalElement.css({ margin: this.originalElement.css("margin") });
-
-			// fix handlers offset
-			this._proportionallyResize();
-
-		}
-
-		this.handles = o.handles || (!$(".ui-resizable-handle", this.element).length ? "e,s,se" : { n: ".ui-resizable-n", e: ".ui-resizable-e", s: ".ui-resizable-s", w: ".ui-resizable-w", se: ".ui-resizable-se", sw: ".ui-resizable-sw", ne: ".ui-resizable-ne", nw: ".ui-resizable-nw" });
-		if(this.handles.constructor === String) {
-
-			if ( this.handles === "all") {
-				this.handles = "n,e,s,w,se,sw,ne,nw";
-			}
-
-			n = this.handles.split(",");
-			this.handles = {};
-
-			for(i = 0; i < n.length; i++) {
-
-				handle = $.trim(n[i]);
-				hname = "ui-resizable-"+handle;
-				axis = $("<div class='ui-resizable-handle " + hname + "'></div>");
-
-				// Apply zIndex to all handles - see #7960
-				axis.css({ zIndex: o.zIndex });
-
-				//TODO : What's going on here?
-				if ("se" === handle) {
-					axis.addClass("ui-icon ui-icon-gripsmall-diagonal-se");
-				}
-
-				//Insert into internal handles object and append to element
-				this.handles[handle] = ".ui-resizable-"+handle;
-				this.element.append(axis);
-			}
-
-		}
-
-		this._renderAxis = function(target) {
-
-			var i, axis, padPos, padWrapper;
-
-			target = target || this.element;
-
-			for(i in this.handles) {
-
-				if(this.handles[i].constructor === String) {
-					this.handles[i] = $(this.handles[i], this.element).show();
-				}
-
-				//Apply pad to wrapper element, needed to fix axis position (textarea, inputs, scrolls)
-				if (this.elementIsWrapper && this.originalElement[0].nodeName.match(/textarea|input|select|button/i)) {
-
-					axis = $(this.handles[i], this.element);
-
-					//Checking the correct pad and border
-					padWrapper = /sw|ne|nw|se|n|s/.test(i) ? axis.outerHeight() : axis.outerWidth();
-
-					//The padding type i have to apply...
-					padPos = [ "padding",
-						/ne|nw|n/.test(i) ? "Top" :
-						/se|sw|s/.test(i) ? "Bottom" :
-						/^e$/.test(i) ? "Right" : "Left" ].join("");
-
-					target.css(padPos, padWrapper);
-
-					this._proportionallyResize();
-
-				}
-
-				//TODO: What's that good for? There's not anything to be executed left
-				if(!$(this.handles[i]).length) {
-					continue;
-				}
-			}
-		};
-
-		//TODO: make renderAxis a prototype function
-		this._renderAxis(this.element);
-
-		this._handles = $(".ui-resizable-handle", this.element)
-			.disableSelection();
-
-		//Matching axis name
-		this._handles.mouseover(function() {
-			if (!that.resizing) {
-				if (this.className) {
-					axis = this.className.match(/ui-resizable-(se|sw|ne|nw|n|e|s|w)/i);
-				}
-				//Axis, default = se
-				that.axis = axis && axis[1] ? axis[1] : "se";
-			}
-		});
-
-		//If we want to auto hide the elements
-		if (o.autoHide) {
-			this._handles.hide();
-			$(this.element)
-				.addClass("ui-resizable-autohide")
-				.mouseenter(function() {
-					if (o.disabled) {
-						return;
-					}
-					$(this).removeClass("ui-resizable-autohide");
-					that._handles.show();
-				})
-				.mouseleave(function(){
-					if (o.disabled) {
-						return;
-					}
-					if (!that.resizing) {
-						$(this).addClass("ui-resizable-autohide");
-						that._handles.hide();
-					}
-				});
-		}
-
-		//Initialize the mouse interaction
-		this._mouseInit();
-
-	},
-
-	_destroy: function() {
-
-		this._mouseDestroy();
-
-		var wrapper,
-			_destroy = function(exp) {
-				$(exp).removeClass("ui-resizable ui-resizable-disabled ui-resizable-resizing")
-					.removeData("resizable").removeData("ui-resizable").unbind(".resizable").find(".ui-resizable-handle").remove();
-			};
-
-		//TODO: Unwrap at same DOM position
-		if (this.elementIsWrapper) {
-			_destroy(this.element);
-			wrapper = this.element;
-			this.originalElement.css({
-				position: wrapper.css("position"),
-				width: wrapper.outerWidth(),
-				height: wrapper.outerHeight(),
-				top: wrapper.css("top"),
-				left: wrapper.css("left")
-			}).insertAfter( wrapper );
-			wrapper.remove();
-		}
-
-		this.originalElement.css("resize", this.originalResizeStyle);
-		_destroy(this.originalElement);
-
-		return this;
-	},
-
-	_mouseCapture: function(event) {
-		var i, handle,
-			capture = false;
-
-		for (i in this.handles) {
-			handle = $(this.handles[i])[0];
-			if (handle === event.target || $.contains(handle, event.target)) {
-				capture = true;
-			}
-		}
-
-		return !this.options.disabled && capture;
-	},
-
-	_mouseStart: function(event) {
-
-		var curleft, curtop, cursor,
-			o = this.options,
-			iniPos = this.element.position(),
-			el = this.element;
-
-		this.resizing = true;
-
-		// bugfix for http://dev.jquery.com/ticket/1749
-		if ( (/absolute/).test( el.css("position") ) ) {
-			el.css({ position: "absolute", top: el.css("top"), left: el.css("left") });
-		} else if (el.is(".ui-draggable")) {
-			el.css({ position: "absolute", top: iniPos.top, left: iniPos.left });
-		}
-
-		this._renderProxy();
-
-		curleft = num(this.helper.css("left"));
-		curtop = num(this.helper.css("top"));
-
-		if (o.containment) {
-			curleft += $(o.containment).scrollLeft() || 0;
-			curtop += $(o.containment).scrollTop() || 0;
-		}
-
-		//Store needed variables
-		this.offset = this.helper.offset();
-		this.position = { left: curleft, top: curtop };
-		this.size = this._helper ? { width: this.helper.width(), height: this.helper.height() } : { width: el.width(), height: el.height() };
-		this.originalSize = this._helper ? { width: el.outerWidth(), height: el.outerHeight() } : { width: el.width(), height: el.height() };
-		this.originalPosition = { left: curleft, top: curtop };
-		this.sizeDiff = { width: el.outerWidth() - el.width(), height: el.outerHeight() - el.height() };
-		this.originalMousePosition = { left: event.pageX, top: event.pageY };
-
-		//Aspect Ratio
-		this.aspectRatio = (typeof o.aspectRatio === "number") ? o.aspectRatio : ((this.originalSize.width / this.originalSize.height) || 1);
-
-		cursor = $(".ui-resizable-" + this.axis).css("cursor");
-		$("body").css("cursor", cursor === "auto" ? this.axis + "-resize" : cursor);
-
-		el.addClass("ui-resizable-resizing");
-		this._propagate("start", event);
-		return true;
-	},
-
-	_mouseDrag: function(event) {
-
-		//Increase performance, avoid regex
-		var data,
-			el = this.helper, props = {},
-			smp = this.originalMousePosition,
-			a = this.axis,
-			prevTop = this.position.top,
-			prevLeft = this.position.left,
-			prevWidth = this.size.width,
-			prevHeight = this.size.height,
-			dx = (event.pageX-smp.left)||0,
-			dy = (event.pageY-smp.top)||0,
-			trigger = this._change[a];
-
-		if (!trigger) {
-			return false;
-		}
-
-		// Calculate the attrs that will be change
-		data = trigger.apply(this, [event, dx, dy]);
-
-		// Put this in the mouseDrag handler since the user can start pressing shift while resizing
-		this._updateVirtualBoundaries(event.shiftKey);
-		if (this._aspectRatio || event.shiftKey) {
-			data = this._updateRatio(data, event);
-		}
-
-		data = this._respectSize(data, event);
-
-		this._updateCache(data);
-
-		// plugins callbacks need to be called first
-		this._propagate("resize", event);
-
-		if (this.position.top !== prevTop) {
-			props.top = this.position.top + "px";
-		}
-		if (this.position.left !== prevLeft) {
-			props.left = this.position.left + "px";
-		}
-		if (this.size.width !== prevWidth) {
-			props.width = this.size.width + "px";
-		}
-		if (this.size.height !== prevHeight) {
-			props.height = this.size.height + "px";
-		}
-		el.css(props);
-
-		if (!this._helper && this._proportionallyResizeElements.length) {
-			this._proportionallyResize();
-		}
-
-		// Call the user callback if the element was resized
-		if ( ! $.isEmptyObject(props) ) {
-			this._trigger("resize", event, this.ui());
-		}
-
-		return false;
-	},
-
-	_mouseStop: function(event) {
-
-		this.resizing = false;
-		var pr, ista, soffseth, soffsetw, s, left, top,
-			o = this.options, that = this;
-
-		if(this._helper) {
-
-			pr = this._proportionallyResizeElements;
-			ista = pr.length && (/textarea/i).test(pr[0].nodeName);
-			soffseth = ista && $.ui.hasScroll(pr[0], "left") /* TODO - jump height */ ? 0 : that.sizeDiff.height;
-			soffsetw = ista ? 0 : that.sizeDiff.width;
-
-			s = { width: (that.helper.width()  - soffsetw), height: (that.helper.height() - soffseth) };
-			left = (parseInt(that.element.css("left"), 10) + (that.position.left - that.originalPosition.left)) || null;
-			top = (parseInt(that.element.css("top"), 10) + (that.position.top - that.originalPosition.top)) || null;
-
-			if (!o.animate) {
-				this.element.css($.extend(s, { top: top, left: left }));
-			}
-
-			that.helper.height(that.size.height);
-			that.helper.width(that.size.width);
-
-			if (this._helper && !o.animate) {
-				this._proportionallyResize();
-			}
-		}
-
-		$("body").css("cursor", "auto");
-
-		this.element.removeClass("ui-resizable-resizing");
-
-		this._propagate("stop", event);
-
-		if (this._helper) {
-			this.helper.remove();
-		}
-
-		return false;
-
-	},
-
-	_updateVirtualBoundaries: function(forceAspectRatio) {
-		var pMinWidth, pMaxWidth, pMinHeight, pMaxHeight, b,
-			o = this.options;
-
-		b = {
-			minWidth: isNumber(o.minWidth) ? o.minWidth : 0,
-			maxWidth: isNumber(o.maxWidth) ? o.maxWidth : Infinity,
-			minHeight: isNumber(o.minHeight) ? o.minHeight : 0,
-			maxHeight: isNumber(o.maxHeight) ? o.maxHeight : Infinity
-		};
-
-		if(this._aspectRatio || forceAspectRatio) {
-			// We want to create an enclosing box whose aspect ration is the requested one
-			// First, compute the "projected" size for each dimension based on the aspect ratio and other dimension
-			pMinWidth = b.minHeight * this.aspectRatio;
-			pMinHeight = b.minWidth / this.aspectRatio;
-			pMaxWidth = b.maxHeight * this.aspectRatio;
-			pMaxHeight = b.maxWidth / this.aspectRatio;
-
-			if(pMinWidth > b.minWidth) {
-				b.minWidth = pMinWidth;
-			}
-			if(pMinHeight > b.minHeight) {
-				b.minHeight = pMinHeight;
-			}
-			if(pMaxWidth < b.maxWidth) {
-				b.maxWidth = pMaxWidth;
-			}
-			if(pMaxHeight < b.maxHeight) {
-				b.maxHeight = pMaxHeight;
-			}
-		}
-		this._vBoundaries = b;
-	},
-
-	_updateCache: function(data) {
-		this.offset = this.helper.offset();
-		if (isNumber(data.left)) {
-			this.position.left = data.left;
-		}
-		if (isNumber(data.top)) {
-			this.position.top = data.top;
-		}
-		if (isNumber(data.height)) {
-			this.size.height = data.height;
-		}
-		if (isNumber(data.width)) {
-			this.size.width = data.width;
-		}
-	},
-
-	_updateRatio: function( data ) {
-
-		var cpos = this.position,
-			csize = this.size,
-			a = this.axis;
-
-		if (isNumber(data.height)) {
-			data.width = (data.height * this.aspectRatio);
-		} else if (isNumber(data.width)) {
-			data.height = (data.width / this.aspectRatio);
-		}
-
-		if (a === "sw") {
-			data.left = cpos.left + (csize.width - data.width);
-			data.top = null;
-		}
-		if (a === "nw") {
-			data.top = cpos.top + (csize.height - data.height);
-			data.left = cpos.left + (csize.width - data.width);
-		}
-
-		return data;
-	},
-
-	_respectSize: function( data ) {
-
-		var o = this._vBoundaries,
-			a = this.axis,
-			ismaxw = isNumber(data.width) && o.maxWidth && (o.maxWidth < data.width), ismaxh = isNumber(data.height) && o.maxHeight && (o.maxHeight < data.height),
-			isminw = isNumber(data.width) && o.minWidth && (o.minWidth > data.width), isminh = isNumber(data.height) && o.minHeight && (o.minHeight > data.height),
-			dw = this.originalPosition.left + this.originalSize.width,
-			dh = this.position.top + this.size.height,
-			cw = /sw|nw|w/.test(a), ch = /nw|ne|n/.test(a);
-		if (isminw) {
-			data.width = o.minWidth;
-		}
-		if (isminh) {
-			data.height = o.minHeight;
-		}
-		if (ismaxw) {
-			data.width = o.maxWidth;
-		}
-		if (ismaxh) {
-			data.height = o.maxHeight;
-		}
-
-		if (isminw && cw) {
-			data.left = dw - o.minWidth;
-		}
-		if (ismaxw && cw) {
-			data.left = dw - o.maxWidth;
-		}
-		if (isminh && ch) {
-			data.top = dh - o.minHeight;
-		}
-		if (ismaxh && ch) {
-			data.top = dh - o.maxHeight;
-		}
-
-		// fixing jump error on top/left - bug #2330
-		if (!data.width && !data.height && !data.left && data.top) {
-			data.top = null;
-		} else if (!data.width && !data.height && !data.top && data.left) {
-			data.left = null;
-		}
-
-		return data;
-	},
-
-	_proportionallyResize: function() {
-
-		if (!this._proportionallyResizeElements.length) {
-			return;
-		}
-
-		var i, j, borders, paddings, prel,
-			element = this.helper || this.element;
-
-		for ( i=0; i < this._proportionallyResizeElements.length; i++) {
-
-			prel = this._proportionallyResizeElements[i];
-
-			if (!this.borderDif) {
-				this.borderDif = [];
-				borders = [prel.css("borderTopWidth"), prel.css("borderRightWidth"), prel.css("borderBottomWidth"), prel.css("borderLeftWidth")];
-				paddings = [prel.css("paddingTop"), prel.css("paddingRight"), prel.css("paddingBottom"), prel.css("paddingLeft")];
-
-				for ( j = 0; j < borders.length; j++ ) {
-					this.borderDif[ j ] = ( parseInt( borders[ j ], 10 ) || 0 ) + ( parseInt( paddings[ j ], 10 ) || 0 );
-				}
-			}
-
-			prel.css({
-				height: (element.height() - this.borderDif[0] - this.borderDif[2]) || 0,
-				width: (element.width() - this.borderDif[1] - this.borderDif[3]) || 0
-			});
-
-		}
-
-	},
-
-	_renderProxy: function() {
-
-		var el = this.element, o = this.options;
-		this.elementOffset = el.offset();
-
-		if(this._helper) {
-
-			this.helper = this.helper || $("<div style='overflow:hidden;'></div>");
-
-			this.helper.addClass(this._helper).css({
-				width: this.element.outerWidth() - 1,
-				height: this.element.outerHeight() - 1,
-				position: "absolute",
-				left: this.elementOffset.left +"px",
-				top: this.elementOffset.top +"px",
-				zIndex: ++o.zIndex //TODO: Don't modify option
-			});
-
-			this.helper
-				.appendTo("body")
-				.disableSelection();
-
-		} else {
-			this.helper = this.element;
-		}
-
-	},
-
-	_change: {
-		e: function(event, dx) {
-			return { width: this.originalSize.width + dx };
-		},
-		w: function(event, dx) {
-			var cs = this.originalSize, sp = this.originalPosition;
-			return { left: sp.left + dx, width: cs.width - dx };
-		},
-		n: function(event, dx, dy) {
-			var cs = this.originalSize, sp = this.originalPosition;
-			return { top: sp.top + dy, height: cs.height - dy };
-		},
-		s: function(event, dx, dy) {
-			return { height: this.originalSize.height + dy };
-		},
-		se: function(event, dx, dy) {
-			return $.extend(this._change.s.apply(this, arguments), this._change.e.apply(this, [event, dx, dy]));
-		},
-		sw: function(event, dx, dy) {
-			return $.extend(this._change.s.apply(this, arguments), this._change.w.apply(this, [event, dx, dy]));
-		},
-		ne: function(event, dx, dy) {
-			return $.extend(this._change.n.apply(this, arguments), this._change.e.apply(this, [event, dx, dy]));
-		},
-		nw: function(event, dx, dy) {
-			return $.extend(this._change.n.apply(this, arguments), this._change.w.apply(this, [event, dx, dy]));
-		}
-	},
-
-	_propagate: function(n, event) {
-		$.ui.plugin.call(this, n, [event, this.ui()]);
-		(n !== "resize" && this._trigger(n, event, this.ui()));
-	},
-
-	plugins: {},
-
-	ui: function() {
-		return {
-			originalElement: this.originalElement,
-			element: this.element,
-			helper: this.helper,
-			position: this.position,
-			size: this.size,
-			originalSize: this.originalSize,
-			originalPosition: this.originalPosition
-		};
-	}
-
-});
-
-/*
- * Resizable Extensions
- */
-
-$.ui.plugin.add("resizable", "animate", {
-
-	stop: function( event ) {
-		var that = $(this).data("ui-resizable"),
-			o = that.options,
-			pr = that._proportionallyResizeElements,
-			ista = pr.length && (/textarea/i).test(pr[0].nodeName),
-			soffseth = ista && $.ui.hasScroll(pr[0], "left") /* TODO - jump height */ ? 0 : that.sizeDiff.height,
-			soffsetw = ista ? 0 : that.sizeDiff.width,
-			style = { width: (that.size.width - soffsetw), height: (that.size.height - soffseth) },
-			left = (parseInt(that.element.css("left"), 10) + (that.position.left - that.originalPosition.left)) || null,
-			top = (parseInt(that.element.css("top"), 10) + (that.position.top - that.originalPosition.top)) || null;
-
-		that.element.animate(
-			$.extend(style, top && left ? { top: top, left: left } : {}), {
-				duration: o.animateDuration,
-				easing: o.animateEasing,
-				step: function() {
-
-					var data = {
-						width: parseInt(that.element.css("width"), 10),
-						height: parseInt(that.element.css("height"), 10),
-						top: parseInt(that.element.css("top"), 10),
-						left: parseInt(that.element.css("left"), 10)
-					};
-
-					if (pr && pr.length) {
-						$(pr[0]).css({ width: data.width, height: data.height });
-					}
-
-					// propagating resize, and updating values for each animation step
-					that._updateCache(data);
-					that._propagate("resize", event);
-
-				}
-			}
-		);
-	}
-
-});
-
-$.ui.plugin.add("resizable", "containment", {
-
-	start: function() {
-		var element, p, co, ch, cw, width, height,
-			that = $(this).data("ui-resizable"),
-			o = that.options,
-			el = that.element,
-			oc = o.containment,
-			ce = (oc instanceof $) ? oc.get(0) : (/parent/.test(oc)) ? el.parent().get(0) : oc;
-
-		if (!ce) {
-			return;
-		}
-
-		that.containerElement = $(ce);
-
-		if (/document/.test(oc) || oc === document) {
-			that.containerOffset = { left: 0, top: 0 };
-			that.containerPosition = { left: 0, top: 0 };
-
-			that.parentData = {
-				element: $(document), left: 0, top: 0,
-				width: $(document).width(), height: $(document).height() || document.body.parentNode.scrollHeight
-			};
-		}
-
-		// i'm a node, so compute top, left, right, bottom
-		else {
-			element = $(ce);
-			p = [];
-			$([ "Top", "Right", "Left", "Bottom" ]).each(function(i, name) { p[i] = num(element.css("padding" + name)); });
-
-			that.containerOffset = element.offset();
-			that.containerPosition = element.position();
-			that.containerSize = { height: (element.innerHeight() - p[3]), width: (element.innerWidth() - p[1]) };
-
-			co = that.containerOffset;
-			ch = that.containerSize.height;
-			cw = that.containerSize.width;
-			width = ($.ui.hasScroll(ce, "left") ? ce.scrollWidth : cw );
-			height = ($.ui.hasScroll(ce) ? ce.scrollHeight : ch);
-
-			that.parentData = {
-				element: ce, left: co.left, top: co.top, width: width, height: height
-			};
-		}
-	},
-
-	resize: function( event ) {
-		var woset, hoset, isParent, isOffsetRelative,
-			that = $(this).data("ui-resizable"),
-			o = that.options,
-			co = that.containerOffset, cp = that.position,
-			pRatio = that._aspectRatio || event.shiftKey,
-			cop = { top:0, left:0 }, ce = that.containerElement;
-
-		if (ce[0] !== document && (/static/).test(ce.css("position"))) {
-			cop = co;
-		}
-
-		if (cp.left < (that._helper ? co.left : 0)) {
-			that.size.width = that.size.width + (that._helper ? (that.position.left - co.left) : (that.position.left - cop.left));
-			if (pRatio) {
-				that.size.height = that.size.width / that.aspectRatio;
-			}
-			that.position.left = o.helper ? co.left : 0;
-		}
-
-		if (cp.top < (that._helper ? co.top : 0)) {
-			that.size.height = that.size.height + (that._helper ? (that.position.top - co.top) : that.position.top);
-			if (pRatio) {
-				that.size.width = that.size.height * that.aspectRatio;
-			}
-			that.position.top = that._helper ? co.top : 0;
-		}
-
-		that.offset.left = that.parentData.left+that.position.left;
-		that.offset.top = that.parentData.top+that.position.top;
-
-		woset = Math.abs( (that._helper ? that.offset.left - cop.left : (that.offset.left - cop.left)) + that.sizeDiff.width );
-		hoset = Math.abs( (that._helper ? that.offset.top - cop.top : (that.offset.top - co.top)) + that.sizeDiff.height );
-
-		isParent = that.containerElement.get(0) === that.element.parent().get(0);
-		isOffsetRelative = /relative|absolute/.test(that.containerElement.css("position"));
-
-		if ( isParent && isOffsetRelative ) {
-			woset -= Math.abs( that.parentData.left );
-		}
-
-		if (woset + that.size.width >= that.parentData.width) {
-			that.size.width = that.parentData.width - woset;
-			if (pRatio) {
-				that.size.height = that.size.width / that.aspectRatio;
-			}
-		}
-
-		if (hoset + that.size.height >= that.parentData.height) {
-			that.size.height = that.parentData.height - hoset;
-			if (pRatio) {
-				that.size.width = that.size.height * that.aspectRatio;
-			}
-		}
-	},
-
-	stop: function(){
-		var that = $(this).data("ui-resizable"),
-			o = that.options,
-			co = that.containerOffset,
-			cop = that.containerPosition,
-			ce = that.containerElement,
-			helper = $(that.helper),
-			ho = helper.offset(),
-			w = helper.outerWidth() - that.sizeDiff.width,
-			h = helper.outerHeight() - that.sizeDiff.height;
-
-		if (that._helper && !o.animate && (/relative/).test(ce.css("position"))) {
-			$(this).css({ left: ho.left - cop.left - co.left, width: w, height: h });
-		}
-
-		if (that._helper && !o.animate && (/static/).test(ce.css("position"))) {
-			$(this).css({ left: ho.left - cop.left - co.left, width: w, height: h });
-		}
-
-	}
-});
-
-$.ui.plugin.add("resizable", "alsoResize", {
-
-	start: function () {
-		var that = $(this).data("ui-resizable"),
-			o = that.options,
-			_store = function (exp) {
-				$(exp).each(function() {
-					var el = $(this);
-					el.data("ui-resizable-alsoresize", {
-						width: parseInt(el.width(), 10), height: parseInt(el.height(), 10),
-						left: parseInt(el.css("left"), 10), top: parseInt(el.css("top"), 10)
-					});
-				});
-			};
-
-		if (typeof(o.alsoResize) === "object" && !o.alsoResize.parentNode) {
-			if (o.alsoResize.length) { o.alsoResize = o.alsoResize[0]; _store(o.alsoResize); }
-			else { $.each(o.alsoResize, function (exp) { _store(exp); }); }
-		}else{
-			_store(o.alsoResize);
-		}
-	},
-
-	resize: function (event, ui) {
-		var that = $(this).data("ui-resizable"),
-			o = that.options,
-			os = that.originalSize,
-			op = that.originalPosition,
-			delta = {
-				height: (that.size.height - os.height) || 0, width: (that.size.width - os.width) || 0,
-				top: (that.position.top - op.top) || 0, left: (that.position.left - op.left) || 0
-			},
-
-			_alsoResize = function (exp, c) {
-				$(exp).each(function() {
-					var el = $(this), start = $(this).data("ui-resizable-alsoresize"), style = {},
-						css = c && c.length ? c : el.parents(ui.originalElement[0]).length ? ["width", "height"] : ["width", "height", "top", "left"];
-
-					$.each(css, function (i, prop) {
-						var sum = (start[prop]||0) + (delta[prop]||0);
-						if (sum && sum >= 0) {
-							style[prop] = sum || null;
-						}
-					});
-
-					el.css(style);
-				});
-			};
-
-		if (typeof(o.alsoResize) === "object" && !o.alsoResize.nodeType) {
-			$.each(o.alsoResize, function (exp, c) { _alsoResize(exp, c); });
-		}else{
-			_alsoResize(o.alsoResize);
-		}
-	},
-
-	stop: function () {
-		$(this).removeData("resizable-alsoresize");
-	}
-});
-
-$.ui.plugin.add("resizable", "ghost", {
-
-	start: function() {
-
-		var that = $(this).data("ui-resizable"), o = that.options, cs = that.size;
-
-		that.ghost = that.originalElement.clone();
-		that.ghost
-			.css({ opacity: 0.25, display: "block", position: "relative", height: cs.height, width: cs.width, margin: 0, left: 0, top: 0 })
-			.addClass("ui-resizable-ghost")
-			.addClass(typeof o.ghost === "string" ? o.ghost : "");
-
-		that.ghost.appendTo(that.helper);
-
-	},
-
-	resize: function(){
-		var that = $(this).data("ui-resizable");
-		if (that.ghost) {
-			that.ghost.css({ position: "relative", height: that.size.height, width: that.size.width });
-		}
-	},
-
-	stop: function() {
-		var that = $(this).data("ui-resizable");
-		if (that.ghost && that.helper) {
-			that.helper.get(0).removeChild(that.ghost.get(0));
-		}
-	}
-
-});
-
-$.ui.plugin.add("resizable", "grid", {
-
-	resize: function() {
-		var that = $(this).data("ui-resizable"),
-			o = that.options,
-			cs = that.size,
-			os = that.originalSize,
-			op = that.originalPosition,
-			a = that.axis,
-			grid = typeof o.grid === "number" ? [o.grid, o.grid] : o.grid,
-			gridX = (grid[0]||1),
-			gridY = (grid[1]||1),
-			ox = Math.round((cs.width - os.width) / gridX) * gridX,
-			oy = Math.round((cs.height - os.height) / gridY) * gridY,
-			newWidth = os.width + ox,
-			newHeight = os.height + oy,
-			isMaxWidth = o.maxWidth && (o.maxWidth < newWidth),
-			isMaxHeight = o.maxHeight && (o.maxHeight < newHeight),
-			isMinWidth = o.minWidth && (o.minWidth > newWidth),
-			isMinHeight = o.minHeight && (o.minHeight > newHeight);
-
-		o.grid = grid;
-
-		if (isMinWidth) {
-			newWidth = newWidth + gridX;
-		}
-		if (isMinHeight) {
-			newHeight = newHeight + gridY;
-		}
-		if (isMaxWidth) {
-			newWidth = newWidth - gridX;
-		}
-		if (isMaxHeight) {
-			newHeight = newHeight - gridY;
-		}
-
-		if (/^(se|s|e)$/.test(a)) {
-			that.size.width = newWidth;
-			that.size.height = newHeight;
-		} else if (/^(ne)$/.test(a)) {
-			that.size.width = newWidth;
-			that.size.height = newHeight;
-			that.position.top = op.top - oy;
-		} else if (/^(sw)$/.test(a)) {
-			that.size.width = newWidth;
-			that.size.height = newHeight;
-			that.position.left = op.left - ox;
-		} else {
-			if ( newHeight - gridY > 0 ) {
-				that.size.height = newHeight;
-				that.position.top = op.top - oy;
-			} else {
-				that.size.height = gridY;
-				that.position.top = op.top + os.height - gridY;
-			}
-			if ( newWidth - gridX > 0 ) {
-				that.size.width = newWidth;
-				that.position.left = op.left - ox;
-			} else {
-				that.size.width = gridX;
-				that.position.left = op.left + os.width - gridX;
-			}
-		}
-	}
-
-});
-
-})(jQuery);
-
-
-
-
-
-
-
-/*!
- * jQuery UI Dialog 1.10.4
- * http://jqueryui.com
- *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/dialog/
- *
- * Depends:
- *	jquery.ui.core.js
- *	jquery.ui.widget.js
- *  jquery.ui.button.js
- *	jquery.ui.draggable.js
- *	jquery.ui.mouse.js
- *	jquery.ui.position.js
- *	jquery.ui.resizable.js
- */
-
-(function( $, undefined ) {
-
-var sizeRelatedOptions = {
-		buttons: true,
-		height: true,
-		maxHeight: true,
-		maxWidth: true,
-		minHeight: true,
-		minWidth: true,
-		width: true
-	},
-	resizableRelatedOptions = {
-		maxHeight: true,
-		maxWidth: true,
-		minHeight: true,
-		minWidth: true
-	};
-
-$.widget( "ui.dialog", {
-	version: "1.10.4",
-	options: {
-		appendTo: "body",
-		autoOpen: true,
-		buttons: [],
-		closeOnEscape: true,
-		closeText: "close",
-		dialogClass: "",
-		draggable: true,
-		hide: null,
-		height: "auto",
-		maxHeight: null,
-		maxWidth: null,
-		minHeight: 150,
-		minWidth: 150,
-		modal: false,
-		position: {
-			my: "center",
-			at: "center",
-			of: window,
-			collision: "fit",
-			// Ensure the titlebar is always visible
-			using: function( pos ) {
-				var topOffset = $( this ).css( pos ).offset().top;
-				if ( topOffset < 0 ) {
-					$( this ).css( "top", pos.top - topOffset );
-				}
-			}
-		},
-		resizable: true,
-		show: null,
-		title: null,
-		width: 300,
-
-		// callbacks
-		beforeClose: null,
-		close: null,
-		drag: null,
-		dragStart: null,
-		dragStop: null,
-		focus: null,
-		open: null,
-		resize: null,
-		resizeStart: null,
-		resizeStop: null
-	},
-
-	_create: function() {
-		this.originalCss = {
-			display: this.element[0].style.display,
-			width: this.element[0].style.width,
-			minHeight: this.element[0].style.minHeight,
-			maxHeight: this.element[0].style.maxHeight,
-			height: this.element[0].style.height
-		};
-		this.originalPosition = {
-			parent: this.element.parent(),
-			index: this.element.parent().children().index( this.element )
-		};
-		this.originalTitle = this.element.attr("title");
-		this.options.title = this.options.title || this.originalTitle;
-
-		this._createWrapper();
-
-		this.element
-			.show()
-			.removeAttr("title")
-			.addClass("ui-dialog-content ui-widget-content")
-			.appendTo( this.uiDialog );
-
-		this._createTitlebar();
-		this._createButtonPane();
-
-		if ( this.options.draggable && $.fn.draggable ) {
-			this._makeDraggable();
-		}
-		if ( this.options.resizable && $.fn.resizable ) {
-			this._makeResizable();
-		}
-
-		this._isOpen = false;
-	},
-
-	_init: function() {
-		if ( this.options.autoOpen ) {
-			this.open();
-		}
-	},
-
-	_appendTo: function() {
-		var element = this.options.appendTo;
-		if ( element && (element.jquery || element.nodeType) ) {
-			return $( element );
-		}
-		return this.document.find( element || "body" ).eq( 0 );
-	},
-
-	_destroy: function() {
-		var next,
-			originalPosition = this.originalPosition;
-
-		this._destroyOverlay();
-
-		this.element
-			.removeUniqueId()
-			.removeClass("ui-dialog-content ui-widget-content")
-			.css( this.originalCss )
-			// Without detaching first, the following becomes really slow
-			.detach();
-
-		this.uiDialog.stop( true, true ).remove();
-
-		if ( this.originalTitle ) {
-			this.element.attr( "title", this.originalTitle );
-		}
-
-		next = originalPosition.parent.children().eq( originalPosition.index );
-		// Don't try to place the dialog next to itself (#8613)
-		if ( next.length && next[0] !== this.element[0] ) {
-			next.before( this.element );
-		} else {
-			originalPosition.parent.append( this.element );
-		}
-	},
-
-	widget: function() {
-		return this.uiDialog;
-	},
-
-	disable: $.noop,
-	enable: $.noop,
-
-	close: function( event ) {
-		var activeElement,
-			that = this;
-
-		if ( !this._isOpen || this._trigger( "beforeClose", event ) === false ) {
-			return;
-		}
-
-		this._isOpen = false;
-		this._destroyOverlay();
-
-		if ( !this.opener.filter(":focusable").focus().length ) {
-
-			// support: IE9
-			// IE9 throws an "Unspecified error" accessing document.activeElement from an <iframe>
-			try {
-				activeElement = this.document[ 0 ].activeElement;
-
-				// Support: IE9, IE10
-				// If the <body> is blurred, IE will switch windows, see #4520
-				if ( activeElement && activeElement.nodeName.toLowerCase() !== "body" ) {
-
-					// Hiding a focused element doesn't trigger blur in WebKit
-					// so in case we have nothing to focus on, explicitly blur the active element
-					// https://bugs.webkit.org/show_bug.cgi?id=47182
-					$( activeElement ).blur();
-				}
-			} catch ( error ) {}
-		}
-
-		this._hide( this.uiDialog, this.options.hide, function() {
-			that._trigger( "close", event );
-		});
-	},
-
-	isOpen: function() {
-		return this._isOpen;
-	},
-
-	moveToTop: function() {
-		this._moveToTop();
-	},
-
-	_moveToTop: function( event, silent ) {
-		var moved = !!this.uiDialog.nextAll(":visible").insertBefore( this.uiDialog ).length;
-		if ( moved && !silent ) {
-			this._trigger( "focus", event );
-		}
-		return moved;
-	},
-
-	open: function() {
-		var that = this;
-		if ( this._isOpen ) {
-			if ( this._moveToTop() ) {
-				this._focusTabbable();
-			}
-			return;
-		}
-
-		this._isOpen = true;
-		this.opener = $( this.document[0].activeElement );
-
-		this._size();
-		this._position();
-		this._createOverlay();
-		this._moveToTop( null, true );
-		this._show( this.uiDialog, this.options.show, function() {
-			that._focusTabbable();
-			that._trigger("focus");
-		});
-
-		this._trigger("open");
-	},
-
-	_focusTabbable: function() {
-		// Set focus to the first match:
-		// 1. First element inside the dialog matching [autofocus]
-		// 2. Tabbable element inside the content element
-		// 3. Tabbable element inside the buttonpane
-		// 4. The close button
-		// 5. The dialog itself
-		var hasFocus = this.element.find("[autofocus]");
-		if ( !hasFocus.length ) {
-			hasFocus = this.element.find(":tabbable");
-		}
-		if ( !hasFocus.length ) {
-			hasFocus = this.uiDialogButtonPane.find(":tabbable");
-		}
-		if ( !hasFocus.length ) {
-			hasFocus = this.uiDialogTitlebarClose.filter(":tabbable");
-		}
-		if ( !hasFocus.length ) {
-			hasFocus = this.uiDialog;
-		}
-		hasFocus.eq( 0 ).focus();
-	},
-
-	_keepFocus: function( event ) {
-		function checkFocus() {
-			var activeElement = this.document[0].activeElement,
-				isActive = this.uiDialog[0] === activeElement ||
-					$.contains( this.uiDialog[0], activeElement );
-			if ( !isActive ) {
-				this._focusTabbable();
-			}
-		}
-		event.preventDefault();
-		checkFocus.call( this );
-		// support: IE
-		// IE <= 8 doesn't prevent moving focus even with event.preventDefault()
-		// so we check again later
-		this._delay( checkFocus );
-	},
-
-	_createWrapper: function() {
-		this.uiDialog = $("<div>")
-			.addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all ui-front " +
-				this.options.dialogClass )
-			.hide()
-			.attr({
-				// Setting tabIndex makes the div focusable
-				tabIndex: -1,
-				role: "dialog"
-			})
-			.appendTo( this._appendTo() );
-
-		this._on( this.uiDialog, {
-			keydown: function( event ) {
-				if ( this.options.closeOnEscape && !event.isDefaultPrevented() && event.keyCode &&
-						event.keyCode === $.ui.keyCode.ESCAPE ) {
-					event.preventDefault();
-					this.close( event );
-					return;
-				}
-
-				// prevent tabbing out of dialogs
-				if ( event.keyCode !== $.ui.keyCode.TAB ) {
-					return;
-				}
-				var tabbables = this.uiDialog.find(":tabbable"),
-					first = tabbables.filter(":first"),
-					last  = tabbables.filter(":last");
-
-				if ( ( event.target === last[0] || event.target === this.uiDialog[0] ) && !event.shiftKey ) {
-					first.focus( 1 );
-					event.preventDefault();
-				} else if ( ( event.target === first[0] || event.target === this.uiDialog[0] ) && event.shiftKey ) {
-					last.focus( 1 );
-					event.preventDefault();
-				}
-			},
-			mousedown: function( event ) {
-				if ( this._moveToTop( event ) ) {
-					this._focusTabbable();
-				}
-			}
-		});
-
-		// We assume that any existing aria-describedby attribute means
-		// that the dialog content is marked up properly
-		// otherwise we brute force the content as the description
-		if ( !this.element.find("[aria-describedby]").length ) {
-			this.uiDialog.attr({
-				"aria-describedby": this.element.uniqueId().attr("id")
-			});
-		}
-	},
-
-	_createTitlebar: function() {
-		var uiDialogTitle;
-
-		this.uiDialogTitlebar = $("<div>")
-			.addClass("ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix")
-			.prependTo( this.uiDialog );
-		this._on( this.uiDialogTitlebar, {
-			mousedown: function( event ) {
-				// Don't prevent click on close button (#8838)
-				// Focusing a dialog that is partially scrolled out of view
-				// causes the browser to scroll it into view, preventing the click event
-				if ( !$( event.target ).closest(".ui-dialog-titlebar-close") ) {
-					// Dialog isn't getting focus when dragging (#8063)
-					this.uiDialog.focus();
-				}
-			}
-		});
-
-		// support: IE
-		// Use type="button" to prevent enter keypresses in textboxes from closing the
-		// dialog in IE (#9312)
-		this.uiDialogTitlebarClose = $( "<button type='button'></button>" )
-			.button({
-				label: this.options.closeText,
-				icons: {
-					primary: "ui-icon-closethick"
-				},
-				text: false
-			})
-			.addClass("ui-dialog-titlebar-close")
-			.appendTo( this.uiDialogTitlebar );
-		this._on( this.uiDialogTitlebarClose, {
-			click: function( event ) {
-				event.preventDefault();
-				this.close( event );
-			}
-		});
-
-		uiDialogTitle = $("<span>")
-			.uniqueId()
-			.addClass("ui-dialog-title")
-			.prependTo( this.uiDialogTitlebar );
-		this._title( uiDialogTitle );
-
-		this.uiDialog.attr({
-			"aria-labelledby": uiDialogTitle.attr("id")
-		});
-	},
-
-	_title: function( title ) {
-		if ( !this.options.title ) {
-			title.html("&#160;");
-		}
-		title.text( this.options.title );
-	},
-
-	_createButtonPane: function() {
-		this.uiDialogButtonPane = $("<div>")
-			.addClass("ui-dialog-buttonpane ui-widget-content ui-helper-clearfix");
-
-		this.uiButtonSet = $("<div>")
-			.addClass("ui-dialog-buttonset")
-			.appendTo( this.uiDialogButtonPane );
-
-		this._createButtons();
-	},
-
-	_createButtons: function() {
-		var that = this,
-			buttons = this.options.buttons;
-
-		// if we already have a button pane, remove it
-		this.uiDialogButtonPane.remove();
-		this.uiButtonSet.empty();
-
-		if ( $.isEmptyObject( buttons ) || ($.isArray( buttons ) && !buttons.length) ) {
-			this.uiDialog.removeClass("ui-dialog-buttons");
-			return;
-		}
-
-		$.each( buttons, function( name, props ) {
-			var click, buttonOptions;
-			props = $.isFunction( props ) ?
-				{ click: props, text: name } :
-				props;
-			// Default to a non-submitting button
-			props = $.extend( { type: "button" }, props );
-			// Change the context for the click callback to be the main element
-			click = props.click;
-			props.click = function() {
-				click.apply( that.element[0], arguments );
-			};
-			buttonOptions = {
-				icons: props.icons,
-				text: props.showText
-			};
-			delete props.icons;
-			delete props.showText;
-			$( "<button></button>", props )
-				.button( buttonOptions )
-				.appendTo( that.uiButtonSet );
-		});
-		this.uiDialog.addClass("ui-dialog-buttons");
-		this.uiDialogButtonPane.appendTo( this.uiDialog );
-	},
-
-	_makeDraggable: function() {
-		var that = this,
-			options = this.options;
-
-		function filteredUi( ui ) {
-			return {
-				position: ui.position,
-				offset: ui.offset
-			};
-		}
-
-		this.uiDialog.draggable({
-			cancel: ".ui-dialog-content, .ui-dialog-titlebar-close",
-			handle: ".ui-dialog-titlebar",
-			containment: "document",
-			start: function( event, ui ) {
-				$( this ).addClass("ui-dialog-dragging");
-				that._blockFrames();
-				that._trigger( "dragStart", event, filteredUi( ui ) );
-			},
-			drag: function( event, ui ) {
-				that._trigger( "drag", event, filteredUi( ui ) );
-			},
-			stop: function( event, ui ) {
-				options.position = [
-					ui.position.left - that.document.scrollLeft(),
-					ui.position.top - that.document.scrollTop()
-				];
-				$( this ).removeClass("ui-dialog-dragging");
-				that._unblockFrames();
-				that._trigger( "dragStop", event, filteredUi( ui ) );
-			}
-		});
-	},
-
-	_makeResizable: function() {
-		var that = this,
-			options = this.options,
-			handles = options.resizable,
-			// .ui-resizable has position: relative defined in the stylesheet
-			// but dialogs have to use absolute or fixed positioning
-			position = this.uiDialog.css("position"),
-			resizeHandles = typeof handles === "string" ?
-				handles	:
-				"n,e,s,w,se,sw,ne,nw";
-
-		function filteredUi( ui ) {
-			return {
-				originalPosition: ui.originalPosition,
-				originalSize: ui.originalSize,
-				position: ui.position,
-				size: ui.size
-			};
-		}
-
-		this.uiDialog.resizable({
-			cancel: ".ui-dialog-content",
-			containment: "document",
-			alsoResize: this.element,
-			maxWidth: options.maxWidth,
-			maxHeight: options.maxHeight,
-			minWidth: options.minWidth,
-			minHeight: this._minHeight(),
-			handles: resizeHandles,
-			start: function( event, ui ) {
-				$( this ).addClass("ui-dialog-resizing");
-				that._blockFrames();
-				that._trigger( "resizeStart", event, filteredUi( ui ) );
-			},
-			resize: function( event, ui ) {
-				that._trigger( "resize", event, filteredUi( ui ) );
-			},
-			stop: function( event, ui ) {
-				options.height = $( this ).height();
-				options.width = $( this ).width();
-				$( this ).removeClass("ui-dialog-resizing");
-				that._unblockFrames();
-				that._trigger( "resizeStop", event, filteredUi( ui ) );
-			}
-		})
-		.css( "position", position );
-	},
-
-	_minHeight: function() {
-		var options = this.options;
-
-		return options.height === "auto" ?
-			options.minHeight :
-			Math.min( options.minHeight, options.height );
-	},
-
-	_position: function() {
-		// Need to show the dialog to get the actual offset in the position plugin
-		var isVisible = this.uiDialog.is(":visible");
-		if ( !isVisible ) {
-			this.uiDialog.show();
-		}
-		this.uiDialog.position( this.options.position );
-		if ( !isVisible ) {
-			this.uiDialog.hide();
-		}
-	},
-
-	_setOptions: function( options ) {
-		var that = this,
-			resize = false,
-			resizableOptions = {};
-
-		$.each( options, function( key, value ) {
-			that._setOption( key, value );
-
-			if ( key in sizeRelatedOptions ) {
-				resize = true;
-			}
-			if ( key in resizableRelatedOptions ) {
-				resizableOptions[ key ] = value;
-			}
-		});
-
-		if ( resize ) {
-			this._size();
-			this._position();
-		}
-		if ( this.uiDialog.is(":data(ui-resizable)") ) {
-			this.uiDialog.resizable( "option", resizableOptions );
-		}
-	},
-
-	_setOption: function( key, value ) {
-		var isDraggable, isResizable,
-			uiDialog = this.uiDialog;
-
-		if ( key === "dialogClass" ) {
-			uiDialog
-				.removeClass( this.options.dialogClass )
-				.addClass( value );
-		}
-
-		if ( key === "disabled" ) {
-			return;
-		}
-
-		this._super( key, value );
-
-		if ( key === "appendTo" ) {
-			this.uiDialog.appendTo( this._appendTo() );
-		}
-
-		if ( key === "buttons" ) {
-			this._createButtons();
-		}
-
-		if ( key === "closeText" ) {
-			this.uiDialogTitlebarClose.button({
-				// Ensure that we always pass a string
-				label: "" + value
-			});
-		}
-
-		if ( key === "draggable" ) {
-			isDraggable = uiDialog.is(":data(ui-draggable)");
-			if ( isDraggable && !value ) {
-				uiDialog.draggable("destroy");
-			}
-
-			if ( !isDraggable && value ) {
-				this._makeDraggable();
-			}
-		}
-
-		if ( key === "position" ) {
-			this._position();
-		}
-
-		if ( key === "resizable" ) {
-			// currently resizable, becoming non-resizable
-			isResizable = uiDialog.is(":data(ui-resizable)");
-			if ( isResizable && !value ) {
-				uiDialog.resizable("destroy");
-			}
-
-			// currently resizable, changing handles
-			if ( isResizable && typeof value === "string" ) {
-				uiDialog.resizable( "option", "handles", value );
-			}
-
-			// currently non-resizable, becoming resizable
-			if ( !isResizable && value !== false ) {
-				this._makeResizable();
-			}
-		}
-
-		if ( key === "title" ) {
-			this._title( this.uiDialogTitlebar.find(".ui-dialog-title") );
-		}
-	},
-
-	_size: function() {
-		// If the user has resized the dialog, the .ui-dialog and .ui-dialog-content
-		// divs will both have width and height set, so we need to reset them
-		var nonContentHeight, minContentHeight, maxContentHeight,
-			options = this.options;
-
-		// Reset content sizing
-		this.element.show().css({
-			width: "auto",
-			minHeight: 0,
-			maxHeight: "none",
-			height: 0
-		});
-
-		if ( options.minWidth > options.width ) {
-			options.width = options.minWidth;
-		}
-
-		// reset wrapper sizing
-		// determine the height of all the non-content elements
-		nonContentHeight = this.uiDialog.css({
-				height: "auto",
-				width: options.width
-			})
-			.outerHeight();
-		minContentHeight = Math.max( 0, options.minHeight - nonContentHeight );
-		maxContentHeight = typeof options.maxHeight === "number" ?
-			Math.max( 0, options.maxHeight - nonContentHeight ) :
-			"none";
-
-		if ( options.height === "auto" ) {
-			this.element.css({
-				minHeight: minContentHeight,
-				maxHeight: maxContentHeight,
-				height: "auto"
-			});
-		} else {
-			this.element.height( Math.max( 0, options.height - nonContentHeight ) );
-		}
-
-		if (this.uiDialog.is(":data(ui-resizable)") ) {
-			this.uiDialog.resizable( "option", "minHeight", this._minHeight() );
-		}
-	},
-
-	_blockFrames: function() {
-		this.iframeBlocks = this.document.find( "iframe" ).map(function() {
-			var iframe = $( this );
-
-			return $( "<div>" )
-				.css({
-					position: "absolute",
-					width: iframe.outerWidth(),
-					height: iframe.outerHeight()
-				})
-				.appendTo( iframe.parent() )
-				.offset( iframe.offset() )[0];
-		});
-	},
-
-	_unblockFrames: function() {
-		if ( this.iframeBlocks ) {
-			this.iframeBlocks.remove();
-			delete this.iframeBlocks;
-		}
-	},
-
-	_allowInteraction: function( event ) {
-		if ( $( event.target ).closest(".ui-dialog").length ) {
-			return true;
-		}
-
-		// TODO: Remove hack when datepicker implements
-		// the .ui-front logic (#8989)
-		return !!$( event.target ).closest(".ui-datepicker").length;
-	},
-
-	_createOverlay: function() {
-		if ( !this.options.modal ) {
-			return;
-		}
-
-		var that = this,
-			widgetFullName = this.widgetFullName;
-		if ( !$.ui.dialog.overlayInstances ) {
-			// Prevent use of anchors and inputs.
-			// We use a delay in case the overlay is created from an
-			// event that we're going to be cancelling. (#2804)
-			this._delay(function() {
-				// Handle .dialog().dialog("close") (#4065)
-				if ( $.ui.dialog.overlayInstances ) {
-					this.document.bind( "focusin.dialog", function( event ) {
-						if ( !that._allowInteraction( event ) ) {
-							event.preventDefault();
-							$(".ui-dialog:visible:last .ui-dialog-content")
-								.data( widgetFullName )._focusTabbable();
-						}
-					});
-				}
-			});
-		}
-
-		this.overlay = $("<div>")
-			.addClass("ui-widget-overlay ui-front")
-			.appendTo( this._appendTo() );
-		this._on( this.overlay, {
-			mousedown: "_keepFocus"
-		});
-		$.ui.dialog.overlayInstances++;
-	},
-
-	_destroyOverlay: function() {
-		if ( !this.options.modal ) {
-			return;
-		}
-
-		if ( this.overlay ) {
-			$.ui.dialog.overlayInstances--;
-
-			if ( !$.ui.dialog.overlayInstances ) {
-				this.document.unbind( "focusin.dialog" );
-			}
-			this.overlay.remove();
-			this.overlay = null;
-		}
-	}
-});
-
-$.ui.dialog.overlayInstances = 0;
-
-// DEPRECATED
-if ( $.uiBackCompat !== false ) {
-	// position option with array notation
-	// just override with old implementation
-	$.widget( "ui.dialog", $.ui.dialog, {
-		_position: function() {
-			var position = this.options.position,
-				myAt = [],
-				offset = [ 0, 0 ],
-				isVisible;
-
-			if ( position ) {
-				if ( typeof position === "string" || (typeof position === "object" && "0" in position ) ) {
-					myAt = position.split ? position.split(" ") : [ position[0], position[1] ];
-					if ( myAt.length === 1 ) {
-						myAt[1] = myAt[0];
-					}
-
-					$.each( [ "left", "top" ], function( i, offsetPosition ) {
-						if ( +myAt[ i ] === myAt[ i ] ) {
-							offset[ i ] = myAt[ i ];
-							myAt[ i ] = offsetPosition;
-						}
-					});
-
-					position = {
-						my: myAt[0] + (offset[0] < 0 ? offset[0] : "+" + offset[0]) + " " +
-							myAt[1] + (offset[1] < 0 ? offset[1] : "+" + offset[1]),
-						at: myAt.join(" ")
-					};
-				}
-
-				position = $.extend( {}, $.ui.dialog.prototype.options.position, position );
-			} else {
-				position = $.ui.dialog.prototype.options.position;
-			}
-
-			// need to show the dialog to get the actual offset in the position plugin
-			isVisible = this.uiDialog.is(":visible");
-			if ( !isVisible ) {
-				this.uiDialog.show();
-			}
-			this.uiDialog.position( position );
-			if ( !isVisible ) {
-				this.uiDialog.hide();
-			}
-		}
-	});
-}
-
-}( jQuery ) );
-
-
-
-
-/*!
- * jQuery UI Sortable 1.10.4
- * http://jqueryui.com
- *
- * Copyright 2014 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/sortable/
- *
- * Depends:
- *	jquery.ui.core.js
- *	jquery.ui.mouse.js
- *	jquery.ui.widget.js
- */
-
-(function( $, undefined ) {
-
-function isOverAxis( x, reference, size ) {
-	return ( x > reference ) && ( x < ( reference + size ) );
-}
-
-function isFloating(item) {
-	return (/left|right/).test(item.css("float")) || (/inline|table-cell/).test(item.css("display"));
-}
-
-$.widget("ui.sortable", $.ui.mouse, {
-	version: "1.10.4",
-	widgetEventPrefix: "sort",
-	ready: false,
-	options: {
-		appendTo: "parent",
-		axis: false,
-		connectWith: false,
-		containment: false,
-		cursor: "auto",
-		cursorAt: false,
-		dropOnEmpty: true,
-		forcePlaceholderSize: false,
-		forceHelperSize: false,
-		grid: false,
-		handle: false,
-		helper: "original",
-		items: "> *",
-		opacity: false,
-		placeholder: false,
-		revert: false,
-		scroll: true,
-		scrollSensitivity: 20,
-		scrollSpeed: 20,
-		scope: "default",
-		tolerance: "intersect",
-		zIndex: 1000,
-
-		// callbacks
-		activate: null,
-		beforeStop: null,
-		change: null,
-		deactivate: null,
-		out: null,
-		over: null,
-		receive: null,
-		remove: null,
-		sort: null,
-		start: null,
-		stop: null,
-		update: null
-	},
-	_create: function() {
-
-		var o = this.options;
-		this.containerCache = {};
-		this.element.addClass("ui-sortable");
-
-		//Get the items
-		this.refresh();
-
-		//Let's determine if the items are being displayed horizontally
-		this.floating = this.items.length ? o.axis === "x" || isFloating(this.items[0].item) : false;
-
-		//Let's determine the parent's offset
-		this.offset = this.element.offset();
-
-		//Initialize mouse events for interaction
-		this._mouseInit();
-
-		//We're ready to go
-		this.ready = true;
-
-	},
-
-	_destroy: function() {
-		this.element
-			.removeClass("ui-sortable ui-sortable-disabled");
-		this._mouseDestroy();
-
-		for ( var i = this.items.length - 1; i >= 0; i-- ) {
-			this.items[i].item.removeData(this.widgetName + "-item");
-		}
-
-		return this;
-	},
-
-	_setOption: function(key, value){
-		if ( key === "disabled" ) {
-			this.options[ key ] = value;
-
-			this.widget().toggleClass( "ui-sortable-disabled", !!value );
-		} else {
-			// Don't call widget base _setOption for disable as it adds ui-state-disabled class
-			$.Widget.prototype._setOption.apply(this, arguments);
-		}
-	},
-
-	_mouseCapture: function(event, overrideHandle) {
-		var currentItem = null,
-			validHandle = false,
-			that = this;
-
-		if (this.reverting) {
-			return false;
-		}
-
-		if(this.options.disabled || this.options.type === "static") {
-			return false;
-		}
-
-		//We have to refresh the items data once first
-		this._refreshItems(event);
-
-		//Find out if the clicked node (or one of its parents) is a actual item in this.items
-		$(event.target).parents().each(function() {
-			if($.data(this, that.widgetName + "-item") === that) {
-				currentItem = $(this);
-				return false;
-			}
-		});
-		if($.data(event.target, that.widgetName + "-item") === that) {
-			currentItem = $(event.target);
-		}
-
-		if(!currentItem) {
-			return false;
-		}
-		if(this.options.handle && !overrideHandle) {
-			$(this.options.handle, currentItem).find("*").addBack().each(function() {
-				if(this === event.target) {
-					validHandle = true;
-				}
-			});
-			if(!validHandle) {
-				return false;
-			}
-		}
-
-		this.currentItem = currentItem;
-		this._removeCurrentsFromItems();
-		return true;
-
-	},
-
-	_mouseStart: function(event, overrideHandle, noActivation) {
-
-		var i, body,
-			o = this.options;
-
-		this.currentContainer = this;
-
-		//We only need to call refreshPositions, because the refreshItems call has been moved to mouseCapture
-		this.refreshPositions();
-
-		//Create and append the visible helper
-		this.helper = this._createHelper(event);
-
-		//Cache the helper size
-		this._cacheHelperProportions();
-
-		/*
-		 * - Position generation -
-		 * This block generates everything position related - it's the core of draggables.
-		 */
-
-		//Cache the margins of the original element
-		this._cacheMargins();
-
-		//Get the next scrolling parent
-		this.scrollParent = this.helper.scrollParent();
-
-		//The element's absolute position on the page minus margins
-		this.offset = this.currentItem.offset();
-		this.offset = {
-			top: this.offset.top - this.margins.top,
-			left: this.offset.left - this.margins.left
-		};
-
-		$.extend(this.offset, {
-			click: { //Where the click happened, relative to the element
-				left: event.pageX - this.offset.left,
-				top: event.pageY - this.offset.top
-			},
-			parent: this._getParentOffset(),
-			relative: this._getRelativeOffset() //This is a relative to absolute position minus the actual position calculation - only used for relative positioned helper
-		});
-
-		// Only after we got the offset, we can change the helper's position to absolute
-		// TODO: Still need to figure out a way to make relative sorting possible
-		this.helper.css("position", "absolute");
-		this.cssPosition = this.helper.css("position");
-
-		//Generate the original position
-		this.originalPosition = this._generatePosition(event);
-		this.originalPageX = event.pageX;
-		this.originalPageY = event.pageY;
-
-		//Adjust the mouse offset relative to the helper if "cursorAt" is supplied
-		(o.cursorAt && this._adjustOffsetFromHelper(o.cursorAt));
-
-		//Cache the former DOM position
-		this.domPosition = { prev: this.currentItem.prev()[0], parent: this.currentItem.parent()[0] };
-
-		//If the helper is not the original, hide the original so it's not playing any role during the drag, won't cause anything bad this way
-		if(this.helper[0] !== this.currentItem[0]) {
-			this.currentItem.hide();
-		}
-
-		//Create the placeholder
-		this._createPlaceholder();
-
-		//Set a containment if given in the options
-		if(o.containment) {
-			this._setContainment();
-		}
-
-		if( o.cursor && o.cursor !== "auto" ) { // cursor option
-			body = this.document.find( "body" );
-
-			// support: IE
-			this.storedCursor = body.css( "cursor" );
-			body.css( "cursor", o.cursor );
-
-			this.storedStylesheet = $( "<style>*{ cursor: "+o.cursor+" !important; }</style>" ).appendTo( body );
-		}
-
-		if(o.opacity) { // opacity option
-			if (this.helper.css("opacity")) {
-				this._storedOpacity = this.helper.css("opacity");
-			}
-			this.helper.css("opacity", o.opacity);
-		}
-
-		if(o.zIndex) { // zIndex option
-			if (this.helper.css("zIndex")) {
-				this._storedZIndex = this.helper.css("zIndex");
-			}
-			this.helper.css("zIndex", o.zIndex);
-		}
-
-		//Prepare scrolling
-		if(this.scrollParent[0] !== document && this.scrollParent[0].tagName !== "HTML") {
-			this.overflowOffset = this.scrollParent.offset();
-		}
-
-		//Call callbacks
-		this._trigger("start", event, this._uiHash());
-
-		//Recache the helper size
-		if(!this._preserveHelperProportions) {
-			this._cacheHelperProportions();
-		}
-
-
-		//Post "activate" events to possible containers
-		if( !noActivation ) {
-			for ( i = this.containers.length - 1; i >= 0; i-- ) {
-				this.containers[ i ]._trigger( "activate", event, this._uiHash( this ) );
-			}
-		}
-
-		//Prepare possible droppables
-		if($.ui.ddmanager) {
-			$.ui.ddmanager.current = this;
-		}
-
-		if ($.ui.ddmanager && !o.dropBehaviour) {
-			$.ui.ddmanager.prepareOffsets(this, event);
-		}
-
-		this.dragging = true;
-
-		this.helper.addClass("ui-sortable-helper");
-		this._mouseDrag(event); //Execute the drag once - this causes the helper not to be visible before getting its correct position
-		return true;
-
-	},
-
-	_mouseDrag: function(event) {
-		var i, item, itemElement, intersection,
-			o = this.options,
-			scrolled = false;
-
-		//Compute the helpers position
-		this.position = this._generatePosition(event);
-		this.positionAbs = this._convertPositionTo("absolute");
-
-		if (!this.lastPositionAbs) {
-			this.lastPositionAbs = this.positionAbs;
-		}
-
-		//Do scrolling
-		if(this.options.scroll) {
-			if(this.scrollParent[0] !== document && this.scrollParent[0].tagName !== "HTML") {
-
-				if((this.overflowOffset.top + this.scrollParent[0].offsetHeight) - event.pageY < o.scrollSensitivity) {
-					this.scrollParent[0].scrollTop = scrolled = this.scrollParent[0].scrollTop + o.scrollSpeed;
-				} else if(event.pageY - this.overflowOffset.top < o.scrollSensitivity) {
-					this.scrollParent[0].scrollTop = scrolled = this.scrollParent[0].scrollTop - o.scrollSpeed;
-				}
-
-				if((this.overflowOffset.left + this.scrollParent[0].offsetWidth) - event.pageX < o.scrollSensitivity) {
-					this.scrollParent[0].scrollLeft = scrolled = this.scrollParent[0].scrollLeft + o.scrollSpeed;
-				} else if(event.pageX - this.overflowOffset.left < o.scrollSensitivity) {
-					this.scrollParent[0].scrollLeft = scrolled = this.scrollParent[0].scrollLeft - o.scrollSpeed;
-				}
-
-			} else {
-
-				if(event.pageY - $(document).scrollTop() < o.scrollSensitivity) {
-					scrolled = $(document).scrollTop($(document).scrollTop() - o.scrollSpeed);
-				} else if($(window).height() - (event.pageY - $(document).scrollTop()) < o.scrollSensitivity) {
-					scrolled = $(document).scrollTop($(document).scrollTop() + o.scrollSpeed);
-				}
-
-				if(event.pageX - $(document).scrollLeft() < o.scrollSensitivity) {
-					scrolled = $(document).scrollLeft($(document).scrollLeft() - o.scrollSpeed);
-				} else if($(window).width() - (event.pageX - $(document).scrollLeft()) < o.scrollSensitivity) {
-					scrolled = $(document).scrollLeft($(document).scrollLeft() + o.scrollSpeed);
-				}
-
-			}
-
-			if(scrolled !== false && $.ui.ddmanager && !o.dropBehaviour) {
-				$.ui.ddmanager.prepareOffsets(this, event);
-			}
-		}
-
-		//Regenerate the absolute position used for position checks
-		this.positionAbs = this._convertPositionTo("absolute");
-
-		//Set the helper position
-		if(!this.options.axis || this.options.axis !== "y") {
-			this.helper[0].style.left = this.position.left+"px";
-		}
-		if(!this.options.axis || this.options.axis !== "x") {
-			this.helper[0].style.top = this.position.top+"px";
-		}
-
-		//Rearrange
-		for (i = this.items.length - 1; i >= 0; i--) {
-
-			//Cache variables and intersection, continue if no intersection
-			item = this.items[i];
-			itemElement = item.item[0];
-			intersection = this._intersectsWithPointer(item);
-			if (!intersection) {
-				continue;
-			}
-
-			// Only put the placeholder inside the current Container, skip all
-			// items from other containers. This works because when moving
-			// an item from one container to another the
-			// currentContainer is switched before the placeholder is moved.
-			//
-			// Without this, moving items in "sub-sortables" can cause
-			// the placeholder to jitter beetween the outer and inner container.
-			if (item.instance !== this.currentContainer) {
-				continue;
-			}
-
-			// cannot intersect with itself
-			// no useless actions that have been done before
-			// no action if the item moved is the parent of the item checked
-			if (itemElement !== this.currentItem[0] &&
-				this.placeholder[intersection === 1 ? "next" : "prev"]()[0] !== itemElement &&
-				!$.contains(this.placeholder[0], itemElement) &&
-				(this.options.type === "semi-dynamic" ? !$.contains(this.element[0], itemElement) : true)
-			) {
-
-				this.direction = intersection === 1 ? "down" : "up";
-
-				if (this.options.tolerance === "pointer" || this._intersectsWithSides(item)) {
-					this._rearrange(event, item);
-				} else {
-					break;
-				}
-
-				this._trigger("change", event, this._uiHash());
-				break;
-			}
-		}
-
-		//Post events to containers
-		this._contactContainers(event);
-
-		//Interconnect with droppables
-		if($.ui.ddmanager) {
-			$.ui.ddmanager.drag(this, event);
-		}
-
-		//Call callbacks
-		this._trigger("sort", event, this._uiHash());
-
-		this.lastPositionAbs = this.positionAbs;
-		return false;
-
-	},
-
-	_mouseStop: function(event, noPropagation) {
-
-		if(!event) {
-			return;
-		}
-
-		//If we are using droppables, inform the manager about the drop
-		if ($.ui.ddmanager && !this.options.dropBehaviour) {
-			$.ui.ddmanager.drop(this, event);
-		}
-
-		if(this.options.revert) {
-			var that = this,
-				cur = this.placeholder.offset(),
-				axis = this.options.axis,
-				animation = {};
-
-			if ( !axis || axis === "x" ) {
-				animation.left = cur.left - this.offset.parent.left - this.margins.left + (this.offsetParent[0] === document.body ? 0 : this.offsetParent[0].scrollLeft);
-			}
-			if ( !axis || axis === "y" ) {
-				animation.top = cur.top - this.offset.parent.top - this.margins.top + (this.offsetParent[0] === document.body ? 0 : this.offsetParent[0].scrollTop);
-			}
-			this.reverting = true;
-			$(this.helper).animate( animation, parseInt(this.options.revert, 10) || 500, function() {
-				that._clear(event);
-			});
-		} else {
-			this._clear(event, noPropagation);
-		}
-
-		return false;
-
-	},
-
-	cancel: function() {
-
-		if(this.dragging) {
-
-			this._mouseUp({ target: null });
-
-			if(this.options.helper === "original") {
-				this.currentItem.css(this._storedCSS).removeClass("ui-sortable-helper");
-			} else {
-				this.currentItem.show();
-			}
-
-			//Post deactivating events to containers
-			for (var i = this.containers.length - 1; i >= 0; i--){
-				this.containers[i]._trigger("deactivate", null, this._uiHash(this));
-				if(this.containers[i].containerCache.over) {
-					this.containers[i]._trigger("out", null, this._uiHash(this));
-					this.containers[i].containerCache.over = 0;
-				}
-			}
-
-		}
-
-		if (this.placeholder) {
-			//$(this.placeholder[0]).remove(); would have been the jQuery way - unfortunately, it unbinds ALL events from the original node!
-			if(this.placeholder[0].parentNode) {
-				this.placeholder[0].parentNode.removeChild(this.placeholder[0]);
-			}
-			if(this.options.helper !== "original" && this.helper && this.helper[0].parentNode) {
-				this.helper.remove();
-			}
-
-			$.extend(this, {
-				helper: null,
-				dragging: false,
-				reverting: false,
-				_noFinalSort: null
-			});
-
-			if(this.domPosition.prev) {
-				$(this.domPosition.prev).after(this.currentItem);
-			} else {
-				$(this.domPosition.parent).prepend(this.currentItem);
-			}
-		}
-
-		return this;
-
-	},
-
-	serialize: function(o) {
-
-		var items = this._getItemsAsjQuery(o && o.connected),
-			str = [];
-		o = o || {};
-
-		$(items).each(function() {
-			var res = ($(o.item || this).attr(o.attribute || "id") || "").match(o.expression || (/(.+)[\-=_](.+)/));
-			if (res) {
-				str.push((o.key || res[1]+"[]")+"="+(o.key && o.expression ? res[1] : res[2]));
-			}
-		});
-
-		if(!str.length && o.key) {
-			str.push(o.key + "=");
-		}
-
-		return str.join("&");
-
-	},
-
-	toArray: function(o) {
-
-		var items = this._getItemsAsjQuery(o && o.connected),
-			ret = [];
-
-		o = o || {};
-
-		items.each(function() { ret.push($(o.item || this).attr(o.attribute || "id") || ""); });
-		return ret;
-
-	},
-
-	/* Be careful with the following core functions */
-	_intersectsWith: function(item) {
-
-		var x1 = this.positionAbs.left,
-			x2 = x1 + this.helperProportions.width,
-			y1 = this.positionAbs.top,
-			y2 = y1 + this.helperProportions.height,
-			l = item.left,
-			r = l + item.width,
-			t = item.top,
-			b = t + item.height,
-			dyClick = this.offset.click.top,
-			dxClick = this.offset.click.left,
-			isOverElementHeight = ( this.options.axis === "x" ) || ( ( y1 + dyClick ) > t && ( y1 + dyClick ) < b ),
-			isOverElementWidth = ( this.options.axis === "y" ) || ( ( x1 + dxClick ) > l && ( x1 + dxClick ) < r ),
-			isOverElement = isOverElementHeight && isOverElementWidth;
-
-		if ( this.options.tolerance === "pointer" ||
-			this.options.forcePointerForContainers ||
-			(this.options.tolerance !== "pointer" && this.helperProportions[this.floating ? "width" : "height"] > item[this.floating ? "width" : "height"])
-		) {
-			return isOverElement;
-		} else {
-
-			return (l < x1 + (this.helperProportions.width / 2) && // Right Half
-				x2 - (this.helperProportions.width / 2) < r && // Left Half
-				t < y1 + (this.helperProportions.height / 2) && // Bottom Half
-				y2 - (this.helperProportions.height / 2) < b ); // Top Half
-
-		}
-	},
-
-	_intersectsWithPointer: function(item) {
-
-		var isOverElementHeight = (this.options.axis === "x") || isOverAxis(this.positionAbs.top + this.offset.click.top, item.top, item.height),
-			isOverElementWidth = (this.options.axis === "y") || isOverAxis(this.positionAbs.left + this.offset.click.left, item.left, item.width),
-			isOverElement = isOverElementHeight && isOverElementWidth,
-			verticalDirection = this._getDragVerticalDirection(),
-			horizontalDirection = this._getDragHorizontalDirection();
-
-		if (!isOverElement) {
-			return false;
-		}
-
-		return this.floating ?
-			( ((horizontalDirection && horizontalDirection === "right") || verticalDirection === "down") ? 2 : 1 )
-			: ( verticalDirection && (verticalDirection === "down" ? 2 : 1) );
-
-	},
-
-	_intersectsWithSides: function(item) {
-
-		var isOverBottomHalf = isOverAxis(this.positionAbs.top + this.offset.click.top, item.top + (item.height/2), item.height),
-			isOverRightHalf = isOverAxis(this.positionAbs.left + this.offset.click.left, item.left + (item.width/2), item.width),
-			verticalDirection = this._getDragVerticalDirection(),
-			horizontalDirection = this._getDragHorizontalDirection();
-
-		if (this.floating && horizontalDirection) {
-			return ((horizontalDirection === "right" && isOverRightHalf) || (horizontalDirection === "left" && !isOverRightHalf));
-		} else {
-			return verticalDirection && ((verticalDirection === "down" && isOverBottomHalf) || (verticalDirection === "up" && !isOverBottomHalf));
-		}
-
-	},
-
-	_getDragVerticalDirection: function() {
-		var delta = this.positionAbs.top - this.lastPositionAbs.top;
-		return delta !== 0 && (delta > 0 ? "down" : "up");
-	},
-
-	_getDragHorizontalDirection: function() {
-		var delta = this.positionAbs.left - this.lastPositionAbs.left;
-		return delta !== 0 && (delta > 0 ? "right" : "left");
-	},
-
-	refresh: function(event) {
-		this._refreshItems(event);
-		this.refreshPositions();
-		return this;
-	},
-
-	_connectWith: function() {
-		var options = this.options;
-		return options.connectWith.constructor === String ? [options.connectWith] : options.connectWith;
-	},
-
-	_getItemsAsjQuery: function(connected) {
-
-		var i, j, cur, inst,
-			items = [],
-			queries = [],
-			connectWith = this._connectWith();
-
-		if(connectWith && connected) {
-			for (i = connectWith.length - 1; i >= 0; i--){
-				cur = $(connectWith[i]);
-				for ( j = cur.length - 1; j >= 0; j--){
-					inst = $.data(cur[j], this.widgetFullName);
-					if(inst && inst !== this && !inst.options.disabled) {
-						queries.push([$.isFunction(inst.options.items) ? inst.options.items.call(inst.element) : $(inst.options.items, inst.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"), inst]);
-					}
-				}
-			}
-		}
-
-		queries.push([$.isFunction(this.options.items) ? this.options.items.call(this.element, null, { options: this.options, item: this.currentItem }) : $(this.options.items, this.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"), this]);
-
-		function addItems() {
-			items.push( this );
-		}
-		for (i = queries.length - 1; i >= 0; i--){
-			queries[i][0].each( addItems );
-		}
-
-		return $(items);
-
-	},
-
-	_removeCurrentsFromItems: function() {
-
-		var list = this.currentItem.find(":data(" + this.widgetName + "-item)");
-
-		this.items = $.grep(this.items, function (item) {
-			for (var j=0; j < list.length; j++) {
-				if(list[j] === item.item[0]) {
-					return false;
-				}
-			}
-			return true;
-		});
-
-	},
-
-	_refreshItems: function(event) {
-
-		this.items = [];
-		this.containers = [this];
-
-		var i, j, cur, inst, targetData, _queries, item, queriesLength,
-			items = this.items,
-			queries = [[$.isFunction(this.options.items) ? this.options.items.call(this.element[0], event, { item: this.currentItem }) : $(this.options.items, this.element), this]],
-			connectWith = this._connectWith();
-
-		if(connectWith && this.ready) { //Shouldn't be run the first time through due to massive slow-down
-			for (i = connectWith.length - 1; i >= 0; i--){
-				cur = $(connectWith[i]);
-				for (j = cur.length - 1; j >= 0; j--){
-					inst = $.data(cur[j], this.widgetFullName);
-					if(inst && inst !== this && !inst.options.disabled) {
-						queries.push([$.isFunction(inst.options.items) ? inst.options.items.call(inst.element[0], event, { item: this.currentItem }) : $(inst.options.items, inst.element), inst]);
-						this.containers.push(inst);
-					}
-				}
-			}
-		}
-
-		for (i = queries.length - 1; i >= 0; i--) {
-			targetData = queries[i][1];
-			_queries = queries[i][0];
-
-			for (j=0, queriesLength = _queries.length; j < queriesLength; j++) {
-				item = $(_queries[j]);
-
-				item.data(this.widgetName + "-item", targetData); // Data for target checking (mouse manager)
-
-				items.push({
-					item: item,
-					instance: targetData,
-					width: 0, height: 0,
-					left: 0, top: 0
-				});
-			}
-		}
-
-	},
-
-	refreshPositions: function(fast) {
-
-		//This has to be redone because due to the item being moved out/into the offsetParent, the offsetParent's position will change
-		if(this.offsetParent && this.helper) {
-			this.offset.parent = this._getParentOffset();
-		}
-
-		var i, item, t, p;
-
-		for (i = this.items.length - 1; i >= 0; i--){
-			item = this.items[i];
-
-			//We ignore calculating positions of all connected containers when we're not over them
-			if(item.instance !== this.currentContainer && this.currentContainer && item.item[0] !== this.currentItem[0]) {
-				continue;
-			}
-
-			t = this.options.toleranceElement ? $(this.options.toleranceElement, item.item) : item.item;
-
-			if (!fast) {
-				item.width = t.outerWidth();
-				item.height = t.outerHeight();
-			}
-
-			p = t.offset();
-			item.left = p.left;
-			item.top = p.top;
-		}
-
-		if(this.options.custom && this.options.custom.refreshContainers) {
-			this.options.custom.refreshContainers.call(this);
-		} else {
-			for (i = this.containers.length - 1; i >= 0; i--){
-				p = this.containers[i].element.offset();
-				this.containers[i].containerCache.left = p.left;
-				this.containers[i].containerCache.top = p.top;
-				this.containers[i].containerCache.width	= this.containers[i].element.outerWidth();
-				this.containers[i].containerCache.height = this.containers[i].element.outerHeight();
-			}
-		}
-
-		return this;
-	},
-
-	_createPlaceholder: function(that) {
-		that = that || this;
-		var className,
-			o = that.options;
-
-		if(!o.placeholder || o.placeholder.constructor === String) {
-			className = o.placeholder;
-			o.placeholder = {
-				element: function() {
-
-					var nodeName = that.currentItem[0].nodeName.toLowerCase(),
-						element = $( "<" + nodeName + ">", that.document[0] )
-							.addClass(className || that.currentItem[0].className+" ui-sortable-placeholder")
-							.removeClass("ui-sortable-helper");
-
-					if ( nodeName === "tr" ) {
-						that.currentItem.children().each(function() {
-							$( "<td>&#160;</td>", that.document[0] )
-								.attr( "colspan", $( this ).attr( "colspan" ) || 1 )
-								.appendTo( element );
-						});
-					} else if ( nodeName === "img" ) {
-						element.attr( "src", that.currentItem.attr( "src" ) );
-					}
-
-					if ( !className ) {
-						element.css( "visibility", "hidden" );
-					}
-
-					return element;
-				},
-				update: function(container, p) {
-
-					// 1. If a className is set as 'placeholder option, we don't force sizes - the class is responsible for that
-					// 2. The option 'forcePlaceholderSize can be enabled to force it even if a class name is specified
-					if(className && !o.forcePlaceholderSize) {
-						return;
-					}
-
-					//If the element doesn't have a actual height by itself (without styles coming from a stylesheet), it receives the inline height from the dragged item
-					if(!p.height()) { p.height(that.currentItem.innerHeight() - parseInt(that.currentItem.css("paddingTop")||0, 10) - parseInt(that.currentItem.css("paddingBottom")||0, 10)); }
-					if(!p.width()) { p.width(that.currentItem.innerWidth() - parseInt(that.currentItem.css("paddingLeft")||0, 10) - parseInt(that.currentItem.css("paddingRight")||0, 10)); }
-				}
-			};
-		}
-
-		//Create the placeholder
-		that.placeholder = $(o.placeholder.element.call(that.element, that.currentItem));
-
-		//Append it after the actual current item
-		that.currentItem.after(that.placeholder);
-
-		//Update the size of the placeholder (TODO: Logic to fuzzy, see line 316/317)
-		o.placeholder.update(that, that.placeholder);
-
-	},
-
-	_contactContainers: function(event) {
-		var i, j, dist, itemWithLeastDistance, posProperty, sizeProperty, base, cur, nearBottom, floating,
-			innermostContainer = null,
-			innermostIndex = null;
-
-		// get innermost container that intersects with item
-		for (i = this.containers.length - 1; i >= 0; i--) {
-
-			// never consider a container that's located within the item itself
-			if($.contains(this.currentItem[0], this.containers[i].element[0])) {
-				continue;
-			}
-
-			if(this._intersectsWith(this.containers[i].containerCache)) {
-
-				// if we've already found a container and it's more "inner" than this, then continue
-				if(innermostContainer && $.contains(this.containers[i].element[0], innermostContainer.element[0])) {
-					continue;
-				}
-
-				innermostContainer = this.containers[i];
-				innermostIndex = i;
-
-			} else {
-				// container doesn't intersect. trigger "out" event if necessary
-				if(this.containers[i].containerCache.over) {
-					this.containers[i]._trigger("out", event, this._uiHash(this));
-					this.containers[i].containerCache.over = 0;
-				}
-			}
-
-		}
-
-		// if no intersecting containers found, return
-		if(!innermostContainer) {
-			return;
-		}
-
-		// move the item into the container if it's not there already
-		if(this.containers.length === 1) {
-			if (!this.containers[innermostIndex].containerCache.over) {
-				this.containers[innermostIndex]._trigger("over", event, this._uiHash(this));
-				this.containers[innermostIndex].containerCache.over = 1;
-			}
-		} else {
-
-			//When entering a new container, we will find the item with the least distance and append our item near it
-			dist = 10000;
-			itemWithLeastDistance = null;
-			floating = innermostContainer.floating || isFloating(this.currentItem);
-			posProperty = floating ? "left" : "top";
-			sizeProperty = floating ? "width" : "height";
-			base = this.positionAbs[posProperty] + this.offset.click[posProperty];
-			for (j = this.items.length - 1; j >= 0; j--) {
-				if(!$.contains(this.containers[innermostIndex].element[0], this.items[j].item[0])) {
-					continue;
-				}
-				if(this.items[j].item[0] === this.currentItem[0]) {
-					continue;
-				}
-				if (floating && !isOverAxis(this.positionAbs.top + this.offset.click.top, this.items[j].top, this.items[j].height)) {
-					continue;
-				}
-				cur = this.items[j].item.offset()[posProperty];
-				nearBottom = false;
-				if(Math.abs(cur - base) > Math.abs(cur + this.items[j][sizeProperty] - base)){
-					nearBottom = true;
-					cur += this.items[j][sizeProperty];
-				}
-
-				if(Math.abs(cur - base) < dist) {
-					dist = Math.abs(cur - base); itemWithLeastDistance = this.items[j];
-					this.direction = nearBottom ? "up": "down";
-				}
-			}
-
-			//Check if dropOnEmpty is enabled
-			if(!itemWithLeastDistance && !this.options.dropOnEmpty) {
-				return;
-			}
-
-			if(this.currentContainer === this.containers[innermostIndex]) {
-				return;
-			}
-
-			itemWithLeastDistance ? this._rearrange(event, itemWithLeastDistance, null, true) : this._rearrange(event, null, this.containers[innermostIndex].element, true);
-			this._trigger("change", event, this._uiHash());
-			this.containers[innermostIndex]._trigger("change", event, this._uiHash(this));
-			this.currentContainer = this.containers[innermostIndex];
-
-			//Update the placeholder
-			this.options.placeholder.update(this.currentContainer, this.placeholder);
-
-			this.containers[innermostIndex]._trigger("over", event, this._uiHash(this));
-			this.containers[innermostIndex].containerCache.over = 1;
-		}
-
-
-	},
-
-	_createHelper: function(event) {
-
-		var o = this.options,
-			helper = $.isFunction(o.helper) ? $(o.helper.apply(this.element[0], [event, this.currentItem])) : (o.helper === "clone" ? this.currentItem.clone() : this.currentItem);
-
-		//Add the helper to the DOM if that didn't happen already
-		if(!helper.parents("body").length) {
-			$(o.appendTo !== "parent" ? o.appendTo : this.currentItem[0].parentNode)[0].appendChild(helper[0]);
-		}
-
-		if(helper[0] === this.currentItem[0]) {
-			this._storedCSS = { width: this.currentItem[0].style.width, height: this.currentItem[0].style.height, position: this.currentItem.css("position"), top: this.currentItem.css("top"), left: this.currentItem.css("left") };
-		}
-
-		if(!helper[0].style.width || o.forceHelperSize) {
-			helper.width(this.currentItem.width());
-		}
-		if(!helper[0].style.height || o.forceHelperSize) {
-			helper.height(this.currentItem.height());
-		}
-
-		return helper;
-
-	},
-
-	_adjustOffsetFromHelper: function(obj) {
-		if (typeof obj === "string") {
-			obj = obj.split(" ");
-		}
-		if ($.isArray(obj)) {
-			obj = {left: +obj[0], top: +obj[1] || 0};
-		}
-		if ("left" in obj) {
-			this.offset.click.left = obj.left + this.margins.left;
-		}
-		if ("right" in obj) {
-			this.offset.click.left = this.helperProportions.width - obj.right + this.margins.left;
-		}
-		if ("top" in obj) {
-			this.offset.click.top = obj.top + this.margins.top;
-		}
-		if ("bottom" in obj) {
-			this.offset.click.top = this.helperProportions.height - obj.bottom + this.margins.top;
-		}
-	},
-
-	_getParentOffset: function() {
-
-
-		//Get the offsetParent and cache its position
-		this.offsetParent = this.helper.offsetParent();
-		var po = this.offsetParent.offset();
-
-		// This is a special case where we need to modify a offset calculated on start, since the following happened:
-		// 1. The position of the helper is absolute, so it's position is calculated based on the next positioned parent
-		// 2. The actual offset parent is a child of the scroll parent, and the scroll parent isn't the document, which means that
-		//    the scroll is included in the initial calculation of the offset of the parent, and never recalculated upon drag
-		if(this.cssPosition === "absolute" && this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) {
-			po.left += this.scrollParent.scrollLeft();
-			po.top += this.scrollParent.scrollTop();
-		}
-
-		// This needs to be actually done for all browsers, since pageX/pageY includes this information
-		// with an ugly IE fix
-		if( this.offsetParent[0] === document.body || (this.offsetParent[0].tagName && this.offsetParent[0].tagName.toLowerCase() === "html" && $.ui.ie)) {
-			po = { top: 0, left: 0 };
-		}
-
-		return {
-			top: po.top + (parseInt(this.offsetParent.css("borderTopWidth"),10) || 0),
-			left: po.left + (parseInt(this.offsetParent.css("borderLeftWidth"),10) || 0)
-		};
-
-	},
-
-	_getRelativeOffset: function() {
-
-		if(this.cssPosition === "relative") {
-			var p = this.currentItem.position();
-			return {
-				top: p.top - (parseInt(this.helper.css("top"),10) || 0) + this.scrollParent.scrollTop(),
-				left: p.left - (parseInt(this.helper.css("left"),10) || 0) + this.scrollParent.scrollLeft()
-			};
-		} else {
-			return { top: 0, left: 0 };
-		}
-
-	},
-
-	_cacheMargins: function() {
-		this.margins = {
-			left: (parseInt(this.currentItem.css("marginLeft"),10) || 0),
-			top: (parseInt(this.currentItem.css("marginTop"),10) || 0)
-		};
-	},
-
-	_cacheHelperProportions: function() {
-		this.helperProportions = {
-			width: this.helper.outerWidth(),
-			height: this.helper.outerHeight()
-		};
-	},
-
-	_setContainment: function() {
-
-		var ce, co, over,
-			o = this.options;
-		if(o.containment === "parent") {
-			o.containment = this.helper[0].parentNode;
-		}
-		if(o.containment === "document" || o.containment === "window") {
-			this.containment = [
-				0 - this.offset.relative.left - this.offset.parent.left,
-				0 - this.offset.relative.top - this.offset.parent.top,
-				$(o.containment === "document" ? document : window).width() - this.helperProportions.width - this.margins.left,
-				($(o.containment === "document" ? document : window).height() || document.body.parentNode.scrollHeight) - this.helperProportions.height - this.margins.top
-			];
-		}
-
-		if(!(/^(document|window|parent)$/).test(o.containment)) {
-			ce = $(o.containment)[0];
-			co = $(o.containment).offset();
-			over = ($(ce).css("overflow") !== "hidden");
-
-			this.containment = [
-				co.left + (parseInt($(ce).css("borderLeftWidth"),10) || 0) + (parseInt($(ce).css("paddingLeft"),10) || 0) - this.margins.left,
-				co.top + (parseInt($(ce).css("borderTopWidth"),10) || 0) + (parseInt($(ce).css("paddingTop"),10) || 0) - this.margins.top,
-				co.left+(over ? Math.max(ce.scrollWidth,ce.offsetWidth) : ce.offsetWidth) - (parseInt($(ce).css("borderLeftWidth"),10) || 0) - (parseInt($(ce).css("paddingRight"),10) || 0) - this.helperProportions.width - this.margins.left,
-				co.top+(over ? Math.max(ce.scrollHeight,ce.offsetHeight) : ce.offsetHeight) - (parseInt($(ce).css("borderTopWidth"),10) || 0) - (parseInt($(ce).css("paddingBottom"),10) || 0) - this.helperProportions.height - this.margins.top
-			];
-		}
-
-	},
-
-	_convertPositionTo: function(d, pos) {
-
-		if(!pos) {
-			pos = this.position;
-		}
-		var mod = d === "absolute" ? 1 : -1,
-			scroll = this.cssPosition === "absolute" && !(this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) ? this.offsetParent : this.scrollParent,
-			scrollIsRootNode = (/(html|body)/i).test(scroll[0].tagName);
-
-		return {
-			top: (
-				pos.top	+																// The absolute mouse position
-				this.offset.relative.top * mod +										// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.top * mod -											// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : ( scrollIsRootNode ? 0 : scroll.scrollTop() ) ) * mod)
-			),
-			left: (
-				pos.left +																// The absolute mouse position
-				this.offset.relative.left * mod +										// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.left * mod	-										// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : scrollIsRootNode ? 0 : scroll.scrollLeft() ) * mod)
-			)
-		};
-
-	},
-
-	_generatePosition: function(event) {
-
-		var top, left,
-			o = this.options,
-			pageX = event.pageX,
-			pageY = event.pageY,
-			scroll = this.cssPosition === "absolute" && !(this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) ? this.offsetParent : this.scrollParent, scrollIsRootNode = (/(html|body)/i).test(scroll[0].tagName);
-
-		// This is another very weird special case that only happens for relative elements:
-		// 1. If the css position is relative
-		// 2. and the scroll parent is the document or similar to the offset parent
-		// we have to refresh the relative offset during the scroll so there are no jumps
-		if(this.cssPosition === "relative" && !(this.scrollParent[0] !== document && this.scrollParent[0] !== this.offsetParent[0])) {
-			this.offset.relative = this._getRelativeOffset();
-		}
-
-		/*
-		 * - Position constraining -
-		 * Constrain the position to a mix of grid, containment.
-		 */
-
-		if(this.originalPosition) { //If we are not dragging yet, we won't check for options
-
-			if(this.containment) {
-				if(event.pageX - this.offset.click.left < this.containment[0]) {
-					pageX = this.containment[0] + this.offset.click.left;
-				}
-				if(event.pageY - this.offset.click.top < this.containment[1]) {
-					pageY = this.containment[1] + this.offset.click.top;
-				}
-				if(event.pageX - this.offset.click.left > this.containment[2]) {
-					pageX = this.containment[2] + this.offset.click.left;
-				}
-				if(event.pageY - this.offset.click.top > this.containment[3]) {
-					pageY = this.containment[3] + this.offset.click.top;
-				}
-			}
-
-			if(o.grid) {
-				top = this.originalPageY + Math.round((pageY - this.originalPageY) / o.grid[1]) * o.grid[1];
-				pageY = this.containment ? ( (top - this.offset.click.top >= this.containment[1] && top - this.offset.click.top <= this.containment[3]) ? top : ((top - this.offset.click.top >= this.containment[1]) ? top - o.grid[1] : top + o.grid[1])) : top;
-
-				left = this.originalPageX + Math.round((pageX - this.originalPageX) / o.grid[0]) * o.grid[0];
-				pageX = this.containment ? ( (left - this.offset.click.left >= this.containment[0] && left - this.offset.click.left <= this.containment[2]) ? left : ((left - this.offset.click.left >= this.containment[0]) ? left - o.grid[0] : left + o.grid[0])) : left;
-			}
-
-		}
-
-		return {
-			top: (
-				pageY -																// The absolute mouse position
-				this.offset.click.top -													// Click offset (relative to the element)
-				this.offset.relative.top	-											// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.top +												// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : ( scrollIsRootNode ? 0 : scroll.scrollTop() ) ))
-			),
-			left: (
-				pageX -																// The absolute mouse position
-				this.offset.click.left -												// Click offset (relative to the element)
-				this.offset.relative.left	-											// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.left +												// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : scrollIsRootNode ? 0 : scroll.scrollLeft() ))
-			)
-		};
-
-	},
-
-	_rearrange: function(event, i, a, hardRefresh) {
-
-		a ? a[0].appendChild(this.placeholder[0]) : i.item[0].parentNode.insertBefore(this.placeholder[0], (this.direction === "down" ? i.item[0] : i.item[0].nextSibling));
-
-		//Various things done here to improve the performance:
-		// 1. we create a setTimeout, that calls refreshPositions
-		// 2. on the instance, we have a counter variable, that get's higher after every append
-		// 3. on the local scope, we copy the counter variable, and check in the timeout, if it's still the same
-		// 4. this lets only the last addition to the timeout stack through
-		this.counter = this.counter ? ++this.counter : 1;
-		var counter = this.counter;
-
-		this._delay(function() {
-			if(counter === this.counter) {
-				this.refreshPositions(!hardRefresh); //Precompute after each DOM insertion, NOT on mousemove
-			}
-		});
-
-	},
-
-	_clear: function(event, noPropagation) {
-
-		this.reverting = false;
-		// We delay all events that have to be triggered to after the point where the placeholder has been removed and
-		// everything else normalized again
-		var i,
-			delayedTriggers = [];
-
-		// We first have to update the dom position of the actual currentItem
-		// Note: don't do it if the current item is already removed (by a user), or it gets reappended (see #4088)
-		if(!this._noFinalSort && this.currentItem.parent().length) {
-			this.placeholder.before(this.currentItem);
-		}
-		this._noFinalSort = null;
-
-		if(this.helper[0] === this.currentItem[0]) {
-			for(i in this._storedCSS) {
-				if(this._storedCSS[i] === "auto" || this._storedCSS[i] === "static") {
-					this._storedCSS[i] = "";
-				}
-			}
-			this.currentItem.css(this._storedCSS).removeClass("ui-sortable-helper");
-		} else {
-			this.currentItem.show();
-		}
-
-		if(this.fromOutside && !noPropagation) {
-			delayedTriggers.push(function(event) { this._trigger("receive", event, this._uiHash(this.fromOutside)); });
-		}
-		if((this.fromOutside || this.domPosition.prev !== this.currentItem.prev().not(".ui-sortable-helper")[0] || this.domPosition.parent !== this.currentItem.parent()[0]) && !noPropagation) {
-			delayedTriggers.push(function(event) { this._trigger("update", event, this._uiHash()); }); //Trigger update callback if the DOM position has changed
-		}
-
-		// Check if the items Container has Changed and trigger appropriate
-		// events.
-		if (this !== this.currentContainer) {
-			if(!noPropagation) {
-				delayedTriggers.push(function(event) { this._trigger("remove", event, this._uiHash()); });
-				delayedTriggers.push((function(c) { return function(event) { c._trigger("receive", event, this._uiHash(this)); };  }).call(this, this.currentContainer));
-				delayedTriggers.push((function(c) { return function(event) { c._trigger("update", event, this._uiHash(this));  }; }).call(this, this.currentContainer));
-			}
-		}
-
-
-		//Post events to containers
-		function delayEvent( type, instance, container ) {
-			return function( event ) {
-				container._trigger( type, event, instance._uiHash( instance ) );
-			};
-		}
-		for (i = this.containers.length - 1; i >= 0; i--){
-			if (!noPropagation) {
-				delayedTriggers.push( delayEvent( "deactivate", this, this.containers[ i ] ) );
-			}
-			if(this.containers[i].containerCache.over) {
-				delayedTriggers.push( delayEvent( "out", this, this.containers[ i ] ) );
-				this.containers[i].containerCache.over = 0;
-			}
-		}
-
-		//Do what was originally in plugins
-		if ( this.storedCursor ) {
-			this.document.find( "body" ).css( "cursor", this.storedCursor );
-			this.storedStylesheet.remove();
-		}
-		if(this._storedOpacity) {
-			this.helper.css("opacity", this._storedOpacity);
-		}
-		if(this._storedZIndex) {
-			this.helper.css("zIndex", this._storedZIndex === "auto" ? "" : this._storedZIndex);
-		}
-
-		this.dragging = false;
-		if(this.cancelHelperRemoval) {
-			if(!noPropagation) {
-				this._trigger("beforeStop", event, this._uiHash());
-				for (i=0; i < delayedTriggers.length; i++) {
-					delayedTriggers[i].call(this, event);
-				} //Trigger all delayed events
-				this._trigger("stop", event, this._uiHash());
-			}
-
-			this.fromOutside = false;
-			return false;
-		}
-
-		if(!noPropagation) {
-			this._trigger("beforeStop", event, this._uiHash());
-		}
-
-		//$(this.placeholder[0]).remove(); would have been the jQuery way - unfortunately, it unbinds ALL events from the original node!
-		this.placeholder[0].parentNode.removeChild(this.placeholder[0]);
-
-		if(this.helper[0] !== this.currentItem[0]) {
-			this.helper.remove();
-		}
-		this.helper = null;
-
-		if(!noPropagation) {
-			for (i=0; i < delayedTriggers.length; i++) {
-				delayedTriggers[i].call(this, event);
-			} //Trigger all delayed events
-			this._trigger("stop", event, this._uiHash());
-		}
-
-		this.fromOutside = false;
-		return true;
-
-	},
-
-	_trigger: function() {
-		if ($.Widget.prototype._trigger.apply(this, arguments) === false) {
-			this.cancel();
-		}
-	},
-
-	_uiHash: function(_inst) {
-		var inst = _inst || this;
-		return {
-			helper: inst.helper,
-			placeholder: inst.placeholder || $([]),
-			position: inst.position,
-			originalPosition: inst.originalPosition,
-			offset: inst.positionAbs,
-			item: inst.currentItem,
-			sender: _inst ? _inst.element : null
-		};
-	}
-
-});
-
-})(jQuery);
-(function($, undefined) {
-
-/**
- * Unobtrusive scripting adapter for jQuery
- * https://github.com/rails/jquery-ujs
- *
- * Requires jQuery 1.7.0 or later.
- *
- * Released under the MIT license
- *
- */
-
-  // Cut down on the number of issues from people inadvertently including jquery_ujs twice
-  // by detecting and raising an error when it happens.
-  if ( $.rails !== undefined ) {
-    $.error('jquery-ujs has already been loaded!');
-  }
-
-  // Shorthand to make it a little easier to call public rails functions from within rails.js
-  var rails;
-  var $document = $(document);
-
-  $.rails = rails = {
-    // Link elements bound by jquery-ujs
-    linkClickSelector: 'a[data-confirm], a[data-method], a[data-remote], a[data-disable-with]',
-
-    // Button elements bound by jquery-ujs
-    buttonClickSelector: 'button[data-remote]',
-
-    // Select elements bound by jquery-ujs
-    inputChangeSelector: 'select[data-remote], input[data-remote], textarea[data-remote]',
-
-    // Form elements bound by jquery-ujs
-    formSubmitSelector: 'form',
-
-    // Form input elements bound by jquery-ujs
-    formInputClickSelector: 'form input[type=submit], form input[type=image], form button[type=submit], form button:not([type])',
-
-    // Form input elements disabled during form submission
-    disableSelector: 'input[data-disable-with], button[data-disable-with], textarea[data-disable-with]',
-
-    // Form input elements re-enabled after form submission
-    enableSelector: 'input[data-disable-with]:disabled, button[data-disable-with]:disabled, textarea[data-disable-with]:disabled',
-
-    // Form required input elements
-    requiredInputSelector: 'input[name][required]:not([disabled]),textarea[name][required]:not([disabled])',
-
-    // Form file input elements
-    fileInputSelector: 'input[type=file]',
-
-    // Link onClick disable selector with possible reenable after remote submission
-    linkDisableSelector: 'a[data-disable-with]',
-
-    // Make sure that every Ajax request sends the CSRF token
-    CSRFProtection: function(xhr) {
-      var token = $('meta[name="csrf-token"]').attr('content');
-      if (token) xhr.setRequestHeader('X-CSRF-Token', token);
-    },
-
-    // making sure that all forms have actual up-to-date token(cached forms contain old one)
-    refreshCSRFTokens: function(){
-      var csrfToken = $('meta[name=csrf-token]').attr('content');
-      var csrfParam = $('meta[name=csrf-param]').attr('content');
-      $('form input[name="' + csrfParam + '"]').val(csrfToken);
-    },
-
-    // Triggers an event on an element and returns false if the event result is false
-    fire: function(obj, name, data) {
-      var event = $.Event(name);
-      obj.trigger(event, data);
-      return event.result !== false;
-    },
-
-    // Default confirm dialog, may be overridden with custom confirm dialog in $.rails.confirm
-    confirm: function(message) {
-      return confirm(message);
-    },
-
-    // Default ajax function, may be overridden with custom function in $.rails.ajax
-    ajax: function(options) {
-      return $.ajax(options);
-    },
-
-    // Default way to get an element's href. May be overridden at $.rails.href.
-    href: function(element) {
-      return element.attr('href');
-    },
-
-    // Submits "remote" forms and links with ajax
-    handleRemote: function(element) {
-      var method, url, data, elCrossDomain, crossDomain, withCredentials, dataType, options;
-
-      if (rails.fire(element, 'ajax:before')) {
-        elCrossDomain = element.data('cross-domain');
-        crossDomain = elCrossDomain === undefined ? null : elCrossDomain;
-        withCredentials = element.data('with-credentials') || null;
-        dataType = element.data('type') || ($.ajaxSettings && $.ajaxSettings.dataType);
-
-        if (element.is('form')) {
-          method = element.attr('method');
-          url = element.attr('action');
-          data = element.serializeArray();
-          // memoized value from clicked submit button
-          var button = element.data('ujs:submit-button');
-          if (button) {
-            data.push(button);
-            element.data('ujs:submit-button', null);
-          }
-        } else if (element.is(rails.inputChangeSelector)) {
-          method = element.data('method');
-          url = element.data('url');
-          data = element.serialize();
-          if (element.data('params')) data = data + "&" + element.data('params');
-        } else if (element.is(rails.buttonClickSelector)) {
-          method = element.data('method') || 'get';
-          url = element.data('url');
-          data = element.serialize();
-          if (element.data('params')) data = data + "&" + element.data('params');
-        } else {
-          method = element.data('method');
-          url = rails.href(element);
-          data = element.data('params') || null;
-        }
-
-        options = {
-          type: method || 'GET', data: data, dataType: dataType,
-          // stopping the "ajax:beforeSend" event will cancel the ajax request
-          beforeSend: function(xhr, settings) {
-            if (settings.dataType === undefined) {
-              xhr.setRequestHeader('accept', '*/*;q=0.5, ' + settings.accepts.script);
-            }
-            return rails.fire(element, 'ajax:beforeSend', [xhr, settings]);
-          },
-          success: function(data, status, xhr) {
-            element.trigger('ajax:success', [data, status, xhr]);
-          },
-          complete: function(xhr, status) {
-            element.trigger('ajax:complete', [xhr, status]);
-          },
-          error: function(xhr, status, error) {
-            element.trigger('ajax:error', [xhr, status, error]);
-          },
-          crossDomain: crossDomain
-        };
-
-        // There is no withCredentials for IE6-8 when
-        // "Enable native XMLHTTP support" is disabled
-        if (withCredentials) {
-          options.xhrFields = {
-            withCredentials: withCredentials
-          };
-        }
-
-        // Only pass url to `ajax` options if not blank
-        if (url) { options.url = url; }
-
-        var jqxhr = rails.ajax(options);
-        element.trigger('ajax:send', jqxhr);
-        return jqxhr;
-      } else {
-        return false;
-      }
-    },
-
-    // Handles "data-method" on links such as:
-    // <a href="/users/5" data-method="delete" rel="nofollow" data-confirm="Are you sure?">Delete</a>
-    handleMethod: function(link) {
-      var href = rails.href(link),
-        method = link.data('method'),
-        target = link.attr('target'),
-        csrfToken = $('meta[name=csrf-token]').attr('content'),
-        csrfParam = $('meta[name=csrf-param]').attr('content'),
-        form = $('<form method="post" action="' + href + '"></form>'),
-        metadataInput = '<input name="_method" value="' + method + '" type="hidden" />';
-
-      if (csrfParam !== undefined && csrfToken !== undefined) {
-        metadataInput += '<input name="' + csrfParam + '" value="' + csrfToken + '" type="hidden" />';
-      }
-
-      if (target) { form.attr('target', target); }
-
-      form.hide().append(metadataInput).appendTo('body');
-      form.submit();
-    },
-
-    /* Disables form elements:
-      - Caches element value in 'ujs:enable-with' data store
-      - Replaces element text with value of 'data-disable-with' attribute
-      - Sets disabled property to true
-    */
-    disableFormElements: function(form) {
-      form.find(rails.disableSelector).each(function() {
-        var element = $(this), method = element.is('button') ? 'html' : 'val';
-        element.data('ujs:enable-with', element[method]());
-        element[method](element.data('disable-with'));
-        element.prop('disabled', true);
-      });
-    },
-
-    /* Re-enables disabled form elements:
-      - Replaces element text with cached value from 'ujs:enable-with' data store (created in `disableFormElements`)
-      - Sets disabled property to false
-    */
-    enableFormElements: function(form) {
-      form.find(rails.enableSelector).each(function() {
-        var element = $(this), method = element.is('button') ? 'html' : 'val';
-        if (element.data('ujs:enable-with')) element[method](element.data('ujs:enable-with'));
-        element.prop('disabled', false);
-      });
-    },
-
-   /* For 'data-confirm' attribute:
-      - Fires `confirm` event
-      - Shows the confirmation dialog
-      - Fires the `confirm:complete` event
-
-      Returns `true` if no function stops the chain and user chose yes; `false` otherwise.
-      Attaching a handler to the element's `confirm` event that returns a `falsy` value cancels the confirmation dialog.
-      Attaching a handler to the element's `confirm:complete` event that returns a `falsy` value makes this function
-      return false. The `confirm:complete` event is fired whether or not the user answered true or false to the dialog.
-   */
-    allowAction: function(element) {
-      var message = element.data('confirm'),
-          answer = false, callback;
-      if (!message) { return true; }
-
-      if (rails.fire(element, 'confirm')) {
-        answer = rails.confirm(message);
-        callback = rails.fire(element, 'confirm:complete', [answer]);
-      }
-      return answer && callback;
-    },
-
-    // Helper function which checks for blank inputs in a form that match the specified CSS selector
-    blankInputs: function(form, specifiedSelector, nonBlank) {
-      var inputs = $(), input, valueToCheck,
-          selector = specifiedSelector || 'input,textarea',
-          allInputs = form.find(selector);
-
-      allInputs.each(function() {
-        input = $(this);
-        valueToCheck = input.is('input[type=checkbox],input[type=radio]') ? input.is(':checked') : input.val();
-        // If nonBlank and valueToCheck are both truthy, or nonBlank and valueToCheck are both falsey
-        if (!valueToCheck === !nonBlank) {
-
-          // Don't count unchecked required radio if other radio with same name is checked
-          if (input.is('input[type=radio]') && allInputs.filter('input[type=radio]:checked[name="' + input.attr('name') + '"]').length) {
-            return true; // Skip to next input
-          }
-
-          inputs = inputs.add(input);
-        }
-      });
-      return inputs.length ? inputs : false;
-    },
-
-    // Helper function which checks for non-blank inputs in a form that match the specified CSS selector
-    nonBlankInputs: function(form, specifiedSelector) {
-      return rails.blankInputs(form, specifiedSelector, true); // true specifies nonBlank
-    },
-
-    // Helper function, needed to provide consistent behavior in IE
-    stopEverything: function(e) {
-      $(e.target).trigger('ujs:everythingStopped');
-      e.stopImmediatePropagation();
-      return false;
-    },
-
-    //  replace element's html with the 'data-disable-with' after storing original html
-    //  and prevent clicking on it
-    disableElement: function(element) {
-      element.data('ujs:enable-with', element.html()); // store enabled state
-      element.html(element.data('disable-with')); // set to disabled state
-      element.bind('click.railsDisable', function(e) { // prevent further clicking
-        return rails.stopEverything(e);
-      });
-    },
-
-    // restore element to its original state which was disabled by 'disableElement' above
-    enableElement: function(element) {
-      if (element.data('ujs:enable-with') !== undefined) {
-        element.html(element.data('ujs:enable-with')); // set to old enabled state
-        element.removeData('ujs:enable-with'); // clean up cache
-      }
-      element.unbind('click.railsDisable'); // enable element
-    }
-
-  };
-
-  if (rails.fire($document, 'rails:attachBindings')) {
-
-    $.ajaxPrefilter(function(options, originalOptions, xhr){ if ( !options.crossDomain ) { rails.CSRFProtection(xhr); }});
-
-    $document.delegate(rails.linkDisableSelector, 'ajax:complete', function() {
-        rails.enableElement($(this));
-    });
-
-    $document.delegate(rails.linkClickSelector, 'click.rails', function(e) {
-      var link = $(this), method = link.data('method'), data = link.data('params'), metaClick = e.metaKey || e.ctrlKey;
-      if (!rails.allowAction(link)) return rails.stopEverything(e);
-
-      if (!metaClick && link.is(rails.linkDisableSelector)) rails.disableElement(link);
-
-      if (link.data('remote') !== undefined) {
-        if (metaClick && (!method || method === 'GET') && !data) { return true; }
-
-        var handleRemote = rails.handleRemote(link);
-        // response from rails.handleRemote() will either be false or a deferred object promise.
-        if (handleRemote === false) {
-          rails.enableElement(link);
-        } else {
-          handleRemote.error( function() { rails.enableElement(link); } );
-        }
-        return false;
-
-      } else if (link.data('method')) {
-        rails.handleMethod(link);
-        return false;
-      }
-    });
-
-    $document.delegate(rails.buttonClickSelector, 'click.rails', function(e) {
-      var button = $(this);
-      if (!rails.allowAction(button)) return rails.stopEverything(e);
-
-      rails.handleRemote(button);
-      return false;
-    });
-
-    $document.delegate(rails.inputChangeSelector, 'change.rails', function(e) {
-      var link = $(this);
-      if (!rails.allowAction(link)) return rails.stopEverything(e);
-
-      rails.handleRemote(link);
-      return false;
-    });
-
-    $document.delegate(rails.formSubmitSelector, 'submit.rails', function(e) {
-      var form = $(this),
-        remote = form.data('remote') !== undefined,
-        blankRequiredInputs = rails.blankInputs(form, rails.requiredInputSelector),
-        nonBlankFileInputs = rails.nonBlankInputs(form, rails.fileInputSelector);
-
-      if (!rails.allowAction(form)) return rails.stopEverything(e);
-
-      // skip other logic when required values are missing or file upload is present
-      if (blankRequiredInputs && form.attr("novalidate") == undefined && rails.fire(form, 'ajax:aborted:required', [blankRequiredInputs])) {
-        return rails.stopEverything(e);
-      }
-
-      if (remote) {
-        if (nonBlankFileInputs) {
-          // slight timeout so that the submit button gets properly serialized
-          // (make it easy for event handler to serialize form without disabled values)
-          setTimeout(function(){ rails.disableFormElements(form); }, 13);
-          var aborted = rails.fire(form, 'ajax:aborted:file', [nonBlankFileInputs]);
-
-          // re-enable form elements if event bindings return false (canceling normal form submission)
-          if (!aborted) { setTimeout(function(){ rails.enableFormElements(form); }, 13); }
-
-          return aborted;
-        }
-
-        rails.handleRemote(form);
-        return false;
-
-      } else {
-        // slight timeout so that the submit button gets properly serialized
-        setTimeout(function(){ rails.disableFormElements(form); }, 13);
-      }
-    });
-
-    $document.delegate(rails.formInputClickSelector, 'click.rails', function(event) {
-      var button = $(this);
-
-      if (!rails.allowAction(button)) return rails.stopEverything(event);
-
-      // register the pressed submit button
-      var name = button.attr('name'),
-        data = name ? {name:name, value:button.val()} : null;
-
-      button.closest('form').data('ujs:submit-button', data);
-    });
-
-    $document.delegate(rails.formSubmitSelector, 'ajax:beforeSend.rails', function(event) {
-      if (this == event.target) rails.disableFormElements($(this));
-    });
-
-    $document.delegate(rails.formSubmitSelector, 'ajax:complete.rails', function(event) {
-      if (this == event.target) rails.enableFormElements($(this));
-    });
-
-    $(function(){
-      rails.refreshCSRFTokens();
-    });
-  }
-
-})( jQuery );
-(function() {
-  window.ActiveAdmin = {};
-
-  if (!window.AA) {
-    window.AA = window.ActiveAdmin;
-  }
-
-}).call(this);
-(function() {
-  $(function() {
-    $('.batch_actions_selector li a').click(function(e) {
-      var message;
-      e.stopPropagation();
-      e.preventDefault();
-      if (message = $(this).data('confirm')) {
-        return ActiveAdmin.modal_dialog(message, $(this).data('inputs'), (function(_this) {
-          return function(inputs) {
-            return $(_this).trigger('confirm:complete', inputs);
-          };
-        })(this));
-      } else {
-        return $(this).trigger('confirm:complete');
-      }
-    });
-    $('.batch_actions_selector li a').on('confirm:complete', function(e, inputs) {
-      var val;
-      if (val = JSON.stringify(inputs)) {
-        $('#batch_action_inputs').val(val);
-      } else {
-        $('#batch_action_inputs').attr('disabled', 'disabled');
-      }
-      $('#batch_action').val($(this).data('action'));
-      return $('#collection_selection').submit();
-    });
-    if ($(".batch_actions_selector").length && $(":checkbox.toggle_all").length) {
-      if ($(".paginated_collection table.index_table").length) {
-        $(".paginated_collection table.index_table").tableCheckboxToggler();
-      } else {
-        $(".paginated_collection").checkboxToggler();
-      }
-      return $(document).on('change', '.paginated_collection :checkbox', function() {
-        if ($(".paginated_collection :checkbox:checked").length) {
-          return $(".batch_actions_selector").each(function() {
-            return $(this).aaDropdownMenu("enable");
-          });
-        } else {
-          return $(".batch_actions_selector").each(function() {
-            return $(this).aaDropdownMenu("disable");
-          });
-        }
-      });
-    }
-  });
-
-}).call(this);
-(function() {
-  ActiveAdmin.CheckboxToggler = (function() {
-    function CheckboxToggler(options, container) {
-      var defaults;
-      this.options = options;
-      this.container = container;
-      defaults = {};
-      this.options = $.extend(defaults, options);
-      this._init();
-      this._bind();
-    }
-
-    CheckboxToggler.prototype._init = function() {
-      if (!this.container) {
-        throw new Error('Container element not found');
-      } else {
-        this.$container = $(this.container);
-      }
-      if (!this.$container.find('.toggle_all').length) {
-        throw new Error('"toggle all" checkbox not found');
-      } else {
-        this.toggle_all_checkbox = this.$container.find('.toggle_all');
-      }
-      return this.checkboxes = this.$container.find(':checkbox').not(this.toggle_all_checkbox);
-    };
-
-    CheckboxToggler.prototype._bind = function() {
-      this.checkboxes.change((function(_this) {
-        return function(e) {
-          return _this._didChangeCheckbox(e.target);
-        };
-      })(this));
-      return this.toggle_all_checkbox.change((function(_this) {
-        return function() {
-          return _this._didChangeToggleAllCheckbox();
-        };
-      })(this));
-    };
-
-    CheckboxToggler.prototype._didChangeCheckbox = function(checkbox) {
-      switch (this.checkboxes.filter(':checked').length) {
-        case this.checkboxes.length - 1:
-          return this.toggle_all_checkbox.prop({
-            checked: null
-          });
-        case this.checkboxes.length:
-          return this.toggle_all_checkbox.prop({
-            checked: true
-          });
-      }
-    };
-
-    CheckboxToggler.prototype._didChangeToggleAllCheckbox = function() {
-      var setting;
-      setting = this.toggle_all_checkbox.prop('checked') ? true : null;
-      return this.checkboxes.each((function(_this) {
-        return function(index, el) {
-          $(el).prop({
-            checked: setting
-          });
-          return _this._didChangeCheckbox(el);
-        };
-      })(this));
-    };
-
-    return CheckboxToggler;
-
-  })();
-
-  $.widget.bridge('checkboxToggler', ActiveAdmin.CheckboxToggler);
-
-}).call(this);
-(function() {
-  ActiveAdmin.DropdownMenu = (function() {
-    function DropdownMenu(options, element) {
-      var defaults;
-      this.options = options;
-      this.element = element;
-      this.$element = $(this.element);
-      defaults = {
-        fadeInDuration: 20,
-        fadeOutDuration: 100,
-        onClickActionItemCallback: null
-      };
-      this.options = $.extend(defaults, options);
-      this.isOpen = false;
-      this.$menuButton = this.$element.find('.dropdown_menu_button');
-      this.$menuList = this.$element.find('.dropdown_menu_list_wrapper');
-      this._buildMenuList();
-      this._bind();
-    }
-
-    DropdownMenu.prototype.open = function() {
-      this.isOpen = true;
-      this.$menuList.fadeIn(this.options.fadeInDuration);
-      this._position();
-      return this;
-    };
-
-    DropdownMenu.prototype.close = function() {
-      this.isOpen = false;
-      this.$menuList.fadeOut(this.options.fadeOutDuration);
-      return this;
-    };
-
-    DropdownMenu.prototype.destroy = function() {
-      this.$element.unbind();
-      this.$element = null;
-      return this;
-    };
-
-    DropdownMenu.prototype.isDisabled = function() {
-      return this.$menuButton.hasClass('disabled');
-    };
-
-    DropdownMenu.prototype.disable = function() {
-      return this.$menuButton.addClass('disabled');
-    };
-
-    DropdownMenu.prototype.enable = function() {
-      return this.$menuButton.removeClass('disabled');
-    };
-
-    DropdownMenu.prototype.option = function(key, value) {
-      if ($.isPlainObject(key)) {
-        return this.options = $.extend(true, this.options, key);
-      } else if (key != null) {
-        return this.options[key];
-      } else {
-        return this.options[key] = value;
-      }
-    };
-
-    DropdownMenu.prototype._buildMenuList = function() {
-      this.$nipple = $('<div class="dropdown_menu_nipple"></div>');
-      this.$menuList.prepend(this.$nipple);
-      return this.$menuList.hide();
-    };
-
-    DropdownMenu.prototype._bind = function() {
-      $('body').click((function(_this) {
-        return function() {
-          if (_this.isOpen) {
-            return _this.close();
-          }
-        };
-      })(this));
-      return this.$menuButton.click((function(_this) {
-        return function() {
-          if (!_this.isDisabled()) {
-            if (_this.isOpen) {
-              _this.close();
-            } else {
-              _this.open();
-            }
-          }
-          return false;
-        };
-      })(this));
-    };
-
-    DropdownMenu.prototype._position = function() {
-      var button_center, button_left, button_right, centered_menu_left, centered_menu_right, menu_center, nipple_center, window_right;
-      this.$menuList.css('top', this.$menuButton.position().top + this.$menuButton.outerHeight() + 10);
-      button_left = this.$menuButton.position().left;
-      button_center = this.$menuButton.outerWidth() / 2;
-      button_right = button_left + button_center * 2;
-      menu_center = this.$menuList.outerWidth() / 2;
-      nipple_center = this.$nipple.outerWidth() / 2;
-      window_right = $(window).width();
-      centered_menu_left = button_left + button_center - menu_center;
-      centered_menu_right = button_left + button_center + menu_center;
-      if (centered_menu_left < 0) {
-        this.$menuList.css('left', button_left);
-        return this.$nipple.css('left', button_center - nipple_center);
-      } else if (centered_menu_right > window_right) {
-        this.$menuList.css('right', window_right - button_right);
-        return this.$nipple.css('right', button_center - nipple_center);
-      } else {
-        this.$menuList.css('left', centered_menu_left);
-        return this.$nipple.css('left', menu_center - nipple_center);
-      }
-    };
-
-    return DropdownMenu;
-
-  })();
-
-  $.widget.bridge('aaDropdownMenu', ActiveAdmin.DropdownMenu);
-
-  $(function() {
-    return $('.dropdown_menu').aaDropdownMenu();
-  });
-
-}).call(this);
-(function() {
-  var init_sortable, recompute_positions;
-
-  $(function() {
-    $(document).on('click', 'a.button.has_many_remove', function(e) {
-      var parent, to_remove;
-      e.preventDefault();
-      parent = $(this).closest('.has_many_container');
-      to_remove = $(this).closest('fieldset');
-      recompute_positions(parent);
-      parent.trigger('has_many_remove:before', [to_remove]);
-      return to_remove.remove();
-    });
-    $(document).on('click', 'a.button.has_many_add', function(e) {
-      var before_add, elem, fieldset, html, index, parent, regex;
-      e.preventDefault();
-      elem = $(this);
-      parent = elem.closest('.has_many_container');
-      parent.trigger(before_add = $.Event('has_many_add:before'));
-      if (!before_add.isDefaultPrevented()) {
-        index = parent.data('has_many_index') || parent.children('fieldset').length - 1;
-        parent.data({
-          has_many_index: ++index
-        });
-        regex = new RegExp(elem.data('placeholder'), 'g');
-        html = elem.data('html').replace(regex, index);
-        fieldset = $(html).insertBefore(this);
-        recompute_positions(parent);
-        return parent.trigger('has_many_add:after', [fieldset]);
-      }
-    });
-    $(document).on('change', '.has_many_container[data-sortable] :input[name$="[_destroy]"]', function() {
-      return recompute_positions($(this).closest('.has_many'));
-    });
-    init_sortable();
-    return $(document).on('has_many_add:after', '.has_many_container', init_sortable);
-  });
-
-  init_sortable = function() {
-    var elems;
-    elems = $('.has_many_container[data-sortable]:not(.ui-sortable)');
-    elems.sortable({
-      items: '> fieldset',
-      handle: '> ol > .handle',
-      stop: recompute_positions
-    });
-    return elems.each(recompute_positions);
-  };
-
-  recompute_positions = function(parent) {
-    var input_name, position;
-    parent = parent instanceof jQuery ? parent : $(this);
-    input_name = parent.data('sortable');
-    position = 0;
-    return parent.children('fieldset').each(function() {
-      var destroy_input, fieldset, sortable_input;
-      fieldset = $(this);
-      destroy_input = fieldset.find("> ol > .input > :input[name$='[_destroy]']");
-      sortable_input = fieldset.find("> ol > .input > :input[name$='[" + input_name + "]']");
-      if (sortable_input.length) {
-        return sortable_input.val(destroy_input.is(':checked') ? '' : position++);
-      }
-    });
-  };
-
-}).call(this);
-(function() {
-  ActiveAdmin.modal_dialog = function(message, inputs, callback) {
-    var elem, html, klass, name, opts, type, v, wrapper, _ref, _ref1;
-    html = "<form id=\"dialog_confirm\" title=\"" + message + "\"><ul>";
-    for (name in inputs) {
-      type = inputs[name];
-      if (/^(datepicker|checkbox|text)$/.test(type)) {
-        wrapper = 'input';
-      } else if (type === 'textarea') {
-        wrapper = 'textarea';
-      } else if ($.isArray(type)) {
-        _ref = ['select', 'option', type, ''], wrapper = _ref[0], elem = _ref[1], opts = _ref[2], type = _ref[3];
-      } else {
-        throw new Error("Unsupported input type: {" + name + ": " + type + "}");
-      }
-      klass = type === 'datepicker' ? type : '';
-      html += ("<li>\n<label>" + (name.charAt(0).toUpperCase() + name.slice(1)) + "</label>\n<" + wrapper + " name=\"" + name + "\" class=\"" + klass + "\" type=\"" + type + "\">") + (opts ? ((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = opts.length; _i < _len; _i++) {
-          v = opts[_i];
-          if ($.isArray(v)) {
-            _results.push("<" + elem + " value=" + v[1] + ">" + v[0] + "</" + elem + ">");
-          } else {
-            _results.push("<" + elem + ">" + v + "</" + elem + ">");
-          }
-        }
-        return _results;
-      })()).join('') : '') + ("</" + wrapper + ">") + "</li>";
-      _ref1 = [], wrapper = _ref1[0], elem = _ref1[1], opts = _ref1[2], type = _ref1[3], klass = _ref1[4];
-    }
-    html += "</ul></form>";
-    return $(html).appendTo('body').dialog({
-      modal: true,
-      buttons: {
-        OK: function() {
-          callback($(this).serializeObject());
-          return $(this).dialog('close');
-        },
-        Cancel: function() {
-          return $(this).dialog('close').remove();
-        }
-      }
-    });
-  };
-
-}).call(this);
-(function() {
-  ActiveAdmin.Popover = (function() {
-    function Popover(options, element) {
-      var defaults;
-      this.options = options;
-      this.element = element;
-      this.$element = $(this.element);
-      defaults = {
-        fadeInDuration: 20,
-        fadeOutDuration: 100,
-        autoOpen: true,
-        pageWrapperElement: "#wrapper",
-        onClickActionItemCallback: null
-      };
-      this.options = $.extend(defaults, options);
-      this.isOpen = false;
-      if (!(this.$popover = $(this.$element.attr('href'))).length) {
-        this.$popover = this.$element.next('.popover');
-      }
-      this._buildPopover();
-      this._bind();
-    }
-
-    Popover.prototype.open = function() {
-      this.isOpen = true;
-      this.$popover.fadeIn(this.options.fadeInDuration);
-      this._positionPopover();
-      this._positionNipple();
-      return this;
-    };
-
-    Popover.prototype.close = function() {
-      this.isOpen = false;
-      this.$popover.fadeOut(this.options.fadeOutDuration);
-      return this;
-    };
-
-    Popover.prototype.destroy = function() {
-      this.$element.removeData('popover');
-      this.$element.unbind();
-      this.$element = null;
-      return this;
-    };
-
-    Popover.prototype._buildPopover = function() {
-      this.$nipple = $('<div class="popover_nipple"></div>');
-      this.$popover.prepend(this.$nipple);
-      this.$popover.hide();
-      return this.$popover.addClass('popover');
-    };
-
-    Popover.prototype._bind = function() {
-      $(this.options.pageWrapperElement).click((function(_this) {
-        return function() {
-          if (_this.isOpen) {
-            return _this.close();
-          }
-        };
-      })(this));
-      if (this.options.autoOpen) {
-        return this.$element.click((function(_this) {
-          return function(e) {
-            e.stopPropagation();
-            if (_this.isOpen) {
-              return _this.close();
-            } else {
-              return _this.open();
-            }
-          };
-        })(this));
-      }
-    };
-
-    Popover.prototype._positionPopover = function() {
-      var button_center, popover_center;
-      button_center = this.$element.offset().left + this.$element.outerWidth() / 2;
-      popover_center = this.$popover.outerWidth() / 2;
-      return this.$popover.css('left', button_center - popover_center);
-    };
-
-    Popover.prototype._positionNipple = function() {
-      this.$popover.css('top', this.$element.offset().top + this.$element.outerHeight() + 10);
-      return this.$nipple.css('left', this.$popover.outerWidth() / 2 - this.$nipple.outerWidth() / 2);
-    };
-
-    return Popover;
-
-  })();
-
-  $.widget.bridge('popover', ActiveAdmin.Popover);
-
-}).call(this);
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  ActiveAdmin.TableCheckboxToggler = (function(_super) {
-    __extends(TableCheckboxToggler, _super);
-
-    function TableCheckboxToggler() {
-      return TableCheckboxToggler.__super__.constructor.apply(this, arguments);
-    }
-
-    TableCheckboxToggler.prototype._init = function() {
-      return TableCheckboxToggler.__super__._init.apply(this, arguments);
-    };
-
-    TableCheckboxToggler.prototype._bind = function() {
-      TableCheckboxToggler.__super__._bind.apply(this, arguments);
-      return this.$container.find('tbody td').click((function(_this) {
-        return function(e) {
-          if (e.target.type !== 'checkbox') {
-            return _this._didClickCell(e.target);
-          }
-        };
-      })(this));
-    };
-
-    TableCheckboxToggler.prototype._didChangeCheckbox = function(checkbox) {
-      var $row;
-      TableCheckboxToggler.__super__._didChangeCheckbox.apply(this, arguments);
-      $row = $(checkbox).parents('tr');
-      if (checkbox.checked) {
-        return $row.addClass('selected');
-      } else {
-        return $row.removeClass('selected');
-      }
-    };
-
-    TableCheckboxToggler.prototype._didClickCell = function(cell) {
-      return $(cell).parent('tr').find(':checkbox').click();
-    };
-
-    return TableCheckboxToggler;
-
-  })(ActiveAdmin.CheckboxToggler);
-
-  $.widget.bridge('tableCheckboxToggler', ActiveAdmin.TableCheckboxToggler);
-
-}).call(this);
-(function() {
-  $.ui.dialog.prototype._focusTabbable = function() {
-    return this.uiDialog.focus();
-  };
-
-}).call(this);
-(function() {
-  $.fn.serializeObject = function() {
-    var o, obj, _i, _len, _ref;
-    obj = {};
-    _ref = this.serializeArray();
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      o = _ref[_i];
-      obj[o.name] = o.value;
-    }
-    return obj;
-  };
-
-}).call(this);
-(function() {
-  $(function() {
-    var batch_actions_selector;
-    $(document).on('focus', '.datepicker:not(.hasDatepicker)', function() {
-      var defaults, options;
-      defaults = {
-        dateFormat: 'yy-mm-dd'
-      };
-      options = $(this).data('datepicker-options');
-      return $(this).datepicker($.extend(defaults, options));
-    });
-    $('.clear_filters_btn').click(function() {
-      return window.location.search = '';
-    });
-    $('.dropdown_button').popover();
-    $('.filter_form').submit(function() {
-      return $(this).find(':input').filter(function() {
-        return this.value === '';
-      }).prop('disabled', true);
-    });
-    $('.filter_form_field.select_and_search select').change(function() {
-      return $(this).siblings('input').prop({
-        name: "q[" + this.value + "]"
-      });
-    });
-    if ((batch_actions_selector = $('.table_tools .batch_actions_selector')).length) {
-      return batch_actions_selector.next().css({
-        width: "calc(100% - 10px - " + (batch_actions_selector.outerWidth()) + "px)",
-        'float': 'right'
-      });
-    }
-  });
-
-}).call(this);
-(function() {
-  var admins, ready;
-
-  ready = function() {
-    var admin;
-    admin = new admins();
-    admin.init();
-    return $('.editable_text_column').on("dblclick", function(e) {
-      admin.editable_text_column_do(this);
-    });
-  };
-
-  admins = (function() {
-    function admins() {}
-
-    admins.prototype.init = function() {
-      this.set_admin_editable_events();
-    };
-
-    admins.prototype.set_admin_editable_events = function() {
-      $(".admin-editable").on("keypress", function(e) {
-        var attr, path, payload, resource_class, resource_id, val;
-        if (e.keyCode === 27) {
-          $(e.currentTarget).hide();
-        }
-        if (e.keyCode === 13) {
-          path = $(e.currentTarget).attr("data-path");
-          attr = $(e.currentTarget).attr("data-attr");
-          resource_id = $(e.currentTarget).attr("data-resource-id");
-          val = $(e.currentTarget).val();
-          val = $.trim(val);
-          if (val.length === 0) {
-            val = "&nbsp;";
-          }
-          $("div#" + $(e.currentTarget).attr("id")).html(val);
-          $(e.currentTarget).hide();
-          payload = {};
-          resource_class = path.slice(0, -1);
-          payload[resource_class] = {};
-          payload[resource_class][attr] = val;
-          return $.put("/admin/" + path + "/" + resource_id, payload).done(function(result) {
-            console.log(result);
-          });
-        }
-      });
-      return;
-      $(".admin-editable").on("blur", function(e) {
-        $(e.currentTarget).hide();
-      });
-    };
-
-    admins.prototype.editable_text_column_do = function(el) {
-      var input, val;
-      input = "input#" + $(el).attr("id");
-      $(input).width($(el).width() + 4).height($(el).height() + 4);
-      $(input).css({
-        top: $(el).offset().top - 2,
-        left: $(el).offset().left - 2,
-        position: "absolute"
-      });
-      val = $.trim($(el).html());
-      if (val === "&nbsp;") {
-        val = "";
-      }
-      $(input).val(val);
-      $(input).show();
-      $(input).focus();
-    };
-
-    return admins;
-
-  })();
-
-  $(document).ready(ready);
-
-  $(document).on('page:load', ready);
-
-  $(document).on('page:update', ready);
-
-}).call(this);
-(function() {
-  var ready;
-
-  ready = function() {
-    var addFileds, legal_text_sub_cat, removeFields, tier2select, version_select;
-    $('.age_select label, .filters_select label').on("click", function(e) {
-      var checkbox;
-      checkbox = $(this).prev('input[type=checkbox]');
-      checkbox.prop("checked", !checkbox.prop("checked"));
-      return e.preventDefault();
-    });
-    $('.select_all').click(function(e) {
-      return $('input[type="checkbox"]').each(function(index, ele) {
-        if (!$(ele).prop("checked")) {
-          $(ele).prop("checked", true);
-          $('.province_select').find("[data-key='" + $(ele).attr("id") + "']").addClass('selected');
-        }
-      });
-    });
-    $('.province_select tr.selection').on("click", function(e) {
-      var checkbox;
-      checkbox = "#" + ($(this).data("key"));
-      $(checkbox).prop("checked", !$(checkbox).prop("checked"));
-      return $(this).toggleClass('selected');
-    });
-    $('.select_all').click(function(e) {
-      return $('input[type="checkbox"]').each(function(index, ele) {
-        if (!$(ele).prop("checked")) {
-          $(ele).prop("checked", true);
-          $('.province_select').find("[data-key='" + $(ele).attr("id") + "']").addClass('selected');
-        }
-      });
-    });
-    $('.select_none').click(function(e) {
-      return $('input[type="checkbox"]').each(function(index, ele) {
-        if ($(ele).prop("checked")) {
-          $(ele).prop("checked", false);
-          $('.province_select').find("[data-key='" + $(ele).attr("id") + "']").removeClass('selected');
-        }
-      });
-    });
-    tier2select = $('.tier2_select').html();
-    $('.tier1_select').change(function() {
-      var escaped, options, tier1select;
-      tier1select = $(this).find(':selected').text();
-      escaped = tier1select.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
-      options = $(tier2select).filter("optgroup[label='" + escaped + "']").html();
-      if (options) {
-        return $('.tier2_select').html(options);
-      } else {
-        return $('.tier2_select').html(tier2select);
-      }
-    });
-    $('.new_selection').hide();
-    $('input:radio[value="Yes"]').prop("checked", true);
-    $('input:radio[name="province[from_existing]"]').change(function() {
-      var checked;
-      checked = $(this).val();
-      if (checked === "Yes") {
-        $('.existing_selection').toggle();
-        return $('.new_selection').hide();
-      } else {
-        $('.existing_selection').hide();
-        return $('.new_selection').toggle();
-      }
-    });
-    $('.detail_type').change(function() {
-      var couple, family, single, type;
-      single = $('.single_details');
-      couple = $('.couple_details');
-      family = $('.family_details');
-      type = $(this).find(':selected').text();
-      switch (type) {
-        case 'Couple':
-          couple.show();
-          family.hide();
-          return single.hide();
-        case 'Family':
-          family.show();
-          couple.hide();
-          return single.hide();
-        default:
-          single.show();
-          couple.hide();
-          return family.hide();
-      }
-    });
-    (function($) {
-      $.fn.OverFlown = function() {
-        var _elm, _hasScrollBar;
-        _elm = $(this)[0];
-        _hasScrollBar = false;
-        if ((_elm.clientHeight < _elm.scrollHeight) || (_elm.clientWidth < _elm.scrollWidth)) {
-          _hasScrollBar = true;
-        }
-        return _hasScrollBar;
-      };
-      return $('.des_flown').each(function(index) {
-        if ($(this).OverFlown()) {
-          return $(this).addClass("show_less more_info");
-        }
-      });
-    })(jQuery);
-    $('.row-description .more_info').on("mouseenter", function() {
-      return $(this).removeClass('show_less').addClass("show_more");
-    }).on("mouseleave", function() {
-      return $(this).removeClass('show_more').addClass("show_less");
-    });
-    removeFields = function(e) {
-      $(this).parents('.rate_fields').replaceWith($(this).data('addfields'));
-      $('.add_fields').on('click', addFileds);
-      e.preventDefault();
-      return false;
-    };
-    addFileds = function(e) {
-      var addfields, parent;
-      parent = $(this).parent();
-      addfields = parent.html().replace(/\s+/g, " ").replace("\n", "");
-      $(this).replaceWith($(this).data('fields'));
-      $('.remove_fields').on('click', removeFields).attr('data-addfields', addfields);
-      $(parent.find('input[name="future[][effective_date]"]')).datepicker({
-        dateFormat: "yy-mm-dd",
-        altFormat: "yy/mm/dd",
-        constrainInput: true,
-        changeYear: true,
-        changeMonth: true,
-        minDate: 1
-      });
-      return e.preventDefault();
-    };
-    $('.add_fields').on('click', addFileds);
-    version_select = $('select[name="q[age_sets_version_id_eq]"], select[name="q[plan_filter_sets_plan_id_eq]"]').html();
-    $('select[name="q[product_id_eq]"]').change(function() {
-      var escaped, options, product_select;
-      product_select = $(this).find(':selected').text();
-      escaped = product_select.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
-      options = $(version_select).filter("optgroup[label='" + escaped + "']").html();
-      if (options) {
-        return $('.plan_select').html(options);
-      } else {
-        return $('.plan_select').html(version_select);
-      }
-    });
-    legal_text_sub_cat = $('#legal_text_policy_sub_category').html();
-    return $('#legal_text_policy_category').change(function() {
-      var category_select, escaped, options;
-      category_select = $(this).find(':selected').text();
-      escaped = category_select.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
-      options = $(legal_text_sub_cat).filter("optgroup[label='" + escaped + "']").html();
-      if (options) {
-        return $('#legal_text_policy_sub_category').html(options);
-      } else {
-        return $('#legal_text_policy_sub_category').html(legal_text_sub_cat);
-      }
-    });
-  };
-
-  $(document).ready(ready);
-
-  $(document).on('page:load', ready);
-
-}).call(this);
 window['CKEDITOR_BASEPATH'] = "/assets/ckeditor/";
 
 window.CKEDITOR_ASSETS_MAPPING = {
@@ -20919,7 +17349,26 @@ this.currentImage.equalsContent(a)?a:null,level:1})},unlock:function(){if(this.l
 CKEDITOR.plugins.add("wsc",{requires:"dialog",parseApi:function(a){a.config.wsc_onFinish="function"===typeof a.config.wsc_onFinish?a.config.wsc_onFinish:function(){};a.config.wsc_onClose="function"===typeof a.config.wsc_onClose?a.config.wsc_onClose:function(){}},parseConfig:function(a){a.config.wsc_customerId=a.config.wsc_customerId||CKEDITOR.config.wsc_customerId||"1:ua3xw1-2XyGJ3-GWruD3-6OFNT1-oXcuB1-nR6Bp4-hgQHc-EcYng3-sdRXG3-NOfFk";a.config.wsc_customDictionaryIds=a.config.wsc_customDictionaryIds||
 CKEDITOR.config.wsc_customDictionaryIds||"";a.config.wsc_userDictionaryName=a.config.wsc_userDictionaryName||CKEDITOR.config.wsc_userDictionaryName||"";a.config.wsc_customLoaderScript=a.config.wsc_customLoaderScript||CKEDITOR.config.wsc_customLoaderScript;CKEDITOR.config.wsc_cmd=a.config.wsc_cmd||CKEDITOR.config.wsc_cmd||"spell";CKEDITOR.config.wsc_version="v4.3.0-1e748a6"},init:function(a){this.parseConfig(a);this.parseApi(a);a.addCommand("checkspell",new CKEDITOR.dialogCommand("checkspell")).modes=
 {wysiwyg:!CKEDITOR.env.opera&&!CKEDITOR.env.air&&document.domain==window.location.hostname};"undefined"==typeof a.plugins.scayt&&a.ui.addButton&&a.ui.addButton("SpellChecker",{label:a.lang.wsc.toolbar,command:"checkspell",toolbar:"spellchecker,10"});CKEDITOR.dialog.add("checkspell",this.path+(CKEDITOR.env.ie&&8>=CKEDITOR.env.version?"dialogs/wsc_ie.js":window.postMessage?"dialogs/wsc.js":"dialogs/wsc_ie.js"))}});CKEDITOR.config.plugins='dialogui,dialog,about,a11yhelp,dialogadvtab,basicstyles,bidi,blockquote,clipboard,button,panelbutton,panel,floatpanel,colorbutton,colordialog,templates,menu,contextmenu,div,resize,toolbar,elementspath,enterkey,entities,popup,filebrowser,find,fakeobjects,flash,floatingspace,listblock,richcombo,font,forms,format,horizontalrule,htmlwriter,iframe,wysiwygarea,image,indent,indentblock,indentlist,smiley,justify,menubutton,language,link,list,liststyle,magicline,maximize,newpage,pagebreak,pastetext,pastefromword,preview,print,removeformat,save,selectall,showblocks,showborders,sourcearea,specialchar,scayt,stylescombo,tab,table,tabletools,undo,wsc';CKEDITOR.config.skin='moono';(function() {var setIcons = function(icons, strip) {var path = CKEDITOR.getUrl( 'plugins/' + strip );icons = icons.split( ',' );for ( var i = 0; i < icons.length; i++ )CKEDITOR.skin.icons[ icons[ i ] ] = { path: path, offset: -icons[ ++i ], bgsize : icons[ ++i ] };};if (CKEDITOR.env.hidpi) setIcons('about,0,,bold,24,,italic,48,,strike,72,,subscript,96,,superscript,120,,underline,144,,bidiltr,168,,bidirtl,192,,blockquote,216,,copy-rtl,240,,copy,264,,cut-rtl,288,,cut,312,,paste-rtl,336,,paste,360,,bgcolor,384,,textcolor,408,,templates-rtl,432,,templates,456,,creatediv,480,,find-rtl,504,,find,528,,replace,552,,flash,576,,button,600,,checkbox,624,,form,648,,hiddenfield,672,,imagebutton,696,,radio,720,,select-rtl,744,,select,768,,textarea-rtl,792,,textarea,816,,textfield-rtl,840,,textfield,864,,horizontalrule,888,,iframe,912,,image,936,,indent-rtl,960,,indent,984,,outdent-rtl,1008,,outdent,1032,,smiley,1056,,justifyblock,1080,,justifycenter,1104,,justifyleft,1128,,justifyright,1152,,language,1176,,anchor-rtl,1200,,anchor,1224,,link,1248,,unlink,1272,,bulletedlist-rtl,1296,,bulletedlist,1320,,numberedlist-rtl,1344,,numberedlist,1368,,maximize,1392,,newpage-rtl,1416,,newpage,1440,,pagebreak-rtl,1464,,pagebreak,1488,,pastetext-rtl,1512,,pastetext,1536,,pastefromword-rtl,1560,,pastefromword,1584,,preview-rtl,1608,,preview,1632,,print,1656,,removeformat,1680,,save,1704,,selectall,1728,,showblocks-rtl,1752,,showblocks,1776,,source-rtl,1800,,source,1824,,specialchar,1848,,scayt,1872,,table,1896,,redo-rtl,1920,,redo,1944,,undo-rtl,1968,,undo,1992,,spellchecker,2016,','icons_hidpi.png');else setIcons('about,0,auto,bold,24,auto,italic,48,auto,strike,72,auto,subscript,96,auto,superscript,120,auto,underline,144,auto,bidiltr,168,auto,bidirtl,192,auto,blockquote,216,auto,copy-rtl,240,auto,copy,264,auto,cut-rtl,288,auto,cut,312,auto,paste-rtl,336,auto,paste,360,auto,bgcolor,384,auto,textcolor,408,auto,templates-rtl,432,auto,templates,456,auto,creatediv,480,auto,find-rtl,504,auto,find,528,auto,replace,552,auto,flash,576,auto,button,600,auto,checkbox,624,auto,form,648,auto,hiddenfield,672,auto,imagebutton,696,auto,radio,720,auto,select-rtl,744,auto,select,768,auto,textarea-rtl,792,auto,textarea,816,auto,textfield-rtl,840,auto,textfield,864,auto,horizontalrule,888,auto,iframe,912,auto,image,936,auto,indent-rtl,960,auto,indent,984,auto,outdent-rtl,1008,auto,outdent,1032,auto,smiley,1056,auto,justifyblock,1080,auto,justifycenter,1104,auto,justifyleft,1128,auto,justifyright,1152,auto,language,1176,auto,anchor-rtl,1200,auto,anchor,1224,auto,link,1248,auto,unlink,1272,auto,bulletedlist-rtl,1296,auto,bulletedlist,1320,auto,numberedlist-rtl,1344,auto,numberedlist,1368,auto,maximize,1392,auto,newpage-rtl,1416,auto,newpage,1440,auto,pagebreak-rtl,1464,auto,pagebreak,1488,auto,pastetext-rtl,1512,auto,pastetext,1536,auto,pastefromword-rtl,1560,auto,pastefromword,1584,auto,preview-rtl,1608,auto,preview,1632,auto,print,1656,auto,removeformat,1680,auto,save,1704,auto,selectall,1728,auto,showblocks-rtl,1752,auto,showblocks,1776,auto,source-rtl,1800,auto,source,1824,auto,specialchar,1848,auto,scayt,1872,auto,table,1896,auto,redo-rtl,1920,auto,redo,1944,auto,undo-rtl,1968,auto,undo,1992,auto,spellchecker,2016,auto','icons.png');})();CKEDITOR.lang.languages={"af":1,"sq":1,"ar":1,"eu":1,"bn":1,"bs":1,"bg":1,"ca":1,"zh-cn":1,"zh":1,"hr":1,"cs":1,"da":1,"nl":1,"en":1,"en-au":1,"en-ca":1,"en-gb":1,"eo":1,"et":1,"fo":1,"fi":1,"fr":1,"fr-ca":1,"gl":1,"ka":1,"de":1,"el":1,"gu":1,"he":1,"hi":1,"hu":1,"is":1,"id":1,"it":1,"ja":1,"km":1,"ko":1,"ku":1,"lv":1,"lt":1,"mk":1,"ms":1,"mn":1,"no":1,"nb":1,"fa":1,"pl":1,"pt-br":1,"pt":1,"ro":1,"ru":1,"sr":1,"sr-latn":1,"si":1,"sk":1,"sl":1,"es":1,"sv":1,"th":1,"tr":1,"ug":1,"uk":1,"vi":1,"cy":1};}());
-(function() {
+// This is a manifest file that'll be compiled into application.js, which will include all the files
+// listed below.
+//
+// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, vendor/assets/javascripts,
+// or vendor/assets/javascripts of plugins, if any, can be referenced here using a relative path.
+//
+// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+// compiled file.
+//
+// Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
+// about supported directives.
+//
 
 
-}).call(this);
+
+
+
+
+
+
+
+
+;
