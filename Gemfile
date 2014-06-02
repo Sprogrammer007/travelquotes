@@ -16,20 +16,12 @@ gem 'puma'
 gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'ckeditor'
-<<<<<<< HEAD
-
-
-group :development do
-  gem 'faker', '1.2.0'
-  gem 'rspec-rails', '2.14.0'
-=======
 gem 'devise'
 gem 'bootstrap-sass', '~> 3.1.1'
 
 group :development do
   gem 'faker', '1.2.0'
   # gem 'rspec-rails', '2.14.0'
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   gem 'guard-rspec', '4.2.0'
   gem 'letter_opener' # serve as local email
   gem 'debugger'

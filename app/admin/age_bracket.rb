@@ -12,11 +12,7 @@ ActiveAdmin.register AgeBracket do
 	#Filters
 	preserve_default_filters!
 	filter :product
-<<<<<<< HEAD
-	filter :version, :collection => -> {AgeBracket.versions_filter_selection}
-=======
 	filter :versions, :collection => -> {AgeBracket.versions_filter_selection}
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 	remove_filter :age_sets
 	remove_filter :rates
 
@@ -28,13 +24,9 @@ ActiveAdmin.register AgeBracket do
 		column :min_trip_duration
 		column :max_trip_duration
 		column :preex
-<<<<<<< HEAD
-		default_actions
-=======
 		actions defaults: true, dropdown: true do |a|
 			item  "Add Rate",  new_admin_rate_path(id: a.id)
 		end
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 	end
 
 	index :as => :grid  do |age|
@@ -117,12 +109,9 @@ ActiveAdmin.register AgeBracket do
 			if params[:product_id]
 				f.input :product_id, :as => :hidden, :input_html => { :value => Version.find(params[:product_id]).product_id }
 				f.input :product_id, :as => :select, :collection => options_for_select([[params[:name], params[:product_id]]], params[:product_id]), input_html: { disabled: true, multiple: false}
-<<<<<<< HEAD
-=======
 			elsif params[:id]
 				f.input :product_id, :as => :hidden, :input_html => { :value => params[:id] }
 				f.input :product_id, :as => :select, :collection => options_for_select([[params[:name], params[:id]]], params[:id]), input_html: { disabled: true, multiple: false}
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			else
 				f.input :product,	:input_html => { :class => 'tier1_select', disabled: true}
 			end
@@ -163,14 +152,6 @@ ActiveAdmin.register AgeBracket do
 		end
 
 		def update
-<<<<<<< HEAD
-			Rails.logger.warn "#{clean_params}"
-			age = AgeBracket.find(params[:id])
-			age.update(clean_params)
-			params[:age_bracket][:rates_attributes].each_value do |attrs|
-				Rate.find(attrs[:id]).update(rate: attrs[:rate], rate_type: attrs[:rate_type],
-																		sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
-=======
 
 			age = AgeBracket.find(params[:id])
 			age.update(clean_params)
@@ -179,7 +160,6 @@ ActiveAdmin.register AgeBracket do
 					Rate.find(attrs[:id]).update(rate: attrs[:rate], rate_type: attrs[:rate_type],
 																			sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
 				end
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			end
 			redirect_to admin_age_bracket_path(age)
 		end

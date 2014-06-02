@@ -17,11 +17,7 @@ ActiveAdmin.register Province do
 		column :name
 		column :short_hand
 		column :country
-<<<<<<< HEAD
-		default_actions
-=======
 		actions defaults: true, dropdown: true
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 	end
 
 	#Show

@@ -14,37 +14,6 @@ ActiveAdmin.register Version do
 	#Filters
 	preserve_default_filters!
 	remove_filter :age_sets
-<<<<<<< HEAD
-	
-
-	#Index
-	index do 
-		selectable_column
-		column :type
-		column :detail_type
-
-		default_actions
-	end
-
-	#Show
-	show :title => proc{ resource.product.name + " (#{resource.type})" } do |p|
-
-			attributes_table do
-				row "Product" do |p|
-					link_to p.product.name, admin_product_path(p.product_id)
-				end
-				row :type
-				row :detail_type do |p|
-					p.detail_type
-				end
-			end
-
-			panel("#{p.detail_type} Details", class: 'group single_show_version') do
-				attributes_table_for p.detail do
-					row :min_age
-					row :max_age
-					if p.detail_type == "Couple"
-=======
 	remove_filter :age_brackets
 
 	permit_params :product_id, :type, :detail_type, :detail
@@ -79,7 +48,6 @@ ActiveAdmin.register Version do
 					row :min_age
 					row :max_age
 					if v.detail_type == "Couple"
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 						row :has_couple_rate do |d|
 							if d.has_couple_rate
 								status_tag "Yes", :ok
@@ -87,24 +55,15 @@ ActiveAdmin.register Version do
 								status_tag "No"
 							end
 						end
-<<<<<<< HEAD
-					elsif p.detail_type == "Family"
-=======
 					elsif v.detail_type == "Family"
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 						row :min_adult
 						row :max_adult
 						row :min_dependant
 						row :max_dependant
 						row :max_kids_age
 					  row :max_age_with_kids
-<<<<<<< HEAD
-					  row :has_family_rate do |v|
-							if v.has_special_rate?
-=======
 					  row :has_family_rate do |d|
 							if d.has_special_rate?
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 								status_tag "Yes", :ok
 							else
 								status_tag "No"
@@ -116,11 +75,7 @@ ActiveAdmin.register Version do
 
 			panel("Age Brackets", class: 'group single_show_version') do
 				ul do
-<<<<<<< HEAD
-					p.age_brackets.order("min_age asc").each do |age|
-=======
 					v.age_brackets.order("min_age asc").each do |age|
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 						li do
 							div class: "show_version_wrapper group" do
 								attributes_table_for age  do
@@ -145,24 +100,14 @@ ActiveAdmin.register Version do
 										status_tag r.status, "#{r.status.downcase}"
 									end
 								end
-<<<<<<< HEAD
-
-								text_node link_to "Edit", edit_admin_age_bracket_path(p), class: "link_button right"
-								text_node link_to "View", admin_age_bracket_path(p), class: "link_button right"
-=======
 								text_node link_to "Delete", admin_age_bracket_path(age), class: "link_button right", method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}
 								text_node link_to "Edit", edit_admin_age_bracket_path(age), class: "link_button right"
 								text_node link_to "View", admin_age_bracket_path(age), class: "link_button right"
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 							end
 						end
 					end
 				end
-<<<<<<< HEAD
-				text_node link_to "Add/Remove Age Brackets", add_admin_age_set_path(id: p.id),  class: "link_button right"
-=======
 				text_node link_to "Add/Remove Age Brackets", add_admin_age_set_path(id: v.id),  class: "link_button right"
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			end
 
 	end
@@ -170,15 +115,9 @@ ActiveAdmin.register Version do
 	#Form
 	form do |f|
 		f.inputs do
-<<<<<<< HEAD
-			if params[:product_id]
-				f.input :product_id, :as => :hidden, input_html: { value: params[:product_id] }
-				f.input :product, :as => :select, :collection => options_for_select([[params[:name], params[:product_id]]], params[:product_id]), 
-=======
 			if params[:id]
 				f.input :product_id, :as => :hidden, input_html: { value: params[:id] }
 				f.input :product, :as => :select, :collection => options_for_select([[params[:name], params[:id]]], params[:id]), 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 				input_html: { disabled: true}
 			else 
 				f.input :product
@@ -202,21 +141,13 @@ ActiveAdmin.register Version do
 				d.input :max_dependant
 				d.input :max_kids_age
 				d.input :max_age_with_kids
-<<<<<<< HEAD
-				d.input :has_family_rate, :as => :select, :collection => [["Yes", true], ["No", false]]
-=======
 				d.input :has_family_rate, :as => :radio, :collection => [["Yes", true], ["No", false]]
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			end
 
 			f.inputs "Couple Version Details", :for => CoupleDetail.new, class: "couple_details inputs hide" do |d|
 				d.input :min_age
 				d.input :max_age
-<<<<<<< HEAD
-				d.input :has_couple_rate, :as => :select, :collection => [["Yes", true], ["No", false]]
-=======
 				d.input :has_couple_rate, :as => :radio, :collection => [["Yes", true], ["No", false]]
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			end
 
 			f.inputs "Single Version Details", :for => SingleDetail.new, class: "single_details inputs" do |d|
@@ -234,15 +165,9 @@ ActiveAdmin.register Version do
 					d.input :max_dependant
 					d.input :max_kids_age
 					d.input :max_age_with_kids
-<<<<<<< HEAD
-					d.input :has_family_rate, :as => :select, :collection => [["Yes", true], ["No", false]]
-				elsif f.object.detail_type == "Couple"
-					d.input :has_couple_rate, :as => :select, :collection => [["Yes", true], ["No", false]]
-=======
 					d.input :has_family_rate, :as => :radio, :collection => [["Yes", true], ["No", false]]
 				elsif f.object.detail_type == "Couple"
 					d.input :has_couple_rate, :as => :radio, :collection => [["Yes", true], ["No", false]]
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 				end	
 			end
 		end
@@ -250,12 +175,8 @@ ActiveAdmin.register Version do
 	end
 
 	#Controller
-<<<<<<< HEAD
-	controller do     
-=======
 	controller do
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 		def version_params             
 			params.require(:version).permit(:product_id, :type, :detail_type, :detail,
 				:family_detail => [:min_age, :max_age, :min_adult, :max_adult, :min_dependant, :max_dependant, :max_kids_age, :max_age_with_kids, :has_family_rate],
@@ -265,24 +186,16 @@ ActiveAdmin.register Version do
 
 		def destroy
 			version = Version.find(params[:id])
-<<<<<<< HEAD
-=======
 			policy_id = version.product.id
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			if version
 				version.destroy_related
 				flash[:notice] = "Version was successfully removed!"
 			end
-<<<<<<< HEAD
-		
-			redirect_to admin_versions_path
-=======
 			redirect_to admin_product_path(policy_id)
 		end
 
 		def new
 			@version = Version.new
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 		end
 
 		def create
@@ -293,10 +206,6 @@ ActiveAdmin.register Version do
 														:detail_type => version_params[:detail_type])
 			if version.save
 				"#{version_type}Detail".constantize.create!(details_params.merge(version: version))
-<<<<<<< HEAD
-				flash[:notice] = "Version were successfully created!"
-				redirect_to admin_product_path(version_params[:product_id])
-=======
 				#add age brackets automatically for couple and family
 				unless version_type == "Single"
 					version.add_age_bracket
@@ -305,7 +214,6 @@ ActiveAdmin.register Version do
 				redirect_to admin_version_path(version)
 			else
 				super
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			end
 		end
 

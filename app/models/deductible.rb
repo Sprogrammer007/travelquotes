@@ -1,10 +1,4 @@
 class Deductible < ActiveRecord::Base
-<<<<<<< HEAD
-  DEFAULT_HEADER = %w{product_id amount mutiplier condition }
-
-  belongs_to :product
-
-=======
   DEFAULT_HEADER = %w{product_id amount mutiplier condition age}
 
   belongs_to :product
@@ -31,6 +25,5 @@ class Deductible < ActiveRecord::Base
     [['Greater', 'gt'], ['Lesser', 'lt'], 
     ['Greater and Equal', 'gteq'], ['Lesser and Equal', 'lteq']]
   end
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
 end

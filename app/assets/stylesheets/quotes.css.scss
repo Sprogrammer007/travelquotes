@@ -3,10 +3,7 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 
-<<<<<<< HEAD
-=======
 @import "bootstrap";
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 /* universal */
 
 html {
@@ -33,8 +30,6 @@ textarea {
   margin-bottom: 10px;
 }
 
-<<<<<<< HEAD
-=======
 
 .group:before, .group:after {
   content: "";
@@ -50,7 +45,6 @@ textarea {
     zoom: 1; /* For IE 6/7 (trigger hasLayout) */
 }
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 /* typography */
 
 h1, h2, h3, h4, h5, h6 {
@@ -79,8 +73,6 @@ p {
   line-height: 1.7em;
 }
 
-<<<<<<< HEAD
-=======
 .btn-f {
   width: 100%;
 }
@@ -88,7 +80,6 @@ p {
 .btn-h-40 {
   height: 40px;
 }
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 /* header */
 
 .navbar-custom {
@@ -212,16 +203,6 @@ a.btn {
   display: inline;
 }
 
-<<<<<<< HEAD
-
-.quotes {
-  padding: 1.78em;
-  background-color: #eee;
-}
-
-
-=======
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 .form-horizontal .control-label {
   font-size: 1.1em;
   text-align: left;
@@ -246,22 +227,6 @@ fieldset.traveling_members  {
   padding-right: 10px;
   padding-left: 10px;
   border-bottom:none;
-<<<<<<< HEAD
-
-}
-
-.traveling_members legend:before {
-  content: "";
-  display:block;
-  position: relative;
-  margin: 0 -10px 0 -10px;
-  top: 15px;
-  left: 0;
-  border-top: 2px solid #eee;
-  width: 215px;
-  z-index: -1;
-=======
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 }
 
 .traveling_members .family_member {
@@ -292,10 +257,6 @@ fieldset.traveling_members  {
   background-color: #ffffff;
 }
 
-<<<<<<< HEAD
-
-/* Results */ 
-=======
 /* Result List */
 
 .result_list_wrapper {
@@ -438,16 +399,11 @@ h5.filtered_results {
   font-size: 1.5em;
   font-weight: bold;
 }
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
 .tab-content {
   display: block;
   min-height: 200px;
   background-color: #ffffff;
-<<<<<<< HEAD
-  padding: 40px;
-=======
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   border: 2px solid #97B6E4;
   border-top: none;
   border-radius:  0 0 4px 4px;
@@ -466,13 +422,10 @@ h5.filtered_results {
 
 }
 
-<<<<<<< HEAD
-=======
 .nav-tabs li.disable {
   color: #eee
 }
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
   border: 2px solid #97B6E4;
   border-bottom-color: transparent;
@@ -498,26 +451,16 @@ h5.filtered_results {
   vertical-align: middle;
 }
 
-<<<<<<< HEAD
-/* SideBar */ 
-aside {
-
-=======
 
 /* SideBar */ 
 aside {
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   width: 100%;
   height: inherit;
   background-color:#ffffff;
 }
 
 aside p {
-<<<<<<< HEAD
-  font-size: 0.85em;
-=======
   font-size: 0.88em;
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 }
 
 aside .title {
@@ -542,77 +485,13 @@ aside .list-group {
 }
 
 aside .list-group-item {
-<<<<<<< HEAD
-=======
   font-size: 0.9em;
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   padding: 3px 15px;
 }
 
 aside .close {
   line-height: 0.8em;
 }
-<<<<<<< HEAD
-/* Result List */
-
-.result_list_wrapper ul {
-  padding: 0;
-  margin: 0;
-}
-
-.result_list_wrapper p {
-  font-weight: bold;
-  padding: 0;
-  margin: 0;
-}
-.result_list_wrapper ul li {
-  list-style-type: none;
-}
-
-.result_list_wrapper img {
-  width: 100%;
-}
-
-.purchase_box p{
-  text-align: center;
-}
-
-
-.result_item_wrapper {
-  height: 100px;
-  background-color: #ffffff;
-  display: block;
-  margin: 10px, auto;
-  border: 2px solid #e5e4ec;  
-  border-radius: 5px;
-}
-
-
-.compare_box  {
-  display: block;
-  vertical-align: middle;
-  width: inherit;
-}
-
-.compare_box p {
-  text-align: center;
-}
-
-.compare_box label {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-
-.result_item_wrapper div {
-  height: inherit;
-  border-right: 2px solid #dfdfdf;
-}
-
-.result_item_wrapper div:last-child {
-  border-right: none;
-}
-=======
 
 aside .deductible {
   display: block;
@@ -634,7 +513,6 @@ aside .email-button button {
   margin-bottom: 10px;
 }
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 /* FILTERS */ 
 
 .current_filters p {
@@ -683,8 +561,6 @@ h5.collapsed.arrow-black::before {
   content: "\25BE";
 }
 
-<<<<<<< HEAD
-=======
 /* Modal */
 .modal-body .row {
   border-bottom: 1px solid #E9E9E9; 
@@ -727,7 +603,6 @@ h5.collapsed.arrow-black::before {
   padding: 10px 20px 30px;
 }
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 /* Other */
 .btn:focus {
   border-color: #d2322d !important;

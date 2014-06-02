@@ -3,9 +3,6 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 ready = ->
 
-<<<<<<< HEAD
-      
-=======
   #email quotes
   $('.email-pop').popover
     animation: true
@@ -123,7 +120,6 @@ ready = ->
 
   # date picker
   # callback function for to min date after from is set
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   setMinDateTo = (input, inst) ->
     currentFromDate = $('#quote_leave_home').val()
     if currentFromDate
@@ -141,20 +137,11 @@ ready = ->
 
     if element.selector == "#quote_return_home"
       element.datepicker("option", "beforeShow", setMinDateTo )
-<<<<<<< HEAD
-
-  # callback function for to min date after from is set
-
-  addDatePicker $('#quote_leave_home')
-  addDatePicker $('#quote_return_home')
-  addDatePicker $('#quote_arrival_date')
-=======
   
   addDatePicker $('#quote_leave_home')
   addDatePicker $('#quote_return_home')
   addDatePicker $('#quote_arrival_date')
   addDatePicker $('#quote_renew_expire_date')
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
   $('#quote_leave_home').change ->
     selectedFrom = $('#quote_leave_home').datepicker('getDate')
@@ -167,11 +154,6 @@ ready = ->
   $('#quote_apply_from').change ->
     if $(this).find(':selected').text() == "Yes"
       $('.arrival_date').fadeIn()
-<<<<<<< HEAD
-    else
-      $('.arrival_date').fadeOut()
-
-=======
       $('.renew').fadeIn()
       $('.renew_expire_date').fadeIn()
     else
@@ -180,7 +162,6 @@ ready = ->
       $('.renew_expire_date').fadeOut()
       
   # new quote form js
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   currentTravelTypeSelection = $('#quote_traveler_type').find(':selected').text()
 
   dependentHide = (hide) ->

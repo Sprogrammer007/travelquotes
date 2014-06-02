@@ -3,10 +3,6 @@ ActiveAdmin.register Deductible do
 	include_import
 	preserve_default_filters!
 
-<<<<<<< HEAD
-	menu :parent => "Companies"
-	
-=======
 	menu :parent => "Products"
 
   permit_params :product_id, :amount, :mutiplier, :condition, :age
@@ -59,5 +55,4 @@ ActiveAdmin.register Deductible do
       redirect_to admin_age_bracket_path(age)
     end
   end 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 end

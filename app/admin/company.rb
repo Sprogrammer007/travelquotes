@@ -29,10 +29,6 @@ ActiveAdmin.register Company do
 				status_tag("Not Active")
 			end
 		end
-<<<<<<< HEAD
-		actions :defaults => true
-	end
-=======
 		actions defaults: true, dropdown: true do |c|
 			item  "Add Visitor Policy", new_admin_product_path(id: c.id)
 			item  "Add Student Policy", "#"
@@ -40,30 +36,21 @@ ActiveAdmin.register Company do
 		end
 	end
 	
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 	#Form
 	form do |f|
 		f.inputs do
 			f.input :name
 			f.input :short_hand
 			f.input :logo
-<<<<<<< HEAD
-			f.input :status, :as => :radio, :collection => [['Active', 'true'], ['Not', 'false']]
-		end
-=======
 			f.input :status, :as => :radio, :collection => [['Active', true], ['Not', false]]
 		end
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 		f.actions
 	end
 
 	#Show
 	show do |c|
 		div class: "show_left" do
-<<<<<<< HEAD
-			c.show_table(self)
-=======
 			attributes_table do
 	      row :short_hand
 	      row :logo do
@@ -78,7 +65,6 @@ ActiveAdmin.register Company do
 				end
     	end
     	
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			panel("products", class: 'group single_show') do
 				if c.products.any?
 					ul do
@@ -88,11 +74,7 @@ ActiveAdmin.register Company do
 									row :name do |p|
 										link_to "#{p.name}", admin_product_path(p)
 									end
-<<<<<<< HEAD
-					        row :product_number
-=======
 					        row :policy_number
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 					        row :description do |p|
 					        	div class: 'des_flown' do
 					        		text_node p.description.html_safe
@@ -106,14 +88,9 @@ ActiveAdmin.register Company do
 											status_tag("Not Active")
 										end
 									end
-<<<<<<< HEAD
-									text_node link_to "Edit", edit_admin_product_path(p), class: "link_button right"
-									text_node link_to "View", edit_admin_product_path(p), class: "link_button right"
-=======
 									text_node link_to "Delete", admin_product_path(p), class: "link_button right", method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}
 									text_node link_to "Edit", edit_admin_product_path(p), class: "link_button right"
 									text_node link_to "View", admin_product_path(p), class: "link_button right"
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 					      end
 					    end
 						end

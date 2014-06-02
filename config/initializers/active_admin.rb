@@ -7,10 +7,7 @@ ActiveAdmin.setup do |config|
   #
   config.site_title = "Travelquotes"
   config.register_javascript 'ckeditor/init.js'
-<<<<<<< HEAD
-=======
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   # Set the link url for the title. For example, to take
   # users to your main site. Defaults to no link.
   #

@@ -1,45 +1,3 @@
-<<<<<<< HEAD
-<div class="result_list_wrapper">
-  <ul>
-    <% if results.blank? %>
-      <div class="no_result"><span>There Are No Quotes Matching Your Criteria</span></div>
-    <% else %>
-      <% results.each_with_index do |result, i| %>
-        <li>
-          <div class="row result_item_wrapper">
-            <div class="col-md-2 compare_box">
-              <p><%= i + 1 %></p> 
-              <p><%= label_tag "compare[results]", "Compare" %>
-              <%= check_box :compare, "results" %></p>
-            </div>
-
-            <div class="col-md-3 center-block logo_box">
-              <%= image_tag result.logo %>
-            </div>
-
-            <div class="col-md-3">
-              <p><%= %></p> 
-              <p> <%= result.product.name %></p> 
-            </div>
-            <div class="col-md-2  center-block">
-              <p><span class="glyphicon glyphicon-file"></span> <%= link_to "Policy Details", "#" %></p> 
-            </div>
-
-            <div class="col-md-2 purchase_box">
-              <div data-daily-rate="<%= result.product_rate %>" data-rate-type="<%= result.rate_type %>">
-                <p><%= number_to_currency(quote.calc_rate(result)) %></p>
-              
- 
-                <%= link_to "Buy Now", "#", class: "btn btn-danger btn-sm" %>
-              </div>
-            </div>
-          </div>  
-        </li>
-      <% end %>
-   
-    <% end %>
-  </ul>
-=======
 <div class="result_list_wrapper group">
   
     <% if results.blank? %>
@@ -107,5 +65,4 @@
       <% end %>
     <% end %>
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 </div>

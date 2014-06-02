@@ -1,20 +1,10 @@
 class Quote < ActiveRecord::Base
-<<<<<<< HEAD
-
-=======
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   has_many :traveler_members, dependent: :destroy
   has_many :applied_filters, dependent: :destroy
   has_many :product_filters, through: :applied_filters
 
   accepts_nested_attributes_for :traveler_members, allow_destroy: true
-<<<<<<< HEAD
-  before_save :set_quote_id
-
-  attr_reader :results, :pre_filtered_results, :filtered_results
-
-=======
 
   validates :leave_home, :return_home, presence: true
   validates :email, presence: true, format: { with: VALID_EMAIL_REGEX }
@@ -63,16 +53,10 @@ class Quote < ActiveRecord::Base
     traveler_members.where(:member_type => "Adult")
   end
 
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   def search
     calc_ages()
     @results = self.send(:"#{self.traveler_type.downcase}_search")
     @pre_filtered_results = @results
-<<<<<<< HEAD
-    return self
-  end
-
-=======
     cached_results(@results)
     return self
   end
@@ -81,7 +65,6 @@ class Quote < ActiveRecord::Base
     Rails.cache.fetch([self, results.object_id]) { results }
   end
   
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   def ages 
     @ages ||= {}
   end
@@ -93,11 +76,6 @@ class Quote < ActiveRecord::Base
       "Dependent" => traveler_members.dependent.map { |m| year - m.birthday.year }
     }
   end
-<<<<<<< HEAD
-
-  def calc_rate(version)
-    rate = version.product_rate
-=======
   
   def calc_daily_rate(rate, type)
     case type
@@ -116,19 +94,11 @@ class Quote < ActiveRecord::Base
     ratetype = version.rate_type
 
     # Logic for couple and family rate
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     if version.detail_type == "Couple" && !version.detail.has_couple_rate
       product_id = version.product_id
       t1 = @results["Traveler #1"].reject{ |t| t.product_id != product_id}
       t2 = @results["Traveler #2"].reject{ |t| t.product_id != product_id}
       if t1.any? and t2.any?
-<<<<<<< HEAD
-
-        rate = t1[0].product_rate + t2[0].product_rate
-      end
-    end
-   (rate * (self.traveled_days / 1.day)).round(2)
-=======
         rate = t1[0].product_rate + t2[0].product_rate
       end
     elsif self.traveler_type == "Family"
@@ -148,29 +118,12 @@ class Quote < ActiveRecord::Base
     end
 
    return rate
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   end
 
   def applied_filter_ids
     product_filters.pluck(:id)
   end
 
-<<<<<<< HEAD
-  def filter_results
-    if @results.is_a?(ActiveRecord::Relation)
-      @filtered_results = @results.reject do |r| 
-        has_filters?(r.product_filters.pluck(:id), self.applied_filter_ids) 
-      end
-    end
-
-    @results = @results.to_a - @filtered_results
-  end
-
-  def traveled_days
-    (self.return_home - self.leave_home).to_i
-  end
-
-=======
   def cached_applied_filter_ids
     @ids ||= product_filters.pluck(:id)
   end
@@ -234,24 +187,16 @@ class Quote < ActiveRecord::Base
   def traveled_days
     ((return_home - leave_home).to_i  / 1.day)
   end
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
   def single_search(age = nil, rate_type = nil)
     age = age || ages["Adult"].max
     rate_type = rate_type || self.traveler_type.downcase
-<<<<<<< HEAD
-    result = Version.send(rate_type)
-
-    if self.apply_from && beyond_30_days?
-       result = result.joins(:product).where(:products => {can_buy_after_30_days: true})
-=======
     result = Version.send(rate_type).joins(:product)
 
     if self.apply_from && beyond_30_days? && !self.renew
       result = result.merge(Product.can_buy_after_30.active)
     elsif self.apply_from && beyond_30_days? && self.renew
       result = result.merge(Product.renewable_after_30.active)
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     end
     
     if self.has_preex
@@ -262,48 +207,14 @@ class Quote < ActiveRecord::Base
     end
 
     result = result.joins(age_brackets: [:rates]).merge(Rate.include_sum(self.sum_insured))
-<<<<<<< HEAD
-    result = result.select("versions.*, rates.rate as product_rate, rates.rate_type as rate_type").order("product_rate ASC")
-
-    if self.traveler_type == "Single"
-      @results = result
-      return @results
-    end
-=======
     result = result.select("versions.*, rates.rate as product_rate, 
       rates.rate_type as rate_type, products.min_price as min_price, 
       products.id as product_id").order("product_rate ASC")
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
     return result
   end
 
   def couple_search
-<<<<<<< HEAD
-    @results = Hash.new()
-    @results["Couple"] =  single_search(ages["Adult"].max)
-    @results["Traveler #1"] =  single_search(ages["Adult"].first, "single")
-    @results["Traveler #2"] =  single_search(ages["Adult"].last, "single")
-    return @results
-  end
-
-  def family_search
-  end
-
-  #Class Methods
-  def self.getFilters
-    ProductFilter.prepare_filters
-  end
-
-  def self.getSumInsured
-    %w{ 10,000, 15,000 25,000 50,000 100,000 150,000 200,000, 250,000}
-  end
-
-
-  private
-    def has_filters?(pfilters, afilters)
-      (afilters - (pfilters & afilters)).any?
-=======
     result = Hash.new()
     result["Couple"] =  single_search(ages["Adult"].max)
     result["Traveler #1"] =  single_search(ages["Adult"].first, "single")
@@ -359,7 +270,6 @@ class Quote < ActiveRecord::Base
       else
         (afilters - (pfilters & afilters)).blank?
       end
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     end
 
     def beyond_30_days?
@@ -368,9 +278,6 @@ class Quote < ActiveRecord::Base
 
     #Before_Save
     def set_quote_id
-<<<<<<< HEAD
-      self.quote_id = "307-521-#{self.id}"
-=======
       strid = self.id.to_s
       if strid.length > 3
         quote_id = "307-#{strid.slice(0..2)}-#{strid.slice(3..5)}"
@@ -378,7 +285,6 @@ class Quote < ActiveRecord::Base
         quote_id = "307-#{strid}"
       end
       update(quote_id: quote_id)
->>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     end
 
 end
