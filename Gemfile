@@ -21,7 +21,7 @@ gem 'bootstrap-sass', '~> 3.1.1'
 
 group :development do
   gem 'faker', '1.2.0'
-  gem 'rspec-rails', '2.14.0'
+  # gem 'rspec-rails', '2.14.0'
   gem 'guard-rspec', '4.2.0'
   gem 'letter_opener' # serve as local email
   gem 'debugger'
