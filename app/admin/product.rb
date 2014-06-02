@@ -66,29 +66,36 @@ ActiveAdmin.register Product do
 					row :description do |p|
 						p.description.html_safe() if p.description
 					end
-					row "Can The Policy Be Purchased After 30 Days Of Arrival?" do |a|
-						if a.can_buy_after_30_days
+					row "Can The Policy Be Purchased After 30 Days Of Arrival?" do |p|
+						if p.can_buy_after_30_days
 							status_tag("Yes", :ok)
 						else
 							status_tag("No")
 						end
 					end
-					row "Can The Policy Be Renewed After 30 Days Of Lapse" do |a|
-						if a.can_renew_after_30_days
+					row "Can The Policy Be Renewed After 30 Days Of Lapse" do |p|
+						if p.can_renew_after_30_days
 							status_tag("Yes", :ok)
 						else
 							status_tag("No")
 						end
 					end
 					row :renewable_max_age
-					row "Stable Pre-Existing Medical Condition" do |a|
-						if a.preex
+					row "Stable Pre-Existing Medical Condition" do |p|
+						if p.preex
 							status_tag("Yes", :ok)
 						else
 							status_tag("No")
 						end
 					end
 					row :preex_max_age
+					row "Are Pre-Existing Medical Condition Based On Sum Insured As Well?" do |p|
+						if p.preex_based_on_sum_insured
+							status_tag("Active", :ok)
+						else
+							status_tag("Not Active")
+						end
+					end
 					row :purchase_url
 					row :status do |p|
 						if p.status
@@ -223,8 +230,9 @@ ActiveAdmin.register Product do
 			f.input :renewable_max_age
 			f.input :preex, :as => :radio, :collection => [["Yes", true], ["No", false]]
 			f.input :preex_max_age
+			f.input :preex_based_on_sum_insured, :as => :radio, :collection => [["Yes", true], ["No", false]]
 			f.input :purchase_url
-			f.input :status, :as => :radio, :collection => [['Active', true], ['Not', false]]
+			f.input :status, :as => :radio, :collection => [['Active', true], ['Not Active', false]]
 		end
 
 		f.inputs do
