@@ -27,7 +27,11 @@ Travelquotes::Application.configure do
   # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
+<<<<<<< HEAD
   config.assets.compile = false
+=======
+  config.assets.compile = true
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
   # Generate digests for assets URLs.
   config.assets.digest = true

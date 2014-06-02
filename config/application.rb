@@ -1,7 +1,11 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
+<<<<<<< HEAD
 
+=======
+require 'devise'
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -19,8 +23,14 @@ module Travelquotes
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
+<<<<<<< HEAD
 
     config.autoload_paths += %W(#{config.root}/app/models/plans)
   
+=======
+    config.assets.precompile += %w(*.png *.jpg *.jpeg *.gif)
+    config.assets.precompile += Ckeditor.assets
+    config.assets.precompile += %w(ckeditor/*)
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   end
 end

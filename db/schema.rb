@@ -11,7 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 20140509045236) do
+=======
+ActiveRecord::Schema.define(version: 20140530203642) do
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -79,6 +83,7 @@ ActiveRecord::Schema.define(version: 20140509045236) do
   create_table "deductibles", force: true do |t|
     t.integer  "product_id"
     t.integer  "amount"
+<<<<<<< HEAD
     t.integer  "mutiplier"
     t.string   "condition"
     t.datetime "created_at"
@@ -87,6 +92,11 @@ ActiveRecord::Schema.define(version: 20140509045236) do
 
   create_table "destinations", force: true do |t|
     t.string   "place"
+=======
+    t.float    "mutiplier"
+    t.string   "condition"
+    t.integer  "age"
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -103,6 +113,7 @@ ActiveRecord::Schema.define(version: 20140509045236) do
     t.boolean "has_family_rate"
   end
 
+<<<<<<< HEAD
   create_table "legal_texts", force: true do |t|
     t.integer  "product_id"
     t.string   "name"
@@ -110,6 +121,30 @@ ActiveRecord::Schema.define(version: 20140509045236) do
     t.text     "description"
     t.datetime "effective_date"
     t.boolean  "status",         default: true
+=======
+  create_table "legal_text_categories", force: true do |t|
+    t.integer  "legal_text_parent_category_id"
+    t.string   "name"
+    t.integer  "order"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "legal_text_parent_categories", force: true do |t|
+    t.string   "name"
+    t.integer  "order"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "legal_texts", force: true do |t|
+    t.integer  "product_id"
+    t.integer  "legal_text_category_id"
+    t.string   "policy_type"
+    t.text     "description"
+    t.datetime "effective_date"
+    t.boolean  "status",                 default: true
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -132,6 +167,7 @@ ActiveRecord::Schema.define(version: 20140509045236) do
   create_table "products", force: true do |t|
     t.integer  "company_id"
     t.string   "name"
+<<<<<<< HEAD
     t.string   "product_number"
     t.text     "description"
     t.integer  "min_price"
@@ -143,6 +179,18 @@ ActiveRecord::Schema.define(version: 20140509045236) do
     t.integer  "preex_max_age"
     t.boolean  "follow_ups"
     t.boolean  "status",                default: true
+=======
+    t.string   "policy_number"
+    t.text     "description"
+    t.integer  "min_price"
+    t.boolean  "can_buy_after_30_days"
+    t.boolean  "can_renew_after_30_days"
+    t.integer  "renewable_max_age"
+    t.boolean  "preex"
+    t.integer  "preex_max_age"
+    t.boolean  "preex_based_on_sum_insured"
+    t.boolean  "status",                     default: true
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     t.string   "purchase_url"
     t.datetime "effective_date"
     t.datetime "created_at"
@@ -161,16 +209,31 @@ ActiveRecord::Schema.define(version: 20140509045236) do
   create_table "quotes", force: true do |t|
     t.string   "quote_id"
     t.string   "client_ip"
+<<<<<<< HEAD
     t.datetime "leave_home"
     t.datetime "return_home"
     t.boolean  "apply_from"
+=======
+    t.string   "quote_type"
+    t.string   "email"
+    t.boolean  "renew"
+    t.datetime "renew_expire_date"
+    t.datetime "leave_home"
+    t.datetime "return_home"
+    t.boolean  "apply_from"
+    t.string   "deductible_filter"
+    t.boolean  "has_preex"
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     t.datetime "arrival_date"
     t.integer  "trip_cost"
     t.integer  "sum_insured"
     t.string   "traveler_type"
     t.datetime "created_at"
     t.datetime "updated_at"
+<<<<<<< HEAD
     t.boolean  "has_preex"
+=======
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   end
 
   create_table "rates", force: true do |t|

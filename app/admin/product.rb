@@ -1,10 +1,20 @@
 ActiveAdmin.register Product do
 	config.sort_order = "id_asc"
 	
+<<<<<<< HEAD
 	menu :priority => 2
 
 	include_import
 	permit_params :name, :product_number, :description, :company_id
+=======
+	menu :priority => 2, :label => "Visitor Policy"
+
+	include_import
+
+	permit_params :name, :policy_number, :description, :company_id, :min_price, :can_buy_after_30_days,
+	:can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex,
+	:purchase_url, :status,  deductibles_attributes: [:amount, :mutiplier, :condition, :age]
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
 	#Scopes
 	scope :all, default: true
@@ -23,12 +33,17 @@ ActiveAdmin.register Product do
 	remove_filter :purchase_url
 
 	#Index Table
+<<<<<<< HEAD
 	index do
+=======
+	index :title => "Visitor Policies" do
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 		selectable_column
 		column :name, :sortable => :name do |resource|
 			editable_text_column resource, :name
 		end
 
+<<<<<<< HEAD
 		column :product_number
 		column "Company" do |p|
 			image_tag("#{p.company.logo}",  style: "height: 60%" )
@@ -70,6 +85,83 @@ ActiveAdmin.register Product do
 				end
 			end
 			
+=======
+		column :policy_number
+		column "Company" do |p|
+			p.company.name if p.company
+		end
+		column "Versions" do |p|
+			dropdown_menu "Versions" do
+				p.versions.map do |version| 
+   		 		item(version.detail_type.gsub("Detail", ""), admin_version_path(version))
+				end
+			end
+		end
+
+		column :min_price
+		column "After 30 Days", :can_buy_after_30_days
+		column "Renew 30 Days", :can_renew_after_30_days
+		column "Pre-Med", :preex
+		column :status
+		actions defaults: true, dropdown: true do |p|
+			item  "Add Version", new_admin_version_path(:id => p.id, name: p.name)
+			item  "Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name)
+			item  "Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name)
+			item  "Add Product Filters", add_admin_product_filter_set_path(id: p.id)
+			item  "Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name)
+		end
+	end
+
+	show :title => "Policy Details" do |p|
+		div class: "show_left" do
+			panel "Policy Eligibiliities" do
+				attributes_table_for product do
+					row :policy_number
+					row :description do |p|
+						p.description.html_safe() if p.description
+					end
+					row "Can The Policy Be Purchased After 30 Days Of Arrival?" do |p|
+						if p.can_buy_after_30_days
+							status_tag("Yes", :ok)
+						else
+							status_tag("No")
+						end
+					end
+					row "Can The Policy Be Renewed After 30 Days Of Lapse" do |p|
+						if p.can_renew_after_30_days
+							status_tag("Yes", :ok)
+						else
+							status_tag("No")
+						end
+					end
+					row :renewable_max_age
+					row "Stable Pre-Existing Medical Condition" do |p|
+						if p.preex
+							status_tag("Yes", :ok)
+						else
+							status_tag("No")
+						end
+					end
+					row :preex_max_age
+					row "Are Pre-Existing Medical Condition Based On Sum Insured As Well?" do |p|
+						if p.preex_based_on_sum_insured
+							status_tag("Active", :ok)
+						else
+							status_tag("Not Active")
+						end
+					end
+					row :purchase_url
+					row :status do |p|
+						if p.status
+							status_tag("Active", :ok)
+						else
+							status_tag("Not Active")
+						end
+					end
+				end
+			end
+
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			panel("Versions", class: 'group single_show') do
 				ul do
 					p.versions.each do |version|
@@ -85,10 +177,17 @@ ActiveAdmin.register Product do
 									end
 								end
 								row :min_age do |v|
+<<<<<<< HEAD
 									v.detail.min_age
 								end		
 								row :max_age do |v|
 									v.detail.max_age
+=======
+									v.detail.min_age() if v.detail
+								end		
+								row :max_age do |v|
+									v.detail.max_age() if v.detail
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 								end
 								
 								if version.detail_type == "Couple"
@@ -114,6 +213,10 @@ ActiveAdmin.register Product do
 										end
 									end
 								end
+<<<<<<< HEAD
+=======
+								text_node link_to "Delete", admin_version_path(version), class: "link_button right", method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 								text_node link_to "Edit", edit_admin_version_path(version), class: "link_button right"
 								text_node link_to "View", admin_version_path(version), class: "link_button right"
 				      end
@@ -121,7 +224,11 @@ ActiveAdmin.register Product do
 				    end
 					end
 				end
+<<<<<<< HEAD
 				text_node link_to "Add New Version",  new_admin_version_path(:product_id => p.id, name: p.name), method: :get, class: "link_button right"
+=======
+				text_node link_to "Add New Version",  new_admin_version_path(:id => p.id, name: p.name), method: :get, class: "link_button right"
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 			end
 
 			panel("Product Filters", class: 'group') do
@@ -136,6 +243,33 @@ ActiveAdmin.register Product do
 				end
 				text_node link_to "Add/Remove Filters", add_admin_product_filter_set_path(id: p.id),  class: "link_button right"
 			end 
+<<<<<<< HEAD
+=======
+
+			panel("Legal Text", class: 'group') do
+				if p.legal_texts
+					table_for p.legal_texts  do
+						column :name
+						column :policy_type
+						column :description do |l|
+							l.description.html_safe() if l.description
+						end
+						column "Active" do |l|
+			        if l.status
+			          status_tag "Yes", :ok
+			        else
+			          status_tag "No"
+			        end
+      			end
+      			column :effective_date
+      			column "" do |l|
+      				link_to("Remove", admin_legal_text_path(l.id), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+      			end
+					end
+				end
+				text_node link_to "Add Legal Text", new_admin_legal_text_path(product_id: p.id),  class: "link_button right"
+			end 
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 		end
 
 		div class: "show_right" do
@@ -154,12 +288,41 @@ ActiveAdmin.register Product do
 
 	form do |f|
 		f.inputs do
+<<<<<<< HEAD
 			f.input :name
 			f.input :product_number
 			f.input :company_id, :as => :select, :collection => Company.all
 			f.input :preex, :as => :select, :collection => [["Yes", true], ["No", false]]
 			f.input :description, :as => :ckeditor
 
+=======
+			if f.object.new_record? && !params[:id]
+				f.input :company, :as => :select
+			else
+				f.input :company_id, :as => :hidden, :input_html =>  {value: params[:id]}
+			end
+			f.input :name
+			f.input :policy_number
+			f.input :description, :as => :ckeditor
+			f.input :min_price
+			f.input :can_buy_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
+			f.input :can_renew_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
+			f.input :renewable_max_age
+			f.input :preex, :as => :radio, :collection => [["Yes", true], ["No", false]]
+			f.input :preex_max_age
+			f.input :preex_based_on_sum_insured, :as => :radio, :collection => [["Yes", true], ["No", false]]
+			f.input :purchase_url
+			f.input :status, :as => :radio, :collection => [['Active', true], ['Not Active', false]]
+		end
+
+		f.inputs do
+			f.has_many :deductibles, :allow_destroy => true, :heading => 'Add Dedutibles' do |d|
+				d.input :amount
+				d.input :mutiplier
+				d.input :condition, :as => :select, :collection => Deductible.conditions_options
+				d.input :age
+			end
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 		end
 		f.actions
 	end
@@ -173,5 +336,16 @@ ActiveAdmin.register Product do
 		redirect_to admin_company_path(params[:id])
 	end
 	
+<<<<<<< HEAD
+=======
+	controller do
+		def clean_params
+			params.require(:product).permit(:name, :policy_number, :description, :min_price, :renewable_max_age,
+			  :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
+				:status)
+		end
+
+	end
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
 end

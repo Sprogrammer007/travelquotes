@@ -9,7 +9,14 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
+<<<<<<< HEAD
  *= require bootstrap
  *= require quotes
  *= require jquery-ui-1.8.custom
  */
+=======
+ *= require quotes
+ *= require jquery-ui-1.8.custom
+ */
+
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232

@@ -5,6 +5,7 @@
     </div>
 
     <div class="col-sm-6">
+<<<<<<< HEAD
       <p>Departure Date:</p>
       <p>Return Date:</p>
       <p>Trip Cost:</p>
@@ -15,6 +16,30 @@
       <p><%= q.return_home.strftime("%d, %m, %Y") %></p>
       <p><%= q.trip_cost %></p>
       <p><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(", ") %></p>
+=======
+      <p>Trip Length:</p>
+      <p>Trip Cost:</p>
+      <p>Traveler Age:</p>
+      <% if q.traveler_type != "Family" %>
+        <% q.adult_members.each_with_index do |m, i| %>
+          <p>Traveler #<%= "#{i + 1}"%>:</p>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="col-sm-6">
+      <p class="trip_length" ><%= pluralize(q.traveled_days, "Day") %></p>
+      <p><%= q.trip_cost || "Not Entered" %></p>
+      <p><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(", ") %></p>
+      <% if q.traveler_type != "Family" %>
+        <% q.adult_members.each do |m| %>
+          <p><%= m.birthday.strftime("%d-%m-%Y") %></p>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="email-button">
+    <%= button_tag "Email Me This Quote!", class: "email-pop btn btn-danger", data: {content: "Your Quote will be send to <strong>#{q.email}</strong> is that correct?<br/>
+    <a href='#{email_quote_path(q)}' class='email-confirm-button btn btn-info pull-right'>Confirm</a>"} %>
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     </div>
   </div>
 
@@ -25,6 +50,7 @@
     </div>
 
     <div class="current_filters">
+<<<<<<< HEAD
       <% if q.product_filters.any? %>
         <ul class="list-group">
           <% q.product_filters.each do |filter| %>
@@ -39,6 +65,23 @@
     </div>
   </div>
 
+=======
+      <%= render 'current_filters', q: q %>
+    </div>
+  </div>
+
+  <div class="row side_bar_widget">
+    <div class="title">
+      <p>Apply Deductible</p>
+    </div>
+
+    <div class="deductible group">
+      <%= render 'deductible_filter', q: q %>
+    </div>
+  </div>
+
+
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   <div class="row side_bar_widget">
     <div class="title">
         <p>Select Filter</p>
@@ -55,14 +98,22 @@
             <% v.each do |filter| %>
               <li>
 
+<<<<<<< HEAD
               <%= check_box_tag "filters[][product_filter_id]", filter.id, q.applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}" %>
+=======
+              <%= check_box_tag "filters[][product_filter_id]", filter.id, q.cached_applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}", class: "quote_filters" %>
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
               <%= label_tag "filter_#{filter.id}", "#{filter.name}" %>
               </li>
             <% end %>
           </ul>
           </div>
         <% end %>
+<<<<<<< HEAD
         <%= submit_tag "Apply Filters", class: "filter_button btn-sm btn-info pull-right",  data: {:"loading-text" => "Loading..."} %>
+=======
+    
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
       <% end %>
     </div>
   </div>

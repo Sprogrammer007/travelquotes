@@ -13,6 +13,12 @@ class Rate < ActiveRecord::Base
   scope :future, -> { status_eq("Future") }
   scope :include_sum, ->(sum) {sum_insured_eq(sum).current}
 
+<<<<<<< HEAD
+=======
+  validates :rate, :age_bracket_id, :rate_type, :sum_insured, :effective_date, presence: true
+  validates :rate, :numericality => {:only_integer => false}
+  validates :sum_insured,  :numericality => {:only_integer => true}
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   def set_status
     unless self.status
       self.status = self.effective_date > Date.today ? "Future" : "Current"
@@ -34,4 +40,11 @@ class Rate < ActiveRecord::Base
   def self.status
     %w{Current OutDated Future}
   end
+<<<<<<< HEAD
+=======
+
+  def self.update_future_rate
+    puts "cron updating future rate"
+  end
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 end

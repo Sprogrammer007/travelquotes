@@ -3,10 +3,17 @@ class Version < ActiveRecord::Base
   DEFAULT_HEADER = %w{product_id type detail_type detail_id status}
   belongs_to :product
 
+<<<<<<< HEAD
 	has_many :age_sets
 	has_many :age_brackets, :through => :age_sets
 
   belongs_to :detail, polymorphic: true
+=======
+	has_many :age_sets, dependent: :destroy
+	has_many :age_brackets, :through => :age_sets
+
+  belongs_to :detail, polymorphic: true, dependent: :destroy
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 
 	accepts_nested_attributes_for :age_brackets
   accepts_nested_attributes_for :detail
@@ -21,6 +28,11 @@ class Version < ActiveRecord::Base
   scope :couple, -> {detail_type_eq("CoupleDetail")}
   scope :single, -> {detail_type_eq("SingleDetail")}
 
+<<<<<<< HEAD
+=======
+  validates :product_id, :type, presence: true
+
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
   delegate :has_special_rate?, to: :detail
 
   def get_rates(age, sum)
@@ -30,6 +42,7 @@ class Version < ActiveRecord::Base
 	#This is a fix for destroy related agebrackets for the plans that are not
   #tied to other plans. 
   def destroy_related
+<<<<<<< HEAD
   	ages = []
 	 	ids = self.age_brackets.pluck(:id)
  			ids.each do |id|
@@ -37,6 +50,18 @@ class Version < ActiveRecord::Base
 				ages << agesets[0] 	if agesets.any? && agesets.count == 1
 			end
 	 	ages.each { |age| age.destroy }
+=======
+  	destroyable_ages = []
+	 	age_bracket_ids = self.age_brackets.pluck(:id)
+ 			age_bracket_ids.each do |id|
+ 				agesets = AgeSet.where(age_bracket_id: id)
+        if agesets.any? && agesets.count == 1
+          destroyable_ages << agesets
+        end
+			end
+    Rails.logger.warn "#{destroyable_ages}"
+	 	destroyable_ages.each { |age| age.age_bracket.destroy }
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 	 	self.destroy 
   end
 
@@ -49,4 +74,23 @@ class Version < ActiveRecord::Base
 	end
 
   self.inheritance_column = :race 
+<<<<<<< HEAD
+=======
+
+  #Adding agebracket to family and couple version automatically if no special rate is specified
+  def add_age_bracket
+    unless self.has_special_rate?
+      single_version = self.product.versions.where(:detail_type => "SingleDetail")
+      if single_version.any?
+        age_bracket_ids = AgeSet.where(:version_id => single_version.first.id).pluck(:age_bracket_id).map { |i| {:age_bracket_id => i }}
+        if age_bracket_ids.any?
+          AgeSet.create(age_bracket_ids) do |a|
+            a.version_id = self.id
+          end
+        end
+      end
+    end
+  end
+
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 end

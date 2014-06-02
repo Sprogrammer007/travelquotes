@@ -13,7 +13,16 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
+<<<<<<< HEAD
 //= require bootstrap.min
 //= require quotes
 //= require jquery.ui.datepicker
+=======
+//= require bootstrap
+//= require quotes
+//= require jquery.ui.datepicker
+//=  require ckeditor/override
+//=  require ckeditor/init
+
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 

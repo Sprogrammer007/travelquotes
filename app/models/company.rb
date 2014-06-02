@@ -9,6 +9,7 @@ class Company < ActiveRecord::Base
 	#query scopes
   scope :active, -> { where(status: true) }
 
+<<<<<<< HEAD
 
 	def show_table(aa)
 		aa.attributes_table do
@@ -26,4 +27,9 @@ class Company < ActiveRecord::Base
 
     end
 	end
+=======
+  validates :name, :logo, presence: true
+  validates :status, inclusion: { in: [true, false] }
+  
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
 end

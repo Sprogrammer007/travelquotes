@@ -2,14 +2,22 @@
 <div class="col-sm-6 member_fields_group">
   <%= f.hidden_field :member_type,  :value => "Adult"  %>
   <div class="form-group row">
+<<<<<<< HEAD
     <%= f.label :gender, "Gender of the Travler?", class: "col-sm-5 control-label" %>      
+=======
+    <%= f.label :gender, "Gender of the Traveler?", class: "col-sm-5 control-label" %>      
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     <div class="col-sm-7">
       <%= f.select(:gender, options_for_select(["Male", "Female"]), {}, class: "form-control" )%>
     </div>
   </div>
 
   <div class="form-group row">
+<<<<<<< HEAD
     <%= f.label :gender, "Birthday of the Travler?", class: "col-sm-5 control-label" %>
+=======
+    <%= f.label :gender, "Birthday of the Traveler?", class: "col-sm-5 control-label" %>
+>>>>>>> ed9798a432c3a7259c7855445cf8d4dee8f8c232
     <div class="col-sm-7">
       <%= f.text_field :birthday, class: "form-control", readonly: true  %>
     </div>
