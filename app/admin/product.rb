@@ -6,7 +6,7 @@ ActiveAdmin.register Product do
 	include_import
 
 	permit_params :name, :policy_number, :description, :company_id, :min_price, :can_buy_after_30_days,
-	:can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex,
+	:can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex, :preex_based_on_sum_insured,
 	:purchase_url, :status,  deductibles_attributes: [:amount, :mutiplier, :condition, :age]
 
 	#Scopes
@@ -258,7 +258,7 @@ ActiveAdmin.register Product do
 	controller do
 		def clean_params
 			params.require(:product).permit(:name, :policy_number, :description, :min_price, :renewable_max_age,
-			  :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
+			  :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :preex_based_on_sum_insured, :purchase_url,
 				:status)
 		end
 

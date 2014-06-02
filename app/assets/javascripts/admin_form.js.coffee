@@ -1,6 +1,7 @@
 ready = ->
   $('#accordion').accordion
     collapsible: true
+    icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" }
     
   #Age and Filter select. Since the checkbox is floated to 
   #999999 and hidden from users view, this javascript is 
