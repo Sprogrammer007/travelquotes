@@ -25,7 +25,7 @@ class QuotesController < ApplicationController
 
 	def apply_filters
 				Rails.logger.warn "#{@quote}"
-		if params[:filters]
+		if params[:filters] &&
 			AppliedFilter.create(permitted_filters[:filters]) do |a|
 				a.quote_id = params[:quote_id]
 			end
