@@ -1,0 +1,43 @@
+<!-- Nav tabs -->
+<ul class="nav nav-tabs">
+  <li class="active tab">
+    <%= link_to "#{quote.traveler_type} Policies", "##{quote.traveler_type.downcase}", data: {toggle: "tab"} %>
+  </li>
+  <% if quote.traveler_type == "Couple" %>
+    <li class="tab"><%= link_to "Traveler #1", "#traveler1", data: {toggle: "tab"} %></li>
+    <li class="tab"><%= link_to "Traveler #2", "#traveler2", data: {toggle: "tab"} %></li>
+  <% end %>
+  <li class="disabled"><a id="compare_tab" href="#compare" data-url="<%= compare_quote_path(quote) %>" >Compare Policies</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+   <% if quote.traveler_type == "Single" %>
+    <div class="tab-pane fade in active" id="<%= quote.traveler_type.downcase %>">
+      <%= render 'result_list', quote: quote, results: quote.results, type: "single" %>
+
+      <h5 data-toggle="collapse"  href="#filtered_results" class="filtered_results collapsible collapsed arrow-black">Filter Results</h5>
+      <div id="filtered_results" class="panel-collapse collapse">
+        <%= render 'result_list', quote: quote, results: quote.filtered_results, type: "filtered_results" %>
+      </div>
+    </div>
+  <% elsif quote.traveler_type == "Couple" %>
+    <% quote.results.each do |k, v| %>
+      <div class="tab-pane fade <%= (k == "Couple") ? "in active" : "" %>" id="<%= k.downcase.gsub(" ", "").gsub("#", "") %>">
+        <%= render 'result_list', quote: quote, results: v, type: k.gsub(" ", "").gsub("#", "") %>
+        
+        <h5 data-toggle="collapse"  href="#filtered_results_<%= k.downcase.gsub(" ", "").gsub("#", "") %>" class="filtered_results collapsible collapsed arrow-black">Filter Results</h5>
+       
+        <div id="filtered_results_<%= k.downcase.gsub(" ", "").gsub("#", "") %>" class="panel-collapse collapse">
+
+        <% if quote.filtered_results %>
+          <%= render 'result_list', quote: quote, results: quote.filtered_results[k], type: "filtered_results" %>
+        <% end %>
+        </div>
+   
+      </div>
+    <% end %>
+
+  <% end %>
+  <div class="tab-pane fade" id="compare"></div>
+</div>

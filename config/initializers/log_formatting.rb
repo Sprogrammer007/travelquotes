@@ -1,0 +1,19 @@
+class ActiveSupport::Logger::SimpleFormatter
+  SEVERITY_TO_TAG_MAP     = {'DEBUG'=>'DEBUG', 'INFO'=>'INFO', 'WARN'=>'WARN', 'ERROR'=>'ERROR', 'FATAL'=>'FATAL', 'UNKNOWN'=>'???'}
+  SEVERITY_TO_COLOR_MAP   = {'DEBUG'=>'0;37', 'INFO'=>'32', 'WARN'=>'33', 'ERROR'=>'31', 'FATAL'=>'31', 'UNKNOWN'=>'38'}
+  USE_HUMOROUS_SEVERITIES = true
+ 
+  def call(severity, time, progname, msg)
+    if USE_HUMOROUS_SEVERITIES
+      formatted_severity = sprintf("%-3s",SEVERITY_TO_TAG_MAP[severity])
+    else
+      formatted_severity = sprintf("%-5s",severity)
+    end
+ 
+    formatted_time = time.strftime("%Y-%m-%d %H:%M:%S.") << time.usec.to_s[0..2].rjust(3)
+    color = SEVERITY_TO_COLOR_MAP[severity]
+ 
+    "\033[0;37m [\033[#{color}m#{formatted_severity}\033[0m] [\033[#{color}m#{msg.strip}\033[0m] (pid:#{$$})\n"
+    # [0;37m#{formatted_time}\033
+  end
+end

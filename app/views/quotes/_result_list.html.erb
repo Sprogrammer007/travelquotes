@@ -1,0 +1,68 @@
+<div class="result_list_wrapper group">
+  
+    <% if results.blank? %>
+      <% unless type == "filtered_results" %>
+        <div class="no_result"><span>There Are No Quotes Matching Your Criteria</span></div>
+      <% end %>
+    <% else %>
+      <% results.each_with_index do |result, i| %>
+        <div class="row">
+          <div class="col-md-2">
+            <%= image_tag result.logo, class: "logo img-responsive" %>
+          </div>
+          <div class="col-md-10">
+            <div class="result_item_wrapper group">
+              <div class="row top-details">
+                <div class="col-md-4">  
+                  <div class="product-name">
+                    <p> <%= result.product.name %></p> 
+                  </div>
+                </div>
+              
+                <div class="col-md-6">
+                  <div class="policy-details">
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make 
+                  </div>
+                </div>
+
+                <div class="col-md-2 rate_box">
+                  <% unless type == "filtered_results" %>
+                    <div class="rate" data-baserate="<%= quote.calc_rate(result)%>">
+                      <p><%= number_to_currency(quote.calc_rate(result)) %></p>
+                    </div>
+
+                    <div class="buy-now">                
+                      <%= link_to "Buy Now", "#", class: "btn-danger" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              <div class="row button_bar">
+                <div class="btn-group">
+                  <% unless type == "filtered_results" %>
+
+                    <label for="compare_results_<%= "#{type.downcase}_#{result.id}" %>" class="btn btn-default">
+                      <%= check_box_tag :"compare_results_#{type.downcase}", result.product_id, nil, id: "compare_results_#{type.downcase}_#{result.id}", class: "compare_results" %> Compare
+                    </label>
+                  <% end %>
+                  <div class="btn btn-default detail_modal">
+                  <%= link_to(raw("<span class='glyphicon glyphicon-file'></span> Details"), detail_quote_path(quote, product_id: result.product_id), data: {rate: quote.calc_daily_rate(result.product_rate, result.rate_type)}) %>
+                  </div>
+                  <div class="btn btn-default deduct-form">
+                    <div class="ded-label">
+                    <label for="deductible">Deductible:</label></div>
+
+                     <div class="ded-select">
+                    <%= select_tag "deductible", options_for_select(["None", result.product.get_deductible].flatten(1), "None"), class: "form-control list_deduct", id: "deductible_select_#{result.id}" %>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            </div>
+          </div>
+        </div>  
+      
+      <% end %>
+    <% end %>
+
+</div>
