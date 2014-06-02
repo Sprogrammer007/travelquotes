@@ -18,7 +18,7 @@ ActiveAdmin.register AgeBracket do
 
 	index do
 		selectable_column
-		column :range
+		column :range, :sortable => false 
 		column :min_age
 		column :max_age
 		column :min_trip_duration

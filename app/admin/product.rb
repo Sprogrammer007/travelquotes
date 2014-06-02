@@ -91,9 +91,9 @@ ActiveAdmin.register Product do
 					row :preex_max_age
 					row "Are Pre-Existing Medical Condition Based On Sum Insured As Well?" do |p|
 						if p.preex_based_on_sum_insured
-							status_tag("Active", :ok)
+							status_tag("Yes", :ok)
 						else
-							status_tag("Not Active")
+							status_tag("No")
 						end
 					end
 					row :purchase_url
