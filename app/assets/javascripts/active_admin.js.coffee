@@ -3,3 +3,4 @@
 #= require admin_form
 #= require ckeditor/override
 #= require ckeditor/init
+#= require jquery.ui.accordion

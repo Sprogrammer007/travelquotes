@@ -11,14 +11,11 @@ class CreateProducts < ActiveRecord::Migration
       
       t.boolean :can_buy_after_30_days
       t.boolean :can_renew_after_30_days
-
-      t.boolean :renewable
-      t.integer :renewable_period
       t.integer :renewable_max_age
 
       t.boolean :preex
       t.integer :preex_max_age
-      t.boolean :follow_ups
+      t.boolean :preex_based_on_sum_insured
       t.boolean :status, default: true
       t.string :purchase_url
       t.datetime :effective_date

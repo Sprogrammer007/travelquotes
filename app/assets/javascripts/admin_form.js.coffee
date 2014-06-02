@@ -1,5 +1,7 @@
 ready = ->
-
+  $('#accordion').accordion
+    collapsible: true
+    
   #Age and Filter select. Since the checkbox is floated to 
   #999999 and hidden from users view, this javascript is 
   #there to cordinate clicks between the label and the checkbox.

@@ -4,6 +4,9 @@ ActiveAdmin.register LegalText do
 
   menu :parent => "Products"
 
+  permit_params :product_id, :legal_text_category_id, :policy_type, :description,
+  :effective_date, :status
+
   index do
     selectable_column
     column :policy_type

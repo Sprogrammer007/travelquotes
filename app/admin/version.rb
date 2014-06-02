@@ -186,11 +186,12 @@ ActiveAdmin.register Version do
 
 		def destroy
 			version = Version.find(params[:id])
+			policy_id = version.product.id
 			if version
 				version.destroy_related
 				flash[:notice] = "Version was successfully removed!"
 			end
-			redirect_to :back
+			redirect_to admin_product_path(policy_id)
 		end
 
 		def new
@@ -205,8 +206,12 @@ ActiveAdmin.register Version do
 														:detail_type => version_params[:detail_type])
 			if version.save
 				"#{version_type}Detail".constantize.create!(details_params.merge(version: version))
+				#add age brackets automatically for couple and family
+				unless version_type == "Single"
+					version.add_age_bracket
+				end
 				flash[:notice] = "Version were successfully created!"
-				redirect_to admin_product_path(version_params[:product_id])
+				redirect_to admin_version_path(version)
 			else
 				super
 			end

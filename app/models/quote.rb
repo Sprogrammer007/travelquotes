@@ -194,9 +194,9 @@ class Quote < ActiveRecord::Base
     result = Version.send(rate_type).joins(:product)
 
     if self.apply_from && beyond_30_days? && !self.renew
-      result = result.merge(Product.can_buy_after_30)
+      result = result.merge(Product.can_buy_after_30.active)
     elsif self.apply_from && beyond_30_days? && self.renew
-      result = result.merge(Product.renewable_after_30)
+      result = result.merge(Product.renewable_after_30.active)
     end
     
     if self.has_preex

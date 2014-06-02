@@ -1,8 +1,8 @@
 class Product < ActiveRecord::Base
 
   DEFAULT_HEADER = %w{company_id name policy_number description min_price 
-    can_buy_after_30_days can_renew_after_30_days renewable renewable_period renewable_max_age
-    preex preex_max_age follow_ups status purchase_url effective_date }
+    can_buy_after_30_days can_renew_after_30_days renewable_max_age
+    preex preex_max_age status purchase_url effective_date }
   
   belongs_to :company
   has_many :deductibles
@@ -18,8 +18,8 @@ class Product < ActiveRecord::Base
   delegate :logo, to: :company
   
   validates :name, :company_id, :min_price, :renewable_period, :renewable_max_age, :preex_max_age, :purchase_url, presence: true
-  validates :min_price, :preex_max_age, :renewable_period, :renewable_max_age, numericality: { only_integer: true }
-  validates :preex, :can_renew_after_30_days, :can_buy_after_30_days, :renewable, :status, :renewable, inclusion: { in: [true, false] }
+  validates :min_price, :preex_max_age, :renewable_max_age, numericality: { only_integer: true }
+  validates :preex, :can_renew_after_30_days, :can_buy_after_30_days, :status, inclusion: { in: [true, false] }
   
   #scopes
   generate_scopes

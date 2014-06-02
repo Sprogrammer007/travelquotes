@@ -6,8 +6,8 @@ ActiveAdmin.register Product do
 	include_import
 
 	permit_params :name, :policy_number, :description, :company_id, :min_price, :can_buy_after_30_days,
-	:can_renew_after_30_days, :renewable_period, :renewable_max_age, :renewable, :preex_max_age, :preex,
-	:follow_ups, :purchase_url, :status,  deductibles_attributes: [:amount, :mutiplier, :condition, :age]
+	:can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex,
+	:purchase_url, :status,  deductibles_attributes: [:amount, :mutiplier, :condition, :age]
 
 	#Scopes
 	scope :all, default: true
@@ -58,61 +58,48 @@ ActiveAdmin.register Product do
 		end
 	end
 
-	show do |p|
+	show :title => "Policy Details" do |p|
 		div class: "show_left" do
-			attributes_table do
-				row :policy_number
-				row :description do |p|
-					p.description.html_safe() if p.description
-				end
-				row "After 30 Days" do |a|
-					if a.can_buy_after_30_days
-						status_tag("Yes", :ok)
-					else
-						status_tag("No")
+			panel "Policy Eligibiliities" do
+				attributes_table_for product do
+					row :policy_number
+					row :description do |p|
+						p.description.html_safe() if p.description
 					end
-				end
-				row "Renew 30 Days" do |a|
-					if a.can_renew_after_30_days
-						status_tag("Yes", :ok)
-					else
-						status_tag("No")
+					row "Can The Policy Be Purchased After 30 Days Of Arrival?" do |a|
+						if a.can_buy_after_30_days
+							status_tag("Yes", :ok)
+						else
+							status_tag("No")
+						end
 					end
-				end
-				row :renewable do |a|
-					if a.renewable
-						status_tag("Yes", :ok)
-					else
-						status_tag("No")
+					row "Can The Policy Be Renewed After 30 Days Of Lapse" do |a|
+						if a.can_renew_after_30_days
+							status_tag("Yes", :ok)
+						else
+							status_tag("No")
+						end
 					end
-				end
-				row :renewable_max_age
-				row :renewable_period
-				row "Stable Pre-Existing Medical Condition" do |a|
-					if a.preex
-						status_tag("Yes", :ok)
-					else
-						status_tag("No")
+					row :renewable_max_age
+					row "Stable Pre-Existing Medical Condition" do |a|
+						if a.preex
+							status_tag("Yes", :ok)
+						else
+							status_tag("No")
+						end
 					end
-				end
-				row :preex_max_age
-				row :follow_ups do |a|
-					if a.follow_ups
-						status_tag("Yes", :ok)
-					else
-						status_tag("No")
-					end
-				end
-				row :purchase_url
-				row :status do |p|
-					if p.status
-						status_tag("Active", :ok)
-					else
-						status_tag("Not Active")
+					row :preex_max_age
+					row :purchase_url
+					row :status do |p|
+						if p.status
+							status_tag("Active", :ok)
+						else
+							status_tag("Not Active")
+						end
 					end
 				end
 			end
-			
+
 			panel("Versions", class: 'group single_show') do
 				ul do
 					p.versions.each do |version|
@@ -233,12 +220,9 @@ ActiveAdmin.register Product do
 			f.input :min_price
 			f.input :can_buy_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
 			f.input :can_renew_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
-			f.input :renewable, :as => :radio, :collection => [["Yes", true], ["No", false]]
-			f.input :renewable_period
 			f.input :renewable_max_age
 			f.input :preex, :as => :radio, :collection => [["Yes", true], ["No", false]]
 			f.input :preex_max_age
-			f.input :follow_ups, :as => :radio, :collection => [["Yes", true], ["No", false]]
 			f.input :purchase_url
 			f.input :status, :as => :radio, :collection => [['Active', true], ['Not', false]]
 		end
@@ -265,8 +249,8 @@ ActiveAdmin.register Product do
 	
 	controller do
 		def clean_params
-			params.require(:product).permit(:name, :policy_number, :description, :min_price, :renewable, :renewable_max_age, 
-				:renewable_period, :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :follow_ups, :purchase_url,
+			params.require(:product).permit(:name, :policy_number, :description, :min_price, :renewable_max_age,
+			  :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
 				:status)
 		end
 

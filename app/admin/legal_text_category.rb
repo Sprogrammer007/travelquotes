@@ -4,6 +4,8 @@ ActiveAdmin.register LegalTextCategory do
 
   menu :parent => "Products"
 
+  permit_params :legal_text_parent_category_id, :name
+  
   index do
     selectable_column
     column "Parent Category" do |l|

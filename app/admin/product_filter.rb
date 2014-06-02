@@ -3,6 +3,8 @@ ActiveAdmin.register ProductFilter do
 	config.paginate = false
 	include_import
 
+	permit_params :category, :name, :policy_type, :descriptions
+
  	#Scopes
  	scope :all, default: true
   scope :medical_benefits
