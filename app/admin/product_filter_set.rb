@@ -23,7 +23,7 @@ ActiveAdmin.register ProductFilterSet do
   member_action :add, method: :get do
     @page_title = "Select Filters"
     product = Product.find(params[:id])
-    @filters = ProductFilter.all
+    @filters = ProductFilter.all.group_by(&:category)
     @already_selected_filters = product.product_filters.pluck(:id)
     render template: "admins/add_filters"
   end

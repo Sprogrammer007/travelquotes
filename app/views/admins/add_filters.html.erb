@@ -1,19 +1,22 @@
 <%= form_tag url_for(:controller => 'admin/product_filter_sets', :action => 'create') do -%>
   <fieldset class="inputs">
     <div class="filters_select">
-        <% current_cat = "" %>
-        <div class=" group">
-          <% @filters.each_with_index do |f, i| %>
-            <% unless current_cat == f.category %>
-              <% current_cat = f.category %>
-              <h4><%= current_cat %></h4>
-            <% end %>
-            
-            
-            <%= check_box_tag "filter_ids[]", f.id, @already_selected_filters.include?(f.id), id: "filter_#{f.id}" %>
-            <label for="<%= "filter_#{f.id}" %>" ><%= f.name %></label>
-          <% end %>
-        </div>
+      <%= link_to "Select None", "#",  class: "select_none_filter link_button right"  %>
+      <%= link_to "Select All", "#",  class: "select_all_filter link_button right"  %>
+      <div class="group">
+        <% @filters.each do |k, filters| %>
+          <div class="accordion">
+            <h3><%= k %></h3>
+            <div>
+              <% filters.each do |f| %>
+                <%= check_box_tag "filter_ids[]", f.id, @already_selected_filters.include?(f.id), id: "filter_#{f.id}" %>
+                <label for="<%= "filter_#{f.id}" %>" ><%= f.name %></label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
       <%= submit_tag "Add Selected Filters", class: "right", data: {confirm: I18n.t('active_admin.are_you_sure')} %>
       <%= link_to "Add New Filter", new_admin_product_filter_path(id: params[:id]),  class: "link_button right"  %>
       </div>

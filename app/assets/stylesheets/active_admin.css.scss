@@ -478,3 +478,15 @@ width: 45%;
   margin: 6px;
   font-weight: bold;
 }
+
+.icon-triangle:after {
+  content: "\25B8";
+  margin-right: 5px;
+  font-size: 1.3em;
+}
+
+.icon-triangle-active:after {
+  content: "\25BE";
+  margin-right: 5px;
+  font-size: 1.3em;
+}

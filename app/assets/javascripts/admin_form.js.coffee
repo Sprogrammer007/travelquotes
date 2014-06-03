@@ -1,7 +1,10 @@
 ready = ->
-  $('#accordion').accordion
-    collapsible: true
-    
+  $('.accordion').each (i, e) ->
+    $(e).accordion
+      collapsible: true,
+      autoHeight: false, 
+      active: false,
+      icons: { "header": "icon-triangle", "activeHeader": "icon-triangle-active" }
   #Age and Filter select. Since the checkbox is floated to 
   #999999 and hidden from users view, this javascript is 
   #there to cordinate clicks between the label and the checkbox.
@@ -40,6 +43,17 @@ ready = ->
         $('.province_select').find("[data-key='" + $(ele).attr("id") + "']").removeClass('selected')
       return
 
+  $('.select_all_filter').click (e) ->
+    $('input[type="checkbox"]').each (index, ele) ->
+      if !$(ele).prop("checked")
+        $(ele).prop("checked", true)
+      return
+
+  $('.select_none_filter').click (e) ->
+    $('input[type="checkbox"]').each (index, ele) ->
+      if $(ele).prop("checked")
+        $(ele).prop("checked", false)
+      return
 
   tier2select = $('.tier2_select').html()
 
@@ -52,8 +66,6 @@ ready = ->
       $('.tier2_select').html(options)
     else
       $('.tier2_select').html(tier2select)   
-
-
 
   #New and Existing
   $('.new_selection').hide()

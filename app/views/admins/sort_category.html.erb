@@ -15,7 +15,7 @@
               </div> 
               <div class="sort_content">
                 <%= hidden_field_tag "[parents][#{category.id}][order]", category.order, class: "order" %>
-                <div id="accordion">
+                <div class="accordion">
                 <h3><%= category.name %></h3> 
                 <div>
                   <% if category.legal_text_categories %>

@@ -48,4 +48,6 @@ class Product < ActiveRecord::Base
     end
     return products
   end
+
+
 end

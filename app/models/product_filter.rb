@@ -30,6 +30,7 @@ class ProductFilter < ActiveRecord::Base
     return filters
   end
 
+
   private
     def self.filter_categories
       %w{Medical\ Benefits Repatriation\ to\ Residence Medical\ Emergency\ Transportation
