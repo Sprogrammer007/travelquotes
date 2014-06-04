@@ -22,14 +22,6 @@ class ProductFilter < ActiveRecord::Base
   scope :refunds, -> { category_eq("REFUNDS") }
   scope :non_medical_benefits, -> { category_eq("NON MEDICAL BENEFITS") }
 
-  def self.prepare_filters
-    filters = {}
-    ProductFilter.filter_categories.each do |f|
-      filters[f] = ProductFilter.send(f.gsub("&", "AND").gsub(" ", "_").downcase)
-    end
-    return filters
-  end
-
 
   private
     def self.filter_categories

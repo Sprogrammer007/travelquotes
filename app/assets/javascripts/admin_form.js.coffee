@@ -5,6 +5,7 @@ ready = ->
       autoHeight: false, 
       active: false,
       icons: { "header": "icon-triangle", "activeHeader": "icon-triangle-active" }
+      
   #Age and Filter select. Since the checkbox is floated to 
   #999999 and hidden from users view, this javascript is 
   #there to cordinate clicks between the label and the checkbox.

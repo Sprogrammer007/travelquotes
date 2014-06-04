@@ -242,10 +242,6 @@ class Quote < ActiveRecord::Base
       Rails.cache.fetch([name, id]) {find(id)}
     end
 
-    def getFilters
-      Rails.cache.fetch([self, "product_filters"]) {ProductFilter.prepare_filters}
-    end
-
     def visitor_visa_sum
       %w{25,000 50,000 100,000 150,000 200,000}
     end
