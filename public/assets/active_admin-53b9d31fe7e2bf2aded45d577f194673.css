@@ -3027,7 +3027,2436 @@ body {
   color: #323537;
 }
 
-/* line 14, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/*
+* jQuery UI CSS Framework
+* Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
+* Dual licensed under the MIT (MIT-LICENSE.txt) and GPL (GPL-LICENSE.txt) licenses.
+*/
+/* Layout helpers
+----------------------------------*/
+/* line 9, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+#ui-datepicker-div {
+  display: none;
+}
+
+/* line 10, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-helper-hidden {
+  display: none;
+}
+
+/* line 11, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-helper-hidden-accessible {
+  position: absolute;
+  left: -99999999px;
+}
+
+/* line 12, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-helper-reset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  line-height: 1.3;
+  text-decoration: none;
+  font-size: 100%;
+  list-style: none;
+}
+
+/* line 13, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-helper-clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+/* line 14, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-helper-clearfix {
+  display: inline-block;
+}
+
+/* required comment for clearfix to work in Opera \*/
+/* line 16, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+* html .ui-helper-clearfix {
+  height: 1%;
+}
+
+/* line 17, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-helper-clearfix {
+  display: block;
+}
+
+/* end clearfix */
+/* line 19, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-helper-zfix {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  opacity: 0;
+  filter: Alpha(Opacity=0);
+}
+
+/* Interaction Cues
+----------------------------------*/
+/* line 24, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-disabled {
+  cursor: default !important;
+}
+
+/* Icons
+----------------------------------*/
+/* states and images */
+/* line 31, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon {
+  display: block;
+  text-indent: -99999px;
+  overflow: hidden;
+  background-repeat: no-repeat;
+}
+
+/* Misc visuals
+----------------------------------*/
+/* Overlays */
+/* line 38, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+* jQuery UI CSS Framework
+* Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
+* Dual licensed under the MIT (MIT-LICENSE.txt) and GPL (GPL-LICENSE.txt) licenses.
+* To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Trebuchet%20MS,%20Tahoma,%20Verdana,%20Arial,%20sans-serif&fwDefault=bold&fsDefault=1.1em&cornerRadius=4px&bgColorHeader=f6a828&bgTextureHeader=12_gloss_wave.png&bgImgOpacityHeader=35&borderColorHeader=e78f08&fcHeader=ffffff&iconColorHeader=ffffff&bgColorContent=eeeeee&bgTextureContent=03_highlight_soft.png&bgImgOpacityContent=100&borderColorContent=dddddd&fcContent=333333&iconColorContent=222222&bgColorDefault=f6f6f6&bgTextureDefault=02_glass.png&bgImgOpacityDefault=100&borderColorDefault=cccccc&fcDefault=1c94c4&iconColorDefault=ef8c08&bgColorHover=fdf5ce&bgTextureHover=02_glass.png&bgImgOpacityHover=100&borderColorHover=fbcb09&fcHover=c77405&iconColorHover=ef8c08&bgColorActive=ffffff&bgTextureActive=02_glass.png&bgImgOpacityActive=65&borderColorActive=fbd850&fcActive=eb8f00&iconColorActive=ef8c08&bgColorHighlight=ffe45c&bgTextureHighlight=03_highlight_soft.png&bgImgOpacityHighlight=75&borderColorHighlight=fed22f&fcHighlight=363636&iconColorHighlight=228ef1&bgColorError=b81900&bgTextureError=08_diagonals_thick.png&bgImgOpacityError=18&borderColorError=cd0a0a&fcError=ffffff&iconColorError=ffd27a&bgColorOverlay=666666&bgTextureOverlay=08_diagonals_thick.png&bgImgOpacityOverlay=20&opacityOverlay=50&bgColorShadow=000000&bgTextureShadow=01_flat.png&bgImgOpacityShadow=10&opacityShadow=20&thicknessShadow=5px&offsetTopShadow=-5px&offsetLeftShadow=-5px&cornerRadiusShadow=5px
+*/
+/* Component containers
+----------------------------------*/
+/* line 51, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+/* line 52, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget .ui-widget {
+  font-size: 1em;
+}
+
+/* line 53, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 1em;
+}
+
+/* line 54, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-content {
+  border: 1px solid #dddddd;
+  color: #333333;
+}
+
+/* line 55, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-content a {
+  color: #333333;
+}
+
+/* line 56, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-header {
+  border: 1px solid #e78f08;
+  background: #f6a828 url(images/ui-bg_gloss-wave_35_f6a828_500x100.png) 50% 50% repeat-x;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* line 57, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-header a {
+  color: #ffffff;
+}
+
+/* Interaction states
+----------------------------------*/
+/* line 61, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-default, .ui-widget-content .ui-state-default {
+  border: 1px solid #cccccc;
+  background: #f6f6f6 url(images/ui-bg_glass_100_f6f6f6_1x400.png) 50% 50% repeat-x;
+  font-weight: bold;
+  color: #1c94c4;
+}
+
+/* line 62, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited {
+  color: #1c94c4;
+  text-decoration: none;
+}
+
+/* line 63, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus {
+  border: 1px solid #fbcb09;
+  background: #fdf5ce url(images/ui-bg_glass_100_fdf5ce_1x400.png) 50% 50% repeat-x;
+  font-weight: bold;
+  color: #c77405;
+}
+
+/* line 64, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-hover a, .ui-state-hover a:hover {
+  color: #c77405;
+  text-decoration: none;
+}
+
+/* line 65, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-active, .ui-widget-content .ui-state-active {
+  border: 1px solid #fbd850;
+  background: white url(images/ui-bg_glass_65_ffffff_1x400.png) 50% 50% repeat-x;
+  font-weight: bold;
+  color: #eb8f00;
+}
+
+/* line 66, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
+  color: #eb8f00;
+  text-decoration: none;
+}
+
+/* line 67, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget :active {
+  outline: none;
+}
+
+/* Interaction Cues
+----------------------------------*/
+/* line 71, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-highlight, .ui-widget-content .ui-state-highlight {
+  border: 1px solid #d2dbf4;
+  background: #f4f8fd;
+  color: #0d2054;
+  -moz-border-radius: 0px !important;
+  -webkit-border-radius: 0px !important;
+  border-radius: 0px !important;
+  font-size: 11px;
+}
+
+/* line 72, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-highlight a, .ui-widget-content .ui-state-highlight a {
+  color: #0d2054;
+}
+
+/* line 73, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-error, .ui-widget-content .ui-state-error {
+  border: 1px solid #e2d0d0;
+  background: #fcf0f0;
+  color: #280b0b;
+  -moz-border-radius: 0px !important;
+  -webkit-border-radius: 0px !important;
+  border-radius: 0px !important;
+  font-size: 11px;
+}
+
+/* line 74, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-error a, .ui-widget-content .ui-state-error a {
+  color: #280b0b;
+}
+
+/* line 75, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-error-text, .ui-widget-content .ui-state-error-text {
+  color: #280b0b;
+}
+
+/* line 76, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-priority-primary, .ui-widget-content .ui-priority-primary {
+  font-weight: bold;
+}
+
+/* line 77, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-priority-secondary, .ui-widget-content .ui-priority-secondary {
+  opacity: .7;
+  filter: Alpha(Opacity=70);
+  font-weight: normal;
+}
+
+/* .ui-state-disabled, .ui-widget-content .ui-state-disabled { opacity: .35; filter:Alpha(Opacity=35); background-image: none; }*/
+/* line 79, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-highlight p, .ui-state-error p {
+  margin: 8px 0px;
+  padding: 1px 0px;
+}
+
+/* line 80, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-highlight .ui-icon, .ui-state-error .ui-icon {
+  margin: -1px 8px 0px 0px !important;
+}
+
+/* Icons
+----------------------------------*/
+/* states and images */
+/* line 86, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon {
+  width: 16px;
+  height: 16px;
+  background-image: url(images/ui-icons_222222_256x240.png);
+}
+
+/* line 87, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-content .ui-icon {
+  background-image: url(images/ui-icons_222222_256x240.png);
+}
+
+/* line 88, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-header .ui-icon {
+  background-image: url(images/ui-icons_ffffff_256x240.png);
+}
+
+/* line 89, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-default .ui-icon {
+  background-image: url(images/ui-icons_ef8c08_256x240.png);
+}
+
+/* line 90, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-hover .ui-icon, .ui-state-focus .ui-icon {
+  background-image: url(images/ui-icons_ef8c08_256x240.png);
+}
+
+/* line 91, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-active .ui-icon {
+  background-image: url(images/ui-icons_ef8c08_256x240.png);
+}
+
+/* line 92, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-highlight .ui-icon {
+  background-image: url(images/ui-icons_228ef1_256x240.png);
+}
+
+/* line 93, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-error .ui-icon, .ui-state-error-text .ui-icon {
+  background: url(/assets/icon_sprite.png) -16px 0px no-repeat !important;
+}
+
+/* positioning */
+/* line 96, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-1-n {
+  background-position: 0 0;
+}
+
+/* line 97, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-1-ne {
+  background-position: -16px 0;
+}
+
+/* line 98, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-1-e {
+  background-position: -32px 0;
+}
+
+/* line 99, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-1-se {
+  background-position: -48px 0;
+}
+
+/* line 100, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-1-s {
+  background-position: -64px 0;
+}
+
+/* line 101, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-1-sw {
+  background-position: -80px 0;
+}
+
+/* line 102, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-1-w {
+  background-position: -96px 0;
+}
+
+/* line 103, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-1-nw {
+  background-position: -112px 0;
+}
+
+/* line 104, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-2-n-s {
+  background-position: -128px 0;
+}
+
+/* line 105, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-carat-2-e-w {
+  background-position: -144px 0;
+}
+
+/* line 106, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-1-n {
+  background-position: 0 -16px;
+}
+
+/* line 107, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-1-ne {
+  background-position: -16px -16px;
+}
+
+/* line 108, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-1-e {
+  background-position: -32px -16px;
+}
+
+/* line 109, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-1-se {
+  background-position: -48px -16px;
+}
+
+/* line 110, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-1-s {
+  background-position: -64px -16px;
+}
+
+/* line 111, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-1-sw {
+  background-position: -80px -16px;
+}
+
+/* line 112, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-1-w {
+  background-position: -96px -16px;
+}
+
+/* line 113, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-1-nw {
+  background-position: -112px -16px;
+}
+
+/* line 114, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-2-n-s {
+  background-position: -128px -16px;
+}
+
+/* line 115, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-triangle-2-e-w {
+  background-position: -144px -16px;
+}
+
+/* line 116, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-1-n {
+  background-position: 0 -32px;
+}
+
+/* line 117, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-1-ne {
+  background-position: -16px -32px;
+}
+
+/* line 118, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-1-e {
+  background-position: -32px -32px;
+}
+
+/* line 119, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-1-se {
+  background-position: -48px -32px;
+}
+
+/* line 120, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-1-s {
+  background-position: -64px -32px;
+}
+
+/* line 121, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-1-sw {
+  background-position: -80px -32px;
+}
+
+/* line 122, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-1-w {
+  background-position: -96px -32px;
+}
+
+/* line 123, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-1-nw {
+  background-position: -112px -32px;
+}
+
+/* line 124, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-2-n-s {
+  background-position: -128px -32px;
+}
+
+/* line 125, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-2-ne-sw {
+  background-position: -144px -32px;
+}
+
+/* line 126, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-2-e-w {
+  background-position: -160px -32px;
+}
+
+/* line 127, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-2-se-nw {
+  background-position: -176px -32px;
+}
+
+/* line 128, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowstop-1-n {
+  background-position: -192px -32px;
+}
+
+/* line 129, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowstop-1-e {
+  background-position: -208px -32px;
+}
+
+/* line 130, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowstop-1-s {
+  background-position: -224px -32px;
+}
+
+/* line 131, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowstop-1-w {
+  background-position: -240px -32px;
+}
+
+/* line 132, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-1-n {
+  background-position: 0 -48px;
+}
+
+/* line 133, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-1-ne {
+  background-position: -16px -48px;
+}
+
+/* line 134, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-1-e {
+  background-position: -32px -48px;
+}
+
+/* line 135, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-1-se {
+  background-position: -48px -48px;
+}
+
+/* line 136, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-1-s {
+  background-position: -64px -48px;
+}
+
+/* line 137, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-1-sw {
+  background-position: -80px -48px;
+}
+
+/* line 138, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-1-w {
+  background-position: -96px -48px;
+}
+
+/* line 139, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-1-nw {
+  background-position: -112px -48px;
+}
+
+/* line 140, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-2-n-s {
+  background-position: -128px -48px;
+}
+
+/* line 141, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-2-ne-sw {
+  background-position: -144px -48px;
+}
+
+/* line 142, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-2-e-w {
+  background-position: -160px -48px;
+}
+
+/* line 143, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthick-2-se-nw {
+  background-position: -176px -48px;
+}
+
+/* line 144, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthickstop-1-n {
+  background-position: -192px -48px;
+}
+
+/* line 145, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthickstop-1-e {
+  background-position: -208px -48px;
+}
+
+/* line 146, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthickstop-1-s {
+  background-position: -224px -48px;
+}
+
+/* line 147, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowthickstop-1-w {
+  background-position: -240px -48px;
+}
+
+/* line 148, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowreturnthick-1-w {
+  background-position: 0 -64px;
+}
+
+/* line 149, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowreturnthick-1-n {
+  background-position: -16px -64px;
+}
+
+/* line 150, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowreturnthick-1-e {
+  background-position: -32px -64px;
+}
+
+/* line 151, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowreturnthick-1-s {
+  background-position: -48px -64px;
+}
+
+/* line 152, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowreturn-1-w {
+  background-position: -64px -64px;
+}
+
+/* line 153, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowreturn-1-n {
+  background-position: -80px -64px;
+}
+
+/* line 154, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowreturn-1-e {
+  background-position: -96px -64px;
+}
+
+/* line 155, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowreturn-1-s {
+  background-position: -112px -64px;
+}
+
+/* line 156, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowrefresh-1-w {
+  background-position: -128px -64px;
+}
+
+/* line 157, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowrefresh-1-n {
+  background-position: -144px -64px;
+}
+
+/* line 158, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowrefresh-1-e {
+  background-position: -160px -64px;
+}
+
+/* line 159, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrowrefresh-1-s {
+  background-position: -176px -64px;
+}
+
+/* line 160, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-4 {
+  background-position: 0 -80px;
+}
+
+/* line 161, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-arrow-4-diag {
+  background-position: -16px -80px;
+}
+
+/* line 162, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-extlink {
+  background-position: -32px -80px;
+}
+
+/* line 163, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-newwin {
+  background-position: -48px -80px;
+}
+
+/* line 164, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-refresh {
+  background-position: -64px -80px;
+}
+
+/* line 165, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-shuffle {
+  background-position: -80px -80px;
+}
+
+/* line 166, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-transfer-e-w {
+  background-position: -96px -80px;
+}
+
+/* line 167, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-transferthick-e-w {
+  background-position: -112px -80px;
+}
+
+/* line 168, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-folder-collapsed {
+  background-position: 0 -96px;
+}
+
+/* line 169, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-folder-open {
+  background-position: -16px -96px;
+}
+
+/* line 170, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-document {
+  background-position: -32px -96px;
+}
+
+/* line 171, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-document-b {
+  background-position: -48px -96px;
+}
+
+/* line 172, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-note {
+  background-position: -64px -96px;
+}
+
+/* line 173, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-mail-closed {
+  background-position: -80px -96px;
+}
+
+/* line 174, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-mail-open {
+  background-position: -96px -96px;
+}
+
+/* line 175, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-suitcase {
+  background-position: -112px -96px;
+}
+
+/* line 176, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-comment {
+  background-position: -128px -96px;
+}
+
+/* line 177, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-person {
+  background-position: -144px -96px;
+}
+
+/* line 178, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-print {
+  background-position: -160px -96px;
+}
+
+/* line 179, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-trash {
+  background-position: -176px -96px;
+}
+
+/* line 180, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-locked {
+  background-position: -192px -96px;
+}
+
+/* line 181, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-unlocked {
+  background-position: -208px -96px;
+}
+
+/* line 182, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-bookmark {
+  background-position: -224px -96px;
+}
+
+/* line 183, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-tag {
+  background-position: -240px -96px;
+}
+
+/* line 184, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-home {
+  background-position: 0 -112px;
+}
+
+/* line 185, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-flag {
+  background-position: -16px -112px;
+}
+
+/* line 186, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-calendar {
+  background-position: -32px -112px;
+}
+
+/* line 187, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-cart {
+  background-position: -48px -112px;
+}
+
+/* line 188, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-pencil {
+  background-position: -64px -112px;
+}
+
+/* line 189, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-clock {
+  background-position: -80px -112px;
+}
+
+/* line 190, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-disk {
+  background-position: -96px -112px;
+}
+
+/* line 191, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-calculator {
+  background-position: -112px -112px;
+}
+
+/* line 192, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-zoomin {
+  background-position: -128px -112px;
+}
+
+/* line 193, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-zoomout {
+  background-position: -144px -112px;
+}
+
+/* line 194, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-search {
+  background-position: -160px -112px;
+}
+
+/* line 195, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-wrench {
+  background-position: -176px -112px;
+}
+
+/* line 196, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-gear {
+  background-position: -192px -112px;
+}
+
+/* line 197, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-heart {
+  background-position: -208px -112px;
+}
+
+/* line 198, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-star {
+  background-position: -224px -112px;
+}
+
+/* line 199, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-link {
+  background-position: -240px -112px;
+}
+
+/* line 200, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-cancel {
+  background-position: 0 -128px;
+}
+
+/* line 201, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-plus {
+  background-position: -16px -128px;
+}
+
+/* line 202, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-plusthick {
+  background-position: -32px -128px;
+}
+
+/* line 203, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-minus {
+  background-position: -48px -128px;
+}
+
+/* line 204, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-minusthick {
+  background-position: -64px -128px;
+}
+
+/* line 205, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-close {
+  background-position: -80px -128px;
+}
+
+/* line 206, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-closethick {
+  background-position: -96px -128px;
+}
+
+/* line 207, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-key {
+  background-position: -112px -128px;
+}
+
+/* line 208, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-lightbulb {
+  background-position: -128px -128px;
+}
+
+/* line 209, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-scissors {
+  background-position: -144px -128px;
+}
+
+/* line 210, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-clipboard {
+  background-position: -160px -128px;
+}
+
+/* line 211, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-copy {
+  background-position: -176px -128px;
+}
+
+/* line 212, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-contact {
+  background-position: -192px -128px;
+}
+
+/* line 213, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-image {
+  background-position: -208px -128px;
+}
+
+/* line 214, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-video {
+  background-position: -224px -128px;
+}
+
+/* line 215, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-script {
+  background-position: -240px -128px;
+}
+
+/* line 216, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-alert {
+  background-position: 0 -144px;
+}
+
+/* line 217, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-info {
+  background: url(/assets/icon_sprite.png) 0px 0px no-repeat !important;
+}
+
+/* line 218, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-notice {
+  background-position: -32px -144px;
+}
+
+/* line 219, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-help {
+  background-position: -48px -144px;
+}
+
+/* line 220, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-check {
+  background-position: -64px -144px;
+}
+
+/* line 221, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-bullet {
+  background-position: -80px -144px;
+}
+
+/* line 222, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-radio-off {
+  background-position: -96px -144px;
+}
+
+/* line 223, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-radio-on {
+  background-position: -112px -144px;
+}
+
+/* line 224, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-pin-w {
+  background-position: -128px -144px;
+}
+
+/* line 225, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-pin-s {
+  background-position: -144px -144px;
+}
+
+/* line 226, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-play {
+  background-position: 0 -160px;
+}
+
+/* line 227, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-pause {
+  background-position: -16px -160px;
+}
+
+/* line 228, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-seek-next {
+  background-position: -32px -160px;
+}
+
+/* line 229, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-seek-prev {
+  background-position: -48px -160px;
+}
+
+/* line 230, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-seek-end {
+  background-position: -64px -160px;
+}
+
+/* line 231, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-seek-start {
+  background-position: -80px -160px;
+}
+
+/* ui-icon-seek-first is deprecated, use ui-icon-seek-start instead */
+/* line 233, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-seek-first {
+  background-position: -80px -160px;
+}
+
+/* line 234, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-stop {
+  background-position: -96px -160px;
+}
+
+/* line 235, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-eject {
+  background-position: -112px -160px;
+}
+
+/* line 236, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-volume-off {
+  background-position: -128px -160px;
+}
+
+/* line 237, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-volume-on {
+  background-position: -144px -160px;
+}
+
+/* line 238, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-power {
+  background-position: 0 -176px;
+}
+
+/* line 239, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-signal-diag {
+  background-position: -16px -176px;
+}
+
+/* line 240, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-signal {
+  background-position: -32px -176px;
+}
+
+/* line 241, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-battery-0 {
+  background-position: -48px -176px;
+}
+
+/* line 242, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-battery-1 {
+  background-position: -64px -176px;
+}
+
+/* line 243, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-battery-2 {
+  background-position: -80px -176px;
+}
+
+/* line 244, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-battery-3 {
+  background-position: -96px -176px;
+}
+
+/* line 245, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-plus {
+  background-position: 0 -192px;
+}
+
+/* line 246, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-minus {
+  background-position: -16px -192px;
+}
+
+/* line 247, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-close {
+  background-position: -32px -192px;
+}
+
+/* line 248, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-triangle-e {
+  background-position: -48px -192px;
+}
+
+/* line 249, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-triangle-s {
+  background-position: -64px -192px;
+}
+
+/* line 250, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-triangle-w {
+  background-position: -80px -192px;
+}
+
+/* line 251, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-triangle-n {
+  background-position: -96px -192px;
+}
+
+/* line 252, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-arrow-e {
+  background-position: -112px -192px;
+}
+
+/* line 253, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-arrow-s {
+  background-position: -128px -192px;
+}
+
+/* line 254, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-arrow-w {
+  background-position: -144px -192px;
+}
+
+/* line 255, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-arrow-n {
+  background-position: -160px -192px;
+}
+
+/* line 256, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-zoomin {
+  background-position: -176px -192px;
+}
+
+/* line 257, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-zoomout {
+  background-position: -192px -192px;
+}
+
+/* line 258, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circle-check {
+  background-position: -208px -192px;
+}
+
+/* line 259, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circlesmall-plus {
+  background-position: 0 -208px;
+}
+
+/* line 260, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circlesmall-minus {
+  background-position: -16px -208px;
+}
+
+/* line 261, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-circlesmall-close {
+  background-position: -32px -208px;
+}
+
+/* line 262, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-squaresmall-plus {
+  background-position: -48px -208px;
+}
+
+/* line 263, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-squaresmall-minus {
+  background-position: -64px -208px;
+}
+
+/* line 264, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-squaresmall-close {
+  background-position: -80px -208px;
+}
+
+/* line 265, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-grip-dotted-vertical {
+  background-position: 0 -224px;
+}
+
+/* line 266, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-grip-dotted-horizontal {
+  background-position: -16px -224px;
+}
+
+/* line 267, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-grip-solid-vertical {
+  background-position: -32px -224px;
+}
+
+/* line 268, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-grip-solid-horizontal {
+  background-position: -48px -224px;
+}
+
+/* line 269, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-gripsmall-diagonal-se {
+  background-position: -64px -224px;
+}
+
+/* line 270, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-icon-grip-diagonal-se {
+  background-position: -80px -224px;
+}
+
+/* Misc visuals
+----------------------------------*/
+/* Corner radius */
+/* line 277, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-tl {
+  -moz-border-radius-topleft: 4px;
+  -webkit-border-top-left-radius: 4px;
+  border-top-left-radius: 4px;
+}
+
+/* line 278, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-tr {
+  -moz-border-radius-topright: 4px;
+  -webkit-border-top-right-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+/* line 279, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-bl {
+  -moz-border-radius-bottomleft: 4px;
+  -webkit-border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+/* line 280, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-br {
+  -moz-border-radius-bottomright: 4px;
+  -webkit-border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* line 281, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-top {
+  -moz-border-radius-topleft: 4px;
+  -webkit-border-top-left-radius: 4px;
+  border-top-left-radius: 4px;
+  -moz-border-radius-topright: 4px;
+  -webkit-border-top-right-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+/* line 282, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-bottom {
+  -moz-border-radius-bottomleft: 4px;
+  -webkit-border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  -moz-border-radius-bottomright: 4px;
+  -webkit-border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* line 283, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-right {
+  -moz-border-radius-topright: 4px;
+  -webkit-border-top-right-radius: 4px;
+  border-top-right-radius: 4px;
+  -moz-border-radius-bottomright: 4px;
+  -webkit-border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* line 284, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-left {
+  -moz-border-radius-topleft: 4px;
+  -webkit-border-top-left-radius: 4px;
+  border-top-left-radius: 4px;
+  -moz-border-radius-bottomleft: 4px;
+  -webkit-border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+/* line 285, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-all {
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+
+/* Overlays */
+/* line 288, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-overlay {
+  background: #222d3f;
+  opacity: .70;
+  filter: Alpha(Opacity=70);
+}
+
+/* line 289, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-widget-shadow {
+  margin: -5px 0 0 -5px;
+  padding: 5px;
+  background: black url(images/ui-bg_flat_10_000000_40x100.png) 50% 50% repeat-x;
+  opacity: .20;
+  filter: Alpha(Opacity=20);
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+
+                                                                                                                                                                                                                                                            /* Resizable
+----------------------------------*/
+/* line 291, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable {
+  position: relative;
+}
+
+/* line 292, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-handle {
+  position: absolute;
+  font-size: 0.1px;
+  z-index: 99999;
+  display: block;
+}
+
+/* line 293, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle {
+  display: none;
+}
+
+/* line 294, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-n {
+  cursor: n-resize;
+  height: 7px;
+  width: 100%;
+  top: -5px;
+  left: 0;
+}
+
+/* line 295, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-s {
+  cursor: s-resize;
+  height: 7px;
+  width: 100%;
+  bottom: -5px;
+  left: 0;
+}
+
+/* line 296, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-e {
+  cursor: e-resize;
+  width: 7px;
+  right: -5px;
+  top: 0;
+  height: 100%;
+}
+
+/* line 297, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-w {
+  cursor: w-resize;
+  width: 7px;
+  left: -5px;
+  top: 0;
+  height: 100%;
+}
+
+/* line 298, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-se {
+  cursor: se-resize;
+  width: 12px;
+  height: 12px;
+  right: 1px;
+  bottom: 1px;
+}
+
+/* line 299, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-sw {
+  cursor: sw-resize;
+  width: 9px;
+  height: 9px;
+  left: -5px;
+  bottom: -5px;
+}
+
+/* line 300, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-nw {
+  cursor: nw-resize;
+  width: 9px;
+  height: 9px;
+  left: -5px;
+  top: -5px;
+}
+
+/* line 301, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-resizable-ne {
+  cursor: ne-resize;
+  width: 9px;
+  height: 9px;
+  right: -5px;
+  top: -5px;
+}
+
+                                                                                       /* Accordion
+----------------------------------*/
+/* line 303, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-header {
+  cursor: pointer;
+  position: relative;
+  margin-top: 1px;
+  zoom: 1;
+}
+
+/* line 304, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion h3 {
+  background: url(/assets/button_bg.png) repeat-x;
+}
+
+/* line 305, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion h3.ui-state-default {
+  background-position: 0px 0px;
+}
+
+/* line 306, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion h3.ui-state-active {
+  background-position: 0px -33px;
+  border-color: #749aaf !important;
+}
+
+/* line 307, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion h3.ui-state-hover, .ui-accordion h3.ui-state-default {
+  border-color: #aaaaaa;
+}
+
+/* line 308, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion h3.ui-state-active a {
+  color: #1c4257;
+}
+
+/* line 309, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-header .ui-icon {
+  background: url(/assets/icon_sprite.png);
+}
+
+/* line 310, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-state-active .ui-icon {
+  background-position: 0px -64px;
+}
+
+/* line 311, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-state-default .ui-icon {
+  background-position: -16px -80px;
+}
+
+/* line 312, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-li-fix {
+  display: inline;
+}
+
+/* line 313, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-header-active {
+  border-bottom: 0 !important;
+}
+
+/* line 314, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-header a {
+  display: block;
+  font-size: 12px;
+  padding: .5em .5em .5em .7em;
+  font-weight: bold;
+  color: #4f4f4f;
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.7);
+}
+
+/* line 315, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion-icons .ui-accordion-header a {
+  padding-left: 24px;
+}
+
+/* line 316, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-header .ui-icon {
+  position: absolute;
+  left: .5em;
+  top: 50%;
+  margin-top: -7px;
+}
+
+/* line 317, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-content {
+  background: #f8fcfe;
+  padding: 1em 2.2em;
+  border-top: 0;
+  margin-top: -2px;
+  position: relative;
+  top: 1px;
+  margin-bottom: 2px;
+  overflow: auto;
+  display: none;
+  zoom: 1;
+  font-size: 11px;
+  border-color: #749aaf;
+}
+
+/* line 318, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-content-active {
+  display: block;
+}
+
+/* line 319, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-accordion .ui-accordion-header, .ui-accordion .ui-accordion-content {
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+
+/* Autocomplete
+
+----------------------------------*/
+/* line 325, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-autocomplete {
+  position: absolute;
+  cursor: default;
+}
+
+/* line 326, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-autocomplete-loading {
+  background: white url("images/ui-anim_basic_16x16.gif") right center no-repeat;
+}
+
+/* workarounds */
+/* line 329, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+* html .ui-autocomplete {
+  width: 1px;
+}
+
+/* without this, the menu expands to 100% in IE6 */
+/* Menu
+----------------------------------*/
+/* line 333, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-menu {
+  list-style: none;
+  padding: 2px;
+  margin: 0;
+  display: block;
+}
+
+/* line 339, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-menu .ui-menu {
+  margin-top: -3px;
+}
+
+/* line 342, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-menu .ui-menu-item {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* line 347, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-menu .ui-menu-item a {
+  text-decoration: none;
+  display: block;
+  padding: .2em .4em;
+  line-height: 1.5;
+}
+
+/* line 354, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-menu .ui-menu-item a.ui-state-hover,
+.ui-menu .ui-menu-item a.ui-state-active {
+  margin: -1px;
+}
+
+/* Button
+----------------------------------*/
+/* line 360, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button {
+  display: inline-block;
+  position: relative;
+  padding: 0;
+  margin-right: .1em;
+  text-decoration: none !important;
+  cursor: pointer;
+  text-align: center;
+  zoom: 1;
+  overflow: visible;
+  border: 0px none;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+
+/* the overflow property removes extra width in IE */
+/* line 361, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-icon-only {
+  width: 2.2em;
+}
+
+/* to make room for the icon, a width needs to be set here */
+/* line 362, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+button.ui-button-icon-only {
+  width: 2.4em;
+}
+
+/* button elements seem to need a little more width */
+/* line 363, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-icons-only {
+  width: 3em;
+}
+
+/* line 364, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+button.ui-button-icons-only {
+  width: 3.2em;
+}
+
+/* line 365, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button span {
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+
+/* line 367, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-default .ui-button-text {
+  background: url(/assets/button_bg.png) 0px 0px repeat-x !important;
+  color: #4f4f4f;
+  border-color: #b6b6b6;
+}
+
+/* line 368, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-hover .ui-button-text {
+  background: url(/assets/button_bg.png) 0px 0px repeat-x !important;
+  color: #313131;
+  border-color: #9d9d9d;
+  -moz-box-shadow: 0px 0px 8px #d4d4d4;
+  -webkit-box-shadow: 0px 0px 8px #d4d4d4;
+  box-shadow: 0px 0px 8px #d4d4d4;
+}
+
+/* line 369, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-active .ui-button-text {
+  background: url(/assets/button_bg.png) 0px bottom repeat-x !important;
+  color: #4f4f4f;
+  border-color: #b6b6b6;
+}
+
+/*button text element */
+/* line 372, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button .ui-button-text {
+  display: block;
+  line-height: 1.4;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.8);
+}
+
+/* line 373, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-text-only .ui-button-text {
+  padding: 5px 12px;
+}
+
+/* line 374, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-icon-only .ui-button-text, .ui-button-icons-only .ui-button-text {
+  padding: .4em;
+  text-indent: -9999999px;
+}
+
+/* line 375, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-text-icon .ui-button-text, .ui-button-text-icons .ui-button-text {
+  padding: .4em 1em .4em 1.8em;
+}
+
+/* line 376, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-text-icons .ui-button-text {
+  padding-right: 1.8em;
+}
+
+/* no icon support for input elements, provide padding by default */
+/* line 378, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+input.ui-button {
+  padding: .4em 1em;
+}
+
+/*button icon element(s) */
+/* line 381, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-icon-only .ui-icon, .ui-button-text-icon .ui-icon, .ui-button-text-icons .ui-icon, .ui-button-icons-only .ui-icon {
+  position: absolute;
+  top: 50%;
+  margin-top: -8px;
+}
+
+/* line 382, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-icon-only .ui-icon {
+  left: 50%;
+  margin-left: -8px;
+}
+
+/* line 383, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-text-icon .ui-icon-primary, .ui-button-text-icons .ui-icon-primary, .ui-button-icons-only .ui-icon-primary {
+  left: .5em;
+}
+
+/* line 384, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-text-icons .ui-button-icon-secondary, .ui-button-icons-only .ui-button-icon-secondary {
+  right: .5em;
+}
+
+/*button sets*/
+/* line 387, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-set {
+  margin-right: 7px;
+}
+
+/* line 388, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-set .ui-button {
+  margin-left: 0;
+  margin-right: -.3em;
+}
+
+/* line 389, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-set, .ui-button-set span {
+  -moz-border-radius: 0px !important;
+  -webkit-border-radius: 0px !important;
+  border-radius: 0px !important;
+}
+
+/* line 390, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-left .ui-button-text {
+  -moz-border-radius-topleft: 4px !important;
+  -webkit-border-top-left-radius: 4px !important;
+  border-top-left-radius: 4px !important;
+  -moz-border-radius-bottomleft: 4px !important;
+  -webkit-border-bottom-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+/* line 391, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-corner-right .ui-button-text {
+  -moz-border-radius-topright: 4px !important;
+  -webkit-border-top-right-radius: 4px !important;
+  border-top-right-radius: 4px !important;
+  -moz-border-radius-bottomright: 4px !important;
+  -webkit-border-bottom-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+}
+
+/* line 392, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-button-set .ui-state-active .ui-button-text {
+  background: url(/assets/button_bg.png) 0px -33px repeat-x !important;
+  color: #1c4257;
+  border-color: #7096ab;
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+/* workarounds */
+/* line 395, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+button.ui-button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/* reset extra padding in Firefox */
+/* Dialog
+----------------------------------*/
+/* line 403, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog {
+  position: absolute;
+  padding: 0;
+  width: 300px;
+  overflow: hidden;
+  background: #FFFFFF;
+  -moz-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.8);
+  -webkit-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.8);
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* line 404, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-dialog-titlebar {
+  padding: .5em 1em .3em;
+  position: relative;
+  border-width: 0px 0px 1px 0px;
+  border-color: #979797;
+  background: url(images/the_gradient.gif) 0px 0px repeat-x;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+
+/* line 405, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-dialog-title {
+  float: left;
+  margin: .1em 16px .2em 0;
+  font-size: 13px;
+  color: #000000;
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.8);
+}
+
+/* line 406, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-dialog-titlebar-close {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 16px;
+  margin: -9px 0 0 0;
+  height: 16px;
+}
+
+/* line 407, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-dialog-titlebar-close span {
+  display: block;
+  margin: 1px;
+  background: url(/assets/icon_sprite.png) 0px -16px no-repeat;
+}
+
+/* line 408, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog-titlebar .ui-state-hover {
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+  border: 0px none;
+  background: transparent;
+}
+
+/* line 409, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-state-hover span {
+  background-position: -16px -16px;
+}
+
+/* line 410, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus {
+  padding: 0;
+}
+
+/* line 411, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-dialog-content {
+  position: relative;
+  border: 0;
+  padding: .5em 1em;
+  background: none;
+  overflow: auto;
+  zoom: 1;
+  font-size: 12px;
+}
+
+/* line 412, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-dialog-buttonpane {
+  text-align: left;
+  border-width: 1px 0 0 0;
+  background-image: none;
+  margin: .5em 0 0 0;
+  padding: .3em 1em .5em .4em;
+}
+
+/* line 413, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-dialog-buttonpane button {
+  float: right;
+  margin: .5em .4em .5em 0;
+  cursor: pointer;
+  padding: .2em .6em .3em .6em;
+  line-height: 1.4em;
+  width: auto;
+  overflow: visible;
+  background: transparent !important;
+  border: 0px none;
+}
+
+/* line 414, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-dialog .ui-resizable-se {
+  width: 14px;
+  height: 14px;
+  right: 3px;
+  bottom: 3px;
+}
+
+/* line 415, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-draggable .ui-dialog-titlebar {
+  cursor: move;
+}
+
+/* Slider
+----------------------------------*/
+/* line 418, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider {
+  position: relative;
+  text-align: left;
+  border: 0px none;
+}
+
+/* line 419, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-state-focus .ui-slider-handle {
+  border: 0px none;
+}
+
+/* line 420, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider .ui-slider-handle {
+  background: url(images/slider_handles.png) 0px -23px no-repeat;
+  position: absolute;
+  z-index: 2;
+  width: 23px;
+  height: 23px;
+  cursor: default;
+}
+
+/* line 421, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider .ui-state-hover {
+  background-position: 0px 0px !important;
+}
+
+/* line 422, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider .ui-slider-range {
+  position: absolute;
+  z-index: 1;
+  font-size: .7em;
+  display: block;
+  border: 0;
+  background: url(images/slider_h_bg.gif) 0px -5px repeat-x;
+}
+
+/* line 423, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider .ui-state-default {
+  border: 0px none;
+}
+
+/* line 425, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-horizontal {
+  height: 5px;
+  background: url(images/slider_h_bg.gif) 0px 0px repeat-x;
+}
+
+/* line 426, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-horizontal .ui-slider-handle {
+  top: -9px;
+  margin-left: -12px;
+}
+
+/* line 427, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-horizontal .ui-slider-range {
+  top: 0;
+  height: 100%;
+}
+
+/* line 428, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-horizontal .ui-slider-range-min {
+  left: 0;
+}
+
+/* line 429, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-horizontal .ui-slider-range-max {
+  right: 0;
+}
+
+/* line 431, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-vertical {
+  width: .8em;
+  height: 100px;
+}
+
+/* line 432, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-vertical .ui-slider-handle {
+  left: -.3em;
+  margin-left: 0;
+  margin-bottom: -.6em;
+}
+
+/* line 433, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-vertical .ui-slider-range {
+  left: 0;
+  width: 100%;
+}
+
+/* line 434, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-vertical .ui-slider-range-min {
+  bottom: 0;
+}
+
+/* line 435, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-slider-vertical .ui-slider-range-max {
+  top: 0;
+}
+
+                                                    /* Tabs
+----------------------------------*/
+/* line 437, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs {
+  background: #FFFFFF;
+  position: relative;
+  padding: .2em;
+  zoom: 1;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+  border: 0px none;
+}
+
+/* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
+/* line 438, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-tabs-nav {
+  border-color: #a8a8a8;
+  border-width: 0px 0px 1px 0px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+
+/* line 439, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-tabs-nav li {
+  list-style: none;
+  float: left;
+  position: relative;
+  top: 1px;
+  margin: 0 .2em 1px 0;
+  border-bottom: 0 !important;
+  padding: 0;
+  white-space: nowrap;
+  -moz-border-radius-topleft: 3px;
+  -webkit-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -webkit-border-top-right-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+/* line 440, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-tabs-nav li a {
+  float: left;
+  padding: .5em 1em;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+/* line 441, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+  margin-bottom: 0;
+  padding-bottom: 1px;
+}
+
+/* line 442, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a {
+  cursor: text;
+}
+
+/* line 443, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {
+  cursor: pointer;
+}
+
+/* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
+/* line 444, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-tabs-panel {
+  display: block;
+  border: 0;
+  padding: 1em 1.4em;
+  background: none;
+  font-size: 12px;
+  border-color: #a8a8a8;
+  border-width: 0px 1px 1px 1px;
+  border-style: solid;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+
+/* line 445, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-tabs-hide {
+  display: none !important;
+}
+
+/* line 446, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-state-default {
+  background: #cccccc url(/assets/button_bg.png) 0px 0px repeat-x;
+  border-color: #a8a8a8;
+}
+
+/* line 447, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-state-default a {
+  color: #4f4f4f !important;
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.8);
+}
+
+/* line 448, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-tabs .ui-state-active {
+  background: #FFFFFF;
+}
+
+/* Datepicker
+----------------------------------*/
+/* line 452, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker {
+  width: 14em;
+  padding: .2em .2em 0;
+  background: white url(/assets/datepicker.gif) left top repeat-x;
+  -moz-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.8);
+  -webkit-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.8);
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* line 453, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-header {
+  position: relative;
+  padding: 2px 0px 6px 0px;
+  background: transparent;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+  border: 0px none;
+}
+
+/* line 454, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-prev, .ui-datepicker .ui-datepicker-next {
+  position: absolute;
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  border: 0px none;
+  cursor: pointer;
+}
+
+/* line 455, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-prev {
+  left: 2px;
+}
+
+/* line 456, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-next {
+  right: 2px;
+}
+
+/* line 457, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-header .ui-state-hover {
+  background: transparent;
+  border: 0px none;
+}
+
+/* line 458, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-prev span {
+  background-position: 0px -32px !important;
+}
+
+/* line 459, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-next span {
+  background-position: -16px -32px !important;
+}
+
+/* line 460, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-prev-hover span {
+  background-position: 0px -48px !important;
+}
+
+/* line 461, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-next-hover span {
+  background-position: -16px -48px !important;
+}
+
+/* line 462, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-prev span, .ui-datepicker .ui-datepicker-next span {
+  display: block;
+  position: absolute;
+  left: 50%;
+  margin-left: -8px;
+  top: 50%;
+  margin-top: -8px;
+  background: url(/assets/icon_sprite.png) no-repeat;
+}
+
+/* line 463, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-title {
+  margin: 0 2.3em;
+  line-height: 1.8em;
+  text-align: center;
+  font-size: 12px;
+  color: #000000;
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.8);
+}
+
+/* line 464, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-title select {
+  font-size: 1em;
+  margin: 1px 0;
+}
+
+/* line 465, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker select.ui-datepicker-month-year {
+  width: 100%;
+}
+
+/* line 467, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker select.ui-datepicker-month,
+.ui-datepicker select.ui-datepicker-year {
+  width: 49%;
+}
+
+/* line 468, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker table {
+  width: 100%;
+  font-size: 10px;
+  border-collapse: collapse;
+  margin: 0 0 .4em;
+}
+
+/* line 469, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker th {
+  padding: .7em .3em;
+  text-align: center;
+  font-weight: bold;
+  border: 0;
+}
+
+/* line 470, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker td {
+  border: 0;
+  padding: 1px;
+}
+
+/* line 471, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker td span, .ui-datepicker td a {
+  display: block;
+  padding: .2em;
+  text-align: right;
+  text-decoration: none;
+}
+
+/* line 472, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-buttonpane {
+  background-image: none;
+  margin: .7em 0 0 0;
+  padding: 0 .2em;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+/* line 473, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-buttonpane button {
+  float: right;
+  margin: .5em .2em .4em;
+  cursor: pointer;
+  padding: .2em .6em .3em .6em;
+  width: auto;
+  overflow: visible;
+}
+
+/* line 474, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-buttonpane button.ui-datepicker-current {
+  float: left;
+}
+
+/* line 475, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-calendar a {
+  background: transparent;
+  border: 0px none;
+}
+
+/* line 476, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-calendar .ui-state-active {
+  border: 1px solid;
+}
+
+/* line 477, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-calendar a.ui-state-hover {
+  color: #1c4257;
+}
+
+/* line 478, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker .ui-datepicker-current-day .ui-state-default {
+  font-size: 11px;
+  background: url(/assets/button_bg.png) 0px -33px repeat-x !important;
+  color: #1c4257 !important;
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+  border: 1px solid #7399ae;
+}
+
+/* with multiple calendars */
+/* line 481, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker.ui-datepicker-multi {
+  width: auto;
+}
+
+/* line 482, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-multi .ui-datepicker-group {
+  float: left;
+}
+
+/* line 483, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-multi .ui-datepicker-group table {
+  width: 95%;
+  margin: 0 auto .4em;
+}
+
+/* line 484, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-multi-2 .ui-datepicker-group {
+  width: 50%;
+}
+
+/* line 485, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-multi-3 .ui-datepicker-group {
+  width: 33.3%;
+}
+
+/* line 486, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-multi-4 .ui-datepicker-group {
+  width: 25%;
+}
+
+/* line 487, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-multi .ui-datepicker-group-last .ui-datepicker-header {
+  border-left-width: 0;
+}
+
+/* line 488, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-multi .ui-datepicker-group-middle .ui-datepicker-header {
+  border-left-width: 0;
+}
+
+/* line 489, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-multi .ui-datepicker-buttonpane {
+  clear: left;
+}
+
+/* line 490, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-row-break {
+  clear: both;
+  width: 100%;
+}
+
+/* RTL support */
+/* line 493, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl {
+  direction: rtl;
+}
+
+/* line 494, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-prev {
+  right: 2px;
+  left: auto;
+}
+
+/* line 495, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-next {
+  left: 2px;
+  right: auto;
+}
+
+/* line 496, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-prev:hover {
+  right: 1px;
+  left: auto;
+}
+
+/* line 497, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-next:hover {
+  left: 1px;
+  right: auto;
+}
+
+/* line 498, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-buttonpane {
+  clear: right;
+}
+
+/* line 499, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-buttonpane button {
+  float: left;
+}
+
+/* line 500, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-buttonpane button.ui-datepicker-current {
+  float: right;
+}
+
+/* line 501, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-group {
+  float: right;
+}
+
+/* line 502, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-group-last .ui-datepicker-header {
+  border-right-width: 0;
+  border-left-width: 1px;
+}
+
+/* line 503, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-rtl .ui-datepicker-group-middle .ui-datepicker-header {
+  border-right-width: 0;
+  border-left-width: 1px;
+}
+
+/* IE6 IFRAME FIX (taken from datepicker 1.5.3 */
+/* line 506, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-datepicker-cover {
+  display: none;
+  /*sorry for IE5*/
+  display/**/: block;
+  /*sorry for IE5*/
+  position: absolute;
+  /*must have*/
+  z-index: -1;
+  /*must have*/
+  filter: mask();
+  /*must have*/
+  top: -4px;
+  /*must have*/
+  left: -4px;
+  /*must have*/
+  width: 200px;
+  /*must have*/
+  height: 200px;
+  /*must have*/
+}
+
+ /* Progressbar
+----------------------------------*/
+/* line 518, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-progressbar {
+  height: 2em;
+  text-align: left;
+}
+
+/* line 519, G:/Sites/travelquotes/vendor/assets/stylesheets/jquery-ui-1.8.custom.css.scss */
+.ui-progressbar .ui-progressbar-value {
+  margin: -1px;
+  height: 100%;
+}
+
+/* line 15, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+#ui-datepicker-div {
+  width: 249px;
+  height: 175px !important;
+  padding: 0;
+  color: #ffffff;
+}
+
+/* line 22, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+.ui-datepicker .ui-datepicker-header .ui-datepicker-title {
+  padding: 2px;
+  line-height: 1.8em;
+}
+
+/* line 26, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+.ui-datepicker table.ui-datepicker-calendar {
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.26);
+  -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.26);
+  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.26);
+  background-color: #f4f4f4;
+  border: none;
+  margin: 0;
+  position: relative;
+  top: 12px;
+  left: 0;
+  width: 249px;
+}
+
+/* line 44, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 #mceu_15 {
   display: inline-block;
   width: 76% !important;
@@ -3035,53 +5464,53 @@ body {
 }
 
 /* Product Version Dropdown changes */
-/* line 25, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 55, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .col-versions {
   width: 100%;
 }
 
-/* line 28, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 58, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .col-versions .dropdown_menu {
   display: inline-block;
   float: left;
 }
 
-/* line 33, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 63, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .col-versions .dropdown_menu .dropdown_menu_button {
   margin-right: 0;
 }
 
-/* line 36, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 66, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .col-versions > .dropdown_menu:first-child:not(:last-child) > .dropdown_menu_button {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
 }
 
-/* line 41, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 71, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .col-versions > .dropdown_menu:not(:first-child):not(:last-child) > .dropdown_menu_button {
   border-radius: 0;
   border-radius: 0;
 }
 
-/* line 46, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 76, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .col-versions > .dropdown_menu:last-child:not(:first-child) > .dropdown_menu_button {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
 
-/* line 51, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 81, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .panel_contents ul.dropdown_menu_list li {
   width: 100%;
   margin: 0;
 }
 
 /* Other */
-/* line 59, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 89, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .radio-width {
   width: 8%;
 }
 
-/* line 63, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 93, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 input.editable_text_column {
   background-color: #66ff66;
   border: 1px none #FBFF8C;
@@ -3099,18 +5528,18 @@ input.editable_text_column {
   z-index: 9090;
 }
 
-/* line 80, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 110, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 div.editable_text_column {
   padding: 4px;
 }
 
-/* line 85, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 115, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .cke_chrome {
   width: 76% !important;
   overflow: hidden;
 }
 
-/* line 93, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 123, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 form input[type=text], form input[type=password],
 form input[type=email], form input[type=number],
 form input[type=url], form input[type=tel],
@@ -3118,12 +5547,12 @@ form textarea {
   width: calc(76% - 22px);
 }
 
-/* line 97, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 127, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 form .inputs select {
   width: calc(76%);
 }
 
-/* line 101, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 131, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 form .inputs select {
   border: 1px solid #c9d0d6;
   -webkit-border-radius: 3px;
@@ -3135,19 +5564,19 @@ form .inputs select {
   padding: 8px 10px 7px;
 }
 
-/* line 112, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 142, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 div.show_left {
   width: 65%;
   float: left;
 }
 
-/* line 118, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 148, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .group:before, .group:after {
   content: "";
   display: table;
 }
 
-/* line 122, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 152, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .group:after {
   padding: 0 0 15px 0;
   content: "";
@@ -3155,20 +5584,20 @@ div.show_left {
   clear: both;
 }
 
-/* line 128, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 158, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .group {
   zoom: 1;
   /* For IE 6/7 (trigger hasLayout) */
 }
 
-/* line 132, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 162, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 div.show_right {
   width: 32%;
   float: right;
   margin-bottom: 30px;
 }
 
-/* line 139, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 169, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .panel_contents ul li {
   width: 46%;
   margin: 10px;
@@ -3177,7 +5606,7 @@ div.show_right {
   vertical-align: top;
 }
 
-/* line 148, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 178, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .single_show div.attributes_table {
   padding: 10px;
   background-color: #ffffff;
@@ -3186,7 +5615,7 @@ div.show_right {
   box-shadow: 7px 10px 6px -6px #777777;
 }
 
-/* line 156, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 186, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .single_show_version .show_version_wrapper {
   padding: 10px;
   background-color: #ffffff;
@@ -3198,34 +5627,34 @@ div.show_right {
   box-shadow: 7px 10px 6px -6px #777777;
 }
 
-/* line 168, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 198, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .single_show .attributes_table th, .single_show_version .attributes_table th,
 .custom_grid_index .attributes_table th {
   padding-left: 5px;
   background-color: #ebebeb;
 }
 
-/* line 174, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 204, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .single_show .attributes_table a {
   text-decoration: none;
 }
 
-/* line 179, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 209, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .show_less {
   overflow: hidden;
 }
 
-/* line 183, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 213, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .show_more {
   height: auto !important;
 }
 
-/* line 186, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 216, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .des_flown {
   height: 250px;
 }
 
-/* line 190, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 220, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .single_show .no_list {
   display: table;
   width: 95%;
@@ -3235,7 +5664,7 @@ div.show_right {
   position: relative;
 }
 
-/* line 199, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 229, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .no_list span {
   font-size: 2em;
   font-weight: bold;
@@ -3245,7 +5674,7 @@ div.show_right {
   vertical-align: middle;
 }
 
-/* line 208, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 238, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .link_button {
   -webkit-border-radius: 200px;
   -moz-border-radius: 200px;
@@ -3278,7 +5707,7 @@ div.show_right {
   cursor: pointer;
 }
 
-/* line 240, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 270, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .link_button:hover {
   background: #8b9297;
   background: -webkit-linear-gradient(-90deg, #8b9297, #484d51);
@@ -3289,19 +5718,19 @@ div.show_right {
   text-decoration: none;
 }
 
-/* line 251, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 281, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .age_select, .province_select, .filters_select {
   display: block;
   width: 90%;
   margin: auto;
 }
 
-/* line 257, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 287, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .age_select h3, .filters_select h3 {
   font-weight: bold;
 }
 
-/* line 262, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 292, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .filters_select h4 {
   font-weight: bold;
   font-size: 1.5em;
@@ -3310,19 +5739,19 @@ div.show_right {
   border-bottom: 2px solid #DDDDDD;
 }
 
-/* line 271, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 301, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .filters_select label, .age_select label,
 .custom_grid_index {
   border: 2px solid #DDDDDD;
   background: #ffffff;
 }
 
-/* line 276, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 306, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .custom_grid_index {
   padding: 3px;
 }
 
-/* line 280, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 310, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .filters_select label {
   padding: 6px;
   margin-bottom: 8px;
@@ -3333,19 +5762,19 @@ div.show_right {
   border-radius: 3px;
 }
 
-/* line 290, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 320, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .age_select label {
   display: inline-block;
   margin: 0 12px 5px 0;
   width: 23%;
 }
 
-/* line 296, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 326, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .age_select label:hover, .filters_select label:hover {
   border: 2px solid #209EC8;
 }
 
-/* line 301, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 331, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .age_select input[type=checkbox], .province_select input[type=checkbox],
 .filters_select input[type=checkbox] {
   position: absolute;
@@ -3355,7 +5784,7 @@ div.show_right {
      area and turn opacity to 0 instead. */
 }
 
-/* line 311, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 341, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .age_select input[type=checkbox]:checked + label,
 .filters_select input[type=checkbox]:checked + label {
   border: 2px solid #209EC8;
@@ -3364,35 +5793,35 @@ div.show_right {
   box-shadow: 7px 10px 6px -6px #777777;
 }
 
-/* line 319, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 349, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .province_select tr.selection:hover, .age_select label:hover,
 .filters_select label:hover {
   cursor: pointer;
 }
 
-/* line 322, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 352, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .province_select tr.selection:not(.selected):hover {
   background-color: #8EB8E6;
 }
 
-/* line 326, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 356, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .province_select tr.selected th {
   color: #ffffff;
   background-color: #43B8B5;
 }
 
-/* line 331, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 361, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .panel .rate-col-50 {
   display: inline-block;
   width: 48%;
 }
 
-/* line 336, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 366, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .panel .apply_rate {
   margin-right: 30px;
 }
 
-/* line 340, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 370, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .rates_panel .small {
   font-size: 1.0em;
   display: inline-block;
@@ -3400,49 +5829,49 @@ div.show_right {
   margin-right: 12px;
 }
 
-/* line 347, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 377, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .rate_fields .col-xs-2, .rate_fields .col-xs-6 {
   display: inline-block;
 }
 
-/* line 351, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 381, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .panel #future_rate_effective_date {
   width: 20%;
 }
 
-/* line 355, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 385, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .rate_fields .col-xs-6 {
   width: 45%;
 }
 
-/* line 359, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 389, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .rate_fields input[type=text] {
   width: 85%;
 }
 
-/* line 363, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 393, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .status_tag.current {
   background-color: #35BE21;
 }
 
-/* line 367, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 397, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .status_tag.future {
   background-color: #4998F8;
 }
 
-/* line 372, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 402, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .min-width-150 {
   min-width: 150px;
 }
 
-/* line 376, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 406, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .choices-group li.choice {
   display: inline-block;
   margin-right: 8px;
 }
 
 /* Icons */
-/* line 382, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 412, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .edit_icon {
   width: 24px;
   height: 24px;
@@ -3450,7 +5879,7 @@ div.show_right {
   background-image: url(/assets/document-edit.png) !important;
 }
 
-/* line 389, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 419, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .view_icon {
   width: 24px;
   height: 24px;
@@ -3458,7 +5887,7 @@ div.show_right {
   background-image: url(/assets/document.png) !important;
 }
 
-/* line 397, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 427, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .delete_icon {
   width: 24px;
   height: 24px;
@@ -3467,36 +5896,36 @@ div.show_right {
 }
 
 /* Sorting */
-/* line 405, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 435, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort {
   padding: 20px;
 }
 
-/* line 409, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 439, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort .group:after {
   padding: 0;
 }
 
-/* line 413, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 443, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort h4, .category_sort h3 {
   margin: 0;
   color: #000000;
 }
 
-/* line 418, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 448, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort h3 {
   font-size: 1.8em;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-/* line 424, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 454, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort ul, .category_sort ul.child {
   display: block;
   width: 100%;
 }
 
-/* line 429, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 459, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort ul li {
   display: block;
   position: relative;
@@ -3504,13 +5933,13 @@ div.show_right {
   margin-bottom: 15px;
 }
 
-/* line 436, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 466, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort .sort_content:hover {
   border-color: #22CEF2;
   cursor: pointer;
 }
 
-/* line 441, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 471, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort li.active > .sort_content {
   border-color: #22CEF2;
   background-color: #AAEAFD;
@@ -3519,27 +5948,27 @@ div.show_right {
   box-shadow: 7px 10px 6px -6px #777777;
 }
 
-/* line 449, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 479, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort #parent_category {
   height: auto;
 }
 
-/* line 453, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 483, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .child {
   margin-left: 15px;
 }
 
-/* line 457, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 487, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .child li {
   margin-bottom: 3px !important;
 }
 
-/* line 461, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 491, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .child li .sort_content {
   margin-bottom: 3px;
 }
 
-/* line 465, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 495, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort .place_holder, .category_sort .sort_content {
   display: block;
   position: relative;
@@ -3549,7 +5978,7 @@ div.show_right {
   margin: 0;
 }
 
-/* line 474, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 504, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort .sort_content {
   background-color: #ffffff;
   width: 88%;
@@ -3558,24 +5987,24 @@ div.show_right {
   border: 2px solid #eee;
 }
 
-/* line 482, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 512, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .category_sort .place_holder {
   margin-right: 5px;
   width: 15px !important;
 }
 
-/* line 487, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 517, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .sort_buttons button {
   padding: 0;
   border: none;
 }
 
-/* line 492, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 522, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .sort_buttons button:active, .sort_buttons button:focus {
   border: none !important;
 }
 
-/* line 497, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 527, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .sort_buttons .buttons {
   margin: 0;
   text-indent: -9999px;
@@ -3586,12 +6015,12 @@ div.show_right {
   background: url(/assets/buttons.png) no-repeat;
 }
 
-/* line 507, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 537, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .sort_buttons .sort_down {
   background-position: 0 -15px;
 }
 
-/* line 511, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 541, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 #overlay {
   display: block;
   position: absolute;
@@ -3605,21 +6034,21 @@ div.show_right {
   z-index: 10000;
 }
 
-/* line 524, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 554, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 #overlay h4 {
   color: #ffffff;
   margin: 6px;
   font-weight: bold;
 }
 
-/* line 530, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 560, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .icon-triangle:after {
   content: "\25B8";
   margin-right: 5px;
   font-size: 1.3em;
 }
 
-/* line 536, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
+/* line 566, G:/Sites/travelquotes/app/assets/stylesheets/active_admin.css.scss */
 .icon-triangle-active:after {
   content: "\25BE";
   margin-right: 5px;

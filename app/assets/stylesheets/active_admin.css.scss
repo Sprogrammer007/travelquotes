@@ -10,7 +10,37 @@
 // Active Admin's got SASS!
 @import "active_admin/mixins";
 @import "active_admin/base";
+@import "jquery-ui-1.8.custom";
 
+#ui-datepicker-div {
+  width: 249px;
+  height: 175px !important;
+  padding: 0;
+  color: #ffffff;
+}
+
+.ui-datepicker .ui-datepicker-header .ui-datepicker-title {
+  padding: 2px;
+  line-height: 1.8em;
+}
+.ui-datepicker table.ui-datepicker-calendar {
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.26);
+  -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.26);
+  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.26);
+  background-color: #f4f4f4;
+  border: none;
+  margin: 0;
+  position: relative;
+  top: 12px;
+  left: 0;
+  width: 249px;
+}
 #mceu_15 {
   display: inline-block;
   width: 76% !important;

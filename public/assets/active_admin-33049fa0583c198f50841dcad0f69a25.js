@@ -19544,6 +19544,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       altFormat: "yy/mm/dd",
       constrainInput: true,
       changeYear: true,
+      changeMonth: true,
       minDate: 1
     });
     addFileds = function(e) {

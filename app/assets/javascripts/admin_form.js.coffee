@@ -132,6 +132,7 @@ ready = ->
     altFormat: "yy/mm/dd"
     constrainInput: true
     changeYear: true
+    changeMonth: true
     minDate: 1 #set min date to current date
 
   addFileds = (e) ->

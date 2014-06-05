@@ -29,7 +29,7 @@ ActiveAdmin.register Version do
 		column :rate_effective_date
 		column :future_rate_effective_date do |v|
 			if v.future_rate_effective_date
-				v.future_rate_effective_date
+				v.future_rate_effective_date.strftime("%m %d %Y")
 			else
 				"No Future Rate"
 			end
@@ -50,10 +50,12 @@ ActiveAdmin.register Version do
 				row :detail_type do |v|
 					v.detail_type() if v.detail_type()
 				end
-				row "Current Rate Effective Date", :rate_effective_date
+				row "Current Rate Effective Date" do |v|
+					v.rate_effective_date.strftime("%m %d %Y")
+				end
 				row :future_rate_effective_date do |v|
 					if v.future_rate_effective_date
-						v.future_rate_effective_date
+						v.future_rate_effective_date.strftime("%m %d %Y")
 					else
 						"No Future Rate"
 					end
