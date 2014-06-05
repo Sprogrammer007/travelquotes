@@ -162,6 +162,7 @@ ActiveAdmin.register Version do
 				f.input :detail_type, :as => :select, :collection => options_for_select(["Single", "Couple", "Family"], f.object.detail_type), 
 					input_html: { class: "detail_type", :disabled => true	}
 			end
+			f.input :rate_effective_date, :label => "Current Rate Effective Date", :as => :datepicker
 		end
 		if f.object.new_record?
 			f.inputs "Family Version Details", :for => FamilyDetail.new, class: "family_details inputs hide" do |d|
