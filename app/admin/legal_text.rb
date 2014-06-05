@@ -2,7 +2,7 @@ ActiveAdmin.register LegalText do
 
   include_import
 
-  menu :parent => "Products"
+  menu :parent => "Super Admin"
 
   permit_params :product_id, :legal_text_category_id, :policy_type, :description,
   :effective_date, :status
@@ -55,22 +55,31 @@ ActiveAdmin.register LegalText do
     end
   end
       
-
   #Form
   form do |f|
     f.inputs do
-      if params[:id]
-        f.input :productduct_id, :as => :hidden, input_html: { value: params[:id] }
+      if f.object.new_record? && params[:id]
+        f.input :product_id, :as => :hidden, input_html: { value: params[:id] }
         f.input :product, :as => :select, :collection => options_for_select([[params[:name], params[:id]]], params[:id]), 
         input_html: { disabled: true}
       else 
         f.input :product
       end
-      f.input :parent_category, :as => :select, :collection => options_for_select(LegalTextParentCategory.all.pluck(:name))
-      f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections)
-      f.input :policy_type, :as => :select, :collection => ["Visitor Visa", "Student Visa", "Both"]
-      f.input :description, :as => :ckeditor
-      f.input :effective_date, :as => :datepicker
+      if f.object.new_record?
+        f.input :parent_category, :as => :select, :collection => options_for_select(LegalTextParentCategory.all.pluck(:name))
+        f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections)
+        f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"])
+      else
+        f.input :parent_category, :as => :select, :collection => options_for_select(LegalTextParentCategory.all.pluck(:name), f.object.legal_text_category.legal_text_parent_category.name)
+        f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections, f.object.legal_text_category.id)
+        f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"], f.object.policy_type)
+      end
+      f.input :description, input_html: {value: "No Coverages", class: "tinymce"}
+      if f.object.new_record?
+        f.input :effective_date, label: "Policy Effective date", :as => :datepicker, input_html: {value: params[:e_date]}
+      else
+        f.input :effective_date, label: "Policy Effective date", :as => :datepicker
+      end
       f.input :status, :as => :select, :collection => [["Active", true], ["No Active", false]]
     end
     f.actions
@@ -78,8 +87,10 @@ ActiveAdmin.register LegalText do
 
   controller do
     def destroy
-      LegalText.find(params[:id]).destroy
-      redirect_to :back
+      lt = LegalText.find(params[:id])
+      id = lt.product.id
+      lt.destroy
+      redirect_to admin_product_path(id)
     end
   end
 end

@@ -2,7 +2,7 @@ ActiveAdmin.register Company do
 	config.sort_order = "id_asc"
 	include_import
 	menu :priority => 1
-	permit_params :name, :short_hand, :logo, :status
+	permit_params :name,:logo, :status
 
 	#Scopes
 	scope :all, default: true
@@ -17,9 +17,8 @@ ActiveAdmin.register Company do
 
 	index do
 		selectable_column
-		column :name
-		column :short_hand
-		column :logo do |c|
+		column "Company Name", :name 
+		column "Company Logo" do |c|
 			image_tag c.logo, height: "60%"
 		end
 		column :status do |c|
@@ -29,18 +28,22 @@ ActiveAdmin.register Company do
 				status_tag("Not Active")
 			end
 		end
-		actions defaults: true, dropdown: true do |c|
-			item  "Add Visitor Policy", new_admin_product_path(id: c.id)
+		actions defaults: true, dropdown: true, dropdown_name: "In-Bound Product"do |c|
+			item  "Add Visitor Policy", new_admin_product_path(id: c.id, name: c.name)
 			item  "Add Student Policy", "#"
-			item  "Add Regions", add_admin_region_path(id: c.id)
+			item  "Add Provinces", add_admin_region_path(id: c.id, name: c.name)
+		end
+		column "" do |c|
+			dropdown_menu "Out-Bound Products" do
+   		 	item("View", "#")
+			end
 		end
 	end
 	
 	#Form
 	form do |f|
 		f.inputs do
-			f.input :name
-			f.input :short_hand
+			f.input :name, label: "Company name"
 			f.input :logo
 			f.input :status, :as => :radio, :collection => [['Active', true], ['Not', false]]
 		end
@@ -52,7 +55,6 @@ ActiveAdmin.register Company do
 	show do |c|
 		div class: "show_left" do
 			attributes_table do
-	      row :short_hand
 	      row :logo do
 	        image_tag(c.logo)
 	      end
@@ -65,13 +67,13 @@ ActiveAdmin.register Company do
 				end
     	end
     	
-			panel("products", class: 'group single_show') do
+			panel("Visitor Products", class: 'group single_show') do
 				if c.products.any?
 					ul do
 						c.products.each do |p|
 							li do
 								attributes_table_for p do
-									row :name do |p|
+									row "Policy Name" do |p|
 										link_to "#{p.name}", admin_product_path(p)
 									end
 					        row :policy_number

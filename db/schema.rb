@@ -63,7 +63,6 @@ ActiveRecord::Schema.define(version: 20140530203642) do
 
   create_table "companies", force: true do |t|
     t.string   "name"
-    t.string   "short_hand"
     t.string   "logo"
     t.boolean  "status",     default: true
     t.datetime "created_at"
@@ -233,7 +232,9 @@ ActiveRecord::Schema.define(version: 20140530203642) do
     t.string   "type"
     t.string   "detail_type"
     t.integer  "detail_id"
-    t.boolean  "status",      default: true
+    t.datetime "rate_effective_date"
+    t.datetime "future_rate_effective_date"
+    t.boolean  "status",                     default: true
     t.datetime "created_at"
     t.datetime "updated_at"
   end

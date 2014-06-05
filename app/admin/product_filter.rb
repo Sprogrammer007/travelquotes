@@ -18,7 +18,7 @@ ActiveAdmin.register ProductFilter do
 	remove_filter :created_at
 	remove_filter :updated_at
 
-	menu :parent => "Products"
+	menu :parent => "Global Settings"
 
 	index do
 		selectable_column
@@ -29,5 +29,14 @@ ActiveAdmin.register ProductFilter do
 		end
 		actions defaults: true, dropdown: true
 	end
+	form do |f|
+		f.inputs do
+			f.input :name
+			f.input :category, :as => :select, :collection => options_for_select(ProductFilter.filter_categories, f.object.category)
+			f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", " Super Visa", "Both"], f.object.policy_type)
+			f.input :descriptions, input_html: { class: "tinymce" }
 
+		end
+		f.actions
+	end
 end

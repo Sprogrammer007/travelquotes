@@ -16,7 +16,4 @@
 //= require bootstrap
 //= require quotes
 //= require jquery.ui.datepicker
-//=  require ckeditor/override
-//=  require ckeditor/init
-
 

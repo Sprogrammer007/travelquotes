@@ -1,13 +1,18 @@
 ActiveAdmin.setup do |config|
+  config.namespace :admin do |admin|
 
+    admin.build_menu do |menu|
+      menu.add :label => "Products", :priority => 1
+      menu.add :label => "Global Settings", :priority => 2
+    end
+  end
   # == Site Title
   #
   # Set the title that is displayed on the main layout
   # for each of the active admin pages.
   #
   config.site_title = "Travelquotes"
-  config.register_javascript 'ckeditor/init.js'
-
+  config.register_javascript 'tinymce.js'
   # Set the link url for the title. For example, to take
   # users to your main site. Defaults to no link.
   #

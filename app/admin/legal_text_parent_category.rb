@@ -2,7 +2,7 @@ ActiveAdmin.register LegalTextParentCategory do
 
   include_import
 
-  menu :parent => "Products"
+  menu :parent => "Global Settings"
   
   permit_params :name
 

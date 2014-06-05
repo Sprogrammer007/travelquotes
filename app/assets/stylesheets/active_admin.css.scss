@@ -11,12 +11,51 @@
 @import "active_admin/mixins";
 @import "active_admin/base";
 
-
+#mceu_15 {
+  display: inline-block;
+  width: 76% !important;
+  border-radius: 3px;
+}
 // Overriding any non-variable SASS must be done after the fact.
 // For example, to change the default status-tag color:
 //
 //   .status_tag { background: #6090DB; }
 
+/* Product Version Dropdown changes */
+.col-versions {
+  width: 100%;
+}
+.col-versions .dropdown_menu {
+  display: inline-block;
+  float: left;
+}
+
+.col-versions .dropdown_menu .dropdown_menu_button {
+  margin-right: 0;
+}
+.col-versions>.dropdown_menu:first-child:not(:last-child)>.dropdown_menu_button {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.col-versions>.dropdown_menu:not(:first-child):not(:last-child)>.dropdown_menu_button {
+  border-radius: 0;
+  border-radius: 0;
+}
+
+.col-versions>.dropdown_menu:last-child:not(:first-child)>.dropdown_menu_button {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.panel_contents ul.dropdown_menu_list li {
+  width: 100%; 
+  margin: 0; 
+}
+
+
+
+/* Other */
 .radio-width {
 	width: 8%;
 }
@@ -113,7 +152,6 @@ div.show_right {
   -moz-box-shadow: 7px 10px 6px -6px #777777;
   box-shadow: 7px 10px 6px -6px #777777;
 }
-
 
 .single_show_version .show_version_wrapper {
   padding: 10px;
@@ -290,6 +328,15 @@ div.show_right {
   background-color: #43B8B5;
 }
 
+.panel .rate-col-50 {
+  display: inline-block;
+  width: 48%;
+}
+
+.panel .apply_rate {
+  margin-right: 30px;
+}
+
 .rates_panel .small {
   font-size: 1.0em;
   display: inline-block;
@@ -301,8 +348,8 @@ div.show_right {
   display: inline-block;
 }
 
-.rate_fields .col-xs-2 {
-width: 25%;
+.panel #future_rate_effective_date {
+  width: 20%;
 }
 
 .rate_fields .col-xs-6 {
@@ -320,6 +367,7 @@ width: 45%;
 .status_tag.future {
   background-color: #4998F8;
 }
+
 
 .min-width-150 {
   min-width: 150px;

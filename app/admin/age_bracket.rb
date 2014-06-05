@@ -1,5 +1,5 @@
 ActiveAdmin.register AgeBracket do
-	menu :parent => "Products"
+	menu :parent => "Super Admin"
 	config.sort_order = "id_asc"
 	include_import
 
@@ -46,10 +46,10 @@ ActiveAdmin.register AgeBracket do
 				end
 				row " " do |a|
 					[
-						link_to("View", admin_age_bracket_path(a)),
+						link_to("View", add_future_admin_rate_path(id: a.id)),
 						link_to("Edit", edit_admin_age_bracket_path(a)),
 						link_to("Delete", admin_age_bracket_path(a), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}),
-						link_to("Add Rate", add_future_admin_rate_path(id: a.id))
+						link_to("Add Future Rate", add_future_admin_rate_path(id: a.id))
 					].join(" | ").html_safe
 				end
 				
@@ -86,19 +86,61 @@ ActiveAdmin.register AgeBracket do
 					status_tag("No")
 				end
 			end
+			row "Rate Effective Date" do |a|
+				a.rates
+			end
 		end
 
-		panel("Rates") do 
-			table_for a.rates do
+		panel("Current Rates", class: "group") do 
+			table_for a.rates.current do
 				column :rate
 				column :rate_type
 				column :sum_insured
-				column :effective_date
 				column :status do |r|
 					status_tag r.status, "#{r.status.downcase}"
 				end
 				column "" do |r|
-					text_node link_to "Edit", edit_admin_rate_path(r)
+					[	
+						link_to("Edit", edit_admin_rate_path(r)),
+						link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+					].join(" | ").html_safe
+				end
+				
+			end	
+			text_node link_to "Add Rate",new_admin_rate_path(id: a.id), class: "link_button right"
+		end
+
+		panel("Future Rates", class: "group") do 
+			table_for a.rates.future do
+				column :rate
+				column :rate_type
+				column :sum_insured
+				column :status do |r|
+					status_tag r.status, "#{r.status.downcase}"
+				end
+				column "" do |r|
+					[	
+						link_to("Edit", edit_admin_rate_path(r)),
+						link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+					].join(" | ").html_safe
+				end
+				
+			end	
+		end
+
+		panel("OutDated Rates", class: "group") do 
+			table_for a.rates.outdated do
+				column :rate
+				column :rate_type
+				column :sum_insured
+				column :status do |r|
+					status_tag r.status, "#{r.status.downcase}"
+				end
+				column "" do |r|
+					[	
+						link_to("Edit", edit_admin_rate_path(r)),
+						link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+					].join(" | ").html_safe
 				end
 			end	
 		end
@@ -106,14 +148,15 @@ ActiveAdmin.register AgeBracket do
 
 	form do |f|
 		f.inputs do
-			if params[:product_id]
+			if f.object.new_record? && params[:product_id]
 				f.input :product_id, :as => :hidden, :input_html => { :value => Version.find(params[:product_id]).product_id }
 				f.input :product_id, :as => :select, :collection => options_for_select([[params[:name], params[:product_id]]], params[:product_id]), input_html: { disabled: true, multiple: false}
-			elsif params[:id]
+			elsif f.object.new_record? && params[:id]
 				f.input :product_id, :as => :hidden, :input_html => { :value => params[:id] }
 				f.input :product_id, :as => :select, :collection => options_for_select([[params[:name], params[:id]]], params[:id]), input_html: { disabled: true, multiple: false}
 			else
-				f.input :product,	:input_html => { :class => 'tier1_select', disabled: true}
+				f.input :product_id, :as => :hidden, :input_html => { :value => f.object.product_id }
+				f.input :product, :as => :select, :collection => options_for_select(Product.all.map{ |p| [p.name, p.id]}, f.object.product_id),	:input_html => { :class => 'tier1_select', disabled: true}
 			end
 			f.input :min_age
 			f.input :max_age
@@ -126,7 +169,6 @@ ActiveAdmin.register AgeBracket do
 				cf.input :rate
 				cf.input :rate_type, :as => :select, :collection => Rate.rate_types
 				cf.input :sum_insured
-				cf.input :effective_date, :as => :datepicker
 			end
 		end
 		f.actions
@@ -138,7 +180,7 @@ ActiveAdmin.register AgeBracket do
 		end
 
 		def clean_rate_params
-			params.require(:age_bracket).permit(:rates_attributes => [:rate, :rate_type, :sum_insured, :effective_date])
+			params.require(:age_bracket).permit(:rates_attributes => [:rate, :rate_type, :sum_insured])
 		end
 
 		def index
@@ -151,8 +193,12 @@ ActiveAdmin.register AgeBracket do
 			super
 		end
 
-		def update
+		def show
+	    @page_title = "Age Bracket (#{resource.range}) For #{resource.product.name}"
+	    super
+		end
 
+		def update
 			age = AgeBracket.find(params[:id])
 			age.update(clean_params)
 			if params[:age_bracket][:rates_attributes]
@@ -161,7 +207,7 @@ ActiveAdmin.register AgeBracket do
 																			sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
 				end
 			end
-			redirect_to admin_age_bracket_path(age)
+			redirect_to add_future_admin_rate_path(id: age.id)
 		end
 	end	
 end

@@ -26,7 +26,7 @@ ActiveAdmin.register Region do
 
   #Actions
   member_action :add, method: :get do
-    @page_title = "Select Regions"
+    @page_title = "Select Regions For #{params[:name]}"
     company = Company.find(params[:id])
     @provinces = Province.all
     @already_selected_region = company.provinces.pluck(:id)

@@ -22,7 +22,7 @@ class Deductible < ActiveRecord::Base
   end
 
   def self.conditions_options
-    [['Greater', 'gt'], ['Lesser', 'lt'], 
+    [["Not Applicable"], ['Greater', 'gt'], ['Lesser', 'lt'], 
     ['Greater and Equal', 'gteq'], ['Lesser and Equal', 'lteq']]
   end
 

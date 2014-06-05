@@ -37,12 +37,10 @@ ActiveAdmin.register Province do
 	#Form
 	form do |f|
 		f.inputs do
-			if f.object.new_record?
-				f.input :companies, :as => :select
-			end
 			f.input :flag
 			f.input :name
 			f.input :short_hand
+			f.input :country, as: :select, :collection => options_for_select(["Canada"])
 		end
 		f.actions
 	end

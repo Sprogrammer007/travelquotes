@@ -1,13 +1,7 @@
 <div class="rate_fields">
-  <%= hidden_field_tag "future[][age_bracket_id]", o.age_bracket_id, id: "future_age_bracket_id" %>
-  <%= hidden_field_tag "future[][rate_type]", o.rate_type, id: "future_rate_type" %>
-  <%= hidden_field_tag "future[][sum_insured]", o.sum_insured, id: "future_sum_insured" %>
 
   <div class="col-xs-2">
     <%= text_field_tag "future[][rate]", nil, id: "future_rate" , :placeholder => "Enter Future Rate..."%>
-  </div>
-  <div class="col-xs-6">
-  <%= text_field_tag "future[][effective_date]", nil, id: "future_date_#{o.id}", :readonly => true, :placeholder => "Select Effective Date" %>
   </div>
 
   <div class="col-xs-2">

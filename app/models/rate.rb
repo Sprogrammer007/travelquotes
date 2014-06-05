@@ -13,19 +13,26 @@ class Rate < ActiveRecord::Base
   scope :future, -> { status_eq("Future") }
   scope :include_sum, ->(sum) {sum_insured_eq(sum).current}
 
-  validates :rate, :age_bracket_id, :rate_type, :sum_insured, :effective_date, presence: true
+  validates :rate, :rate_type, :sum_insured,  presence: true
   validates :rate, :numericality => {:only_integer => false}
   validates :sum_insured,  :numericality => {:only_integer => true}
+
   def set_status
+    set_effective_date()
     unless self.status
-      self.status = self.effective_date > Date.today ? "Future" : "Current"
+      self.status = (self.effective_date > Date.today)? "Future" : "Current"
     end
   end
   
+  def set_effective_date
+    unless self.effective_date
+      self.effective_date = self.age_bracket.versions.first.rate_effective_date
+    end
+  end
   def self.select_age_bracket_options
   	h = Hash.new 
   	Product.all.map do |product| 
-  		h[product.name] =  product.versions.map { |version| version.age_brackets.map {|age| [version.type + " (#{age.range})", age.id]}}.flatten(1)
+  		h[product.name] =  product.versions.map { |version| version.age_brackets.map {|age| [version.detail_type + " (#{age.range})", age.id]}}.flatten(1)
   	end
   	h
   end
@@ -34,6 +41,7 @@ class Rate < ActiveRecord::Base
     %w{Daily Weekly Monthly Annually}
   end
 
+  #not in use
   def self.status
     %w{Current OutDated Future}
   end

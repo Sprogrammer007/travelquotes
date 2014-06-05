@@ -5,7 +5,8 @@ class CreateVersions < ActiveRecord::Migration
       t.string :type
       t.string :detail_type
       t.integer :detail_id
-
+      t.datetime :rate_effective_date
+      t.datetime :future_rate_effective_date
       t.boolean :status, default: true
 
       t.timestamps

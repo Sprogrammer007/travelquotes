@@ -1,41 +1,35 @@
+<%= form_tag url_for(:controller => 'admin/rates', :action => 'create_future') do %>
   <div class="panel">
-    <h3>Age Bracket Details</h3>
-
+    <h3>Version Details</h3>
     <div class="panel_contents">
       <div class="attributes_table" >
         <table border="0" cellspacing="0" cellpadding="0">
           <tbody>
             <tr class="row">
               <th>Product</th>
-              <td><%= @age.product.name %></td>
+              <td><%= @version.product.name %>
             </tr>
 
             <tr class="row">
-              <th>Versions</th>
+              <th>Versions Type</th>
               <td>
-                <% @age.versions.each do |version| %>
-                  <%= "#{version.type} (#{version.detail_type})" %>
-                <% end %>
+                <%= "#{@version.detail_type}(#{@version.type})" %>
               </td>
             </tr>
+            
             <tr class="row">
-              <th>Range</th>
-              <td><%= @age.range  %></td>
-            </tr>
-            <tr class="row">
-              <th>Trip Duration</th>
+              <th>Current Rate Effective Date:</th>
               <td>
-                <%= "#{@age.min_trip_duration} - #{@age.max_trip_duration}"   %>
+                <%= @version.rate_effective_date %>
               </td>
             </tr>
-   
+
             <tr class="row">
-              <th>Pre-Existing Medical Conditions</th>
+              <th>Future Rate Effective Date:</th>
               <td>
-                <% if @age.preex %>
-                  <span class="status_tag ok">Yes</span>
-                <% else %>
-                  <span class="status_tag">No</span>
+                <%= text_field_tag "[effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter Future Effective Date...", readonly: true%>
+                <% if @error %>
+                  "future effective date cannot be blank"
                 <% end %>
               </td>
             </tr>
@@ -45,31 +39,36 @@
     </div>
   </div>
 
-  <div class="panel">
+  <div class="panel group">
     <h3>Current Rates</h3>
-    <div class="panel_contents group">
-      <%= form_tag url_for(:controller => 'admin/rates', :action => 'create_future') do %>
-        <%= render("admins/rate_table", rates: @age.rates.current) %>
-      <%= submit_tag "Add", class: "right" %>
-      <% end %>
-    </div>
+    <% @ages.each do |age| %>
+      <div class="panel_contents group rate-col-50">
+        <div class="attributes_table" >
+          <table border="0" cellspacing="0" cellpadding="0">
+            <tbody>
+              <tr class="row">
+                <th>Range</th>
+                <td><%= age.range  %></td>
+              </tr>
+
+              <tr class="row">
+                <th>Pre-Existing Medical Conditions</th>
+                <td>
+                  <% if age.preex %>
+                    <span class="status_tag ok">Yes</span>
+                  <% else %>
+                    <span class="status_tag">No</span>
+                  <% end %>
+                </td>
+              </tr>
+       
+            </tbody>
+          </table>
+        </div>
+        <%= render("admins/rate_table", rates: age.rates.current) %>
+
+      </div>
+    <% end %>
+    <%= submit_tag "Apply Future Rates", class: "apply_rate right" %>
   </div>
-
-<div class="rates_panel">
-
-  <div class="panel small">
-    <h3>Future Rates</h3>
-    <div class="panel_contents">
-      <%= render("admins/rate_table", rates: @age.rates.future) %>
-    </div>
-  </div>
-
-  <div class="panel small">
-    <h3>Past Rates</h3>
-
-    <div class="panel_contents">
-      <%= render("admins/rate_table", rates: @age.rates.outdated) %>
-    </div>
-
-  </div>
-</div>
+<% end %>

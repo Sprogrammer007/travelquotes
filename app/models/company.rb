@@ -1,5 +1,5 @@
 class Company < ActiveRecord::Base
-	DEFAULT_HEADER = %w{name short_hand logo status}
+	DEFAULT_HEADER = %w{name logo status}
 	
 	has_many :products, dependent: :destroy
 	 

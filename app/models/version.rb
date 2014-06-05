@@ -1,6 +1,6 @@
 class Version < ActiveRecord::Base
 
-  DEFAULT_HEADER = %w{product_id type detail_type detail_id status}
+  DEFAULT_HEADER = %w{product_id type detail_type detail_id rate_effective_date future_rate_effective_date status}
   belongs_to :product
 
 	has_many :age_sets, dependent: :destroy
@@ -21,7 +21,7 @@ class Version < ActiveRecord::Base
   scope :couple, -> {detail_type_eq("CoupleDetail")}
   scope :single, -> {detail_type_eq("SingleDetail")}
 
-  validates :product_id, :type, presence: true
+  validates :product_id, :type, :rate_effective_date, presence: true
 
   delegate :has_special_rate?, to: :detail
 

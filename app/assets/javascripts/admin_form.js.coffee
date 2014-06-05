@@ -126,19 +126,20 @@ ready = ->
     $('.add_fields').on 'click', addFileds
     e.preventDefault()
     return false
+    
+  $('#future_rate_effective_date').datepicker
+    dateFormat: "yy-mm-dd"
+    altFormat: "yy/mm/dd"
+    constrainInput: true
+    changeYear: true
+    minDate: 1 #set min date to current date
 
   addFileds = (e) ->
     parent = $(this).parent()
     addfields = parent.html().replace(/\s+/g, " ").replace("\n", "")
+    $(this).prev("#future_current_rate").remove()
     $(this).replaceWith( $(this).data('fields'))
     $('.remove_fields').on('click', removeFields).attr('data-addfields', addfields)
-    $(parent.find('input[name="future[][effective_date]"]')).datepicker
-      dateFormat: "yy-mm-dd"
-      altFormat: "yy/mm/dd"
-      constrainInput: true
-      changeYear: true
-      changeMonth: true
-      minDate: 1 #set min date to current date
     e.preventDefault()
 
   $('.add_fields').on 'click', addFileds
@@ -171,7 +172,6 @@ ready = ->
       $('#legal_text_legal_text_category_id').html(legal_text_sub_cat)  
 
   #Sorter helpers
-
   catEnter = (e)->
     e.stopPropagation
     overlay = " <div id='overlay'><h4>This Category Cannot Be Moved!</h4> </div>"
