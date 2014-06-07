@@ -84,24 +84,31 @@ ready = ->
   #This is for adding new versions. All fields are generated when
   #the user visits the add version page, but for user friendly purposes
   #we toggle hide/show as the detail_type changes.
+  person =
+    single: undefined
+    couple: undefined
+    family: undefined
+    cacheTemplate: ->
+      this.single = $('.single_details').wrap('<p>').parent().html()
+      this.couple = $('.couple_details').wrap('<p>').parent().html()
+      this.family = $('.family_details').wrap('<p>').parent().html()
+      $('.single_details').unwrap()
+      $('.couple_details').unwrap().remove()
+      $('.family_details').unwrap().remove()
+      this.couple = $(this.couple).removeClass('hide').wrap('<p>').parent().html()
+      this.family = $(this.family).removeClass('hide').wrap('<p>').parent().html()
+  
+  person.cacheTemplate()
+  
   $('.detail_type').change ->
-    single = $('.single_details')
-    couple = $('.couple_details')
-    family = $('.family_details')
     type = $(this).find(':selected').text()
     switch type
       when 'Couple'
-        couple.show()
-        family.hide()
-        single.hide()
+        $(this).parents('.inputs').next().replaceWith(person.couple)
       when 'Family'
-        family.show()
-        couple.hide()
-        single.hide()
+        $(this).parents('.inputs').next().replaceWith(person.family)
       else
-        single.show()
-        couple.hide()
-        family.hide()
+        $(this).parents('.inputs').next().replaceWith(person.single)
 
   #Toggle Show More/Less
   (($) ->

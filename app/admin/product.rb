@@ -160,10 +160,12 @@ ActiveAdmin.register Product do
 											end
 										end
 									end
-									dropdown_menu "Age Bracket Actions", class: "dropdown_menu right" do
+									dropdown_menu "Version Actions", class: "dropdown_menu right" do
 										item("View", admin_version_path(version))
 										item("Edit", edit_admin_version_path(version), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
 										item("Delete", admin_version_path(version))
+										item("Add Future Rates", add_future_admin_rate_path(id: version.id))
+										item("Select Existing Age Bracket",  add_admin_age_set_path(id: version.id))
 									end	
 					      end
 		

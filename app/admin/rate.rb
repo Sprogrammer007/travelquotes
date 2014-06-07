@@ -87,14 +87,40 @@ ActiveAdmin.register Rate do
 
   collection_action :create_future, method: :post do
   	effective_date = clean_params[:effective_date]
+  	version = Version.find(params[:version_id])
   	if effective_date.empty?
   		flash[:error] = "Future effective date cannot be blank"
 	  else
+	  	version.update(:effective_date => effective_date)
 	  	Rate.create(clean_params[:future]) do |r|
 	  		r.effective_date = effective_date
 	  		r.status = "Future"
 	  	end
 		end
+ 		redirect_to :back
+  end
+
+  collection_action :update_effective_date, method: :post do
+  	version = Version.find(params[:version_id])
+  	rate_ids = []
+  	new_effective_date = (params[:current_effective_date] || params[:future_effective_date])
+  	if new_effective_date.blank?
+  		flash[:error] = "Please provide a new effective date!"
+  	else 
+  		if params[:current_effective_date]
+	  		version.update(rate_effective_date: new_effective_date)
+	  		version.age_brackets.each do |age|
+	  			rate_ids << age.rates.current.pluck(:id)
+	  		end
+	  		Rate.where(id: rate_ids.flatten).update_all({effective_date: new_effective_date})
+  		else
+	  		version.age_brackets.each do |age|
+	  			version.update(future_rate_effective_date: new_effective_date)
+	  			rate_ids << age.rates.future.pluck(:id)
+	  		end
+	  		Rate.where(id: rate_ids.flatten).update_all({effective_date: new_effective_date})
+	  	end
+  	end
  		redirect_to :back
   end
 

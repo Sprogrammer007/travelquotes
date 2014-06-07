@@ -60,90 +60,110 @@ ActiveAdmin.register Version do
 						"No Future Rate"
 					end
 				end
-			end
-			text_node link_to "Select Existing Age Brackets", add_admin_age_set_path(id: v.id),  class: "link_button right"
-			text_node link_to "Add Future Rates", add_future_admin_rate_path(id: v.id),  class: "link_button right"
-		end	
-
-			panel("#{v.detail_type} Details", class: 'group single_show_version') do
-				attributes_table_for v.detail do
-					row :min_age
-					row :max_age
-					if v.detail_type == "Couple"
-						row :has_couple_rate do |d|
-							if d.has_couple_rate
-								status_tag "Yes", :ok
-							else
-								status_tag "No"
-							end
-						end
-					elsif v.detail_type == "Family"
-						row :min_adult
-						row :max_adult
-						row :min_dependant
-						row :max_dependant
-						row :max_kids_age
-					  row :max_age_with_kids
-					  row :has_family_rate do |d|
-							if d.has_special_rate?
-								status_tag "Yes", :ok
-							else
-								status_tag "No"
-							end
-						end
+				row "Update Current Effective Date" do |v|
+					form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
+						[
+							hidden_field_tag("version_id", v.id),
+							text_field_tag("[current_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Effective Date...", readonly: true),
+							submit_tag("Update Current Rates")
+						].join(" ").html_safe
 					end
-				end	
-			end
-
-			panel("Age Brackets", class: 'group single_show_version') do
-				ul do
-					v.age_brackets.order("min_age asc").each do |age|
-						li do
-							div class: "show_version_wrapper group" do
-								attributes_table_for age  do
-									row :range
-									row "Trip Duration" do |a|
-										"#{a.min_trip_duration} - #{a.max_trip_duration} (Days)"
-									end
-									row "Current Effective Date" do 
-										v.rate_effective_date.strftime("%d, %m, %Y")
-									end
-									row :preex do |a|
-										if a.preex
-											status_tag("Yes", :ok)
-										else
-											status_tag("No")
-										end
-									end
-								end
-								table_for age.rates.current do
-									column :rate
-									column :rate_type
-									column :sum_insured
-									column :status do |r|
-										status_tag r.status, "#{r.status.downcase}"
-									end
-									column " " do |r|
-										[
-											link_to("View", admin_rate_path(r)),
-											link_to("Edit", edit_admin_rate_path(r)),
-					    				link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-				    				].join(" | ").html_safe
-									end
-								end
-								dropdown_menu "Age Bracket Actions", class: "dropdown_menu right" do
-									item("View", admin_age_bracket_path(age))
-									item("Edit", admin_age_bracket_path(age), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-									item("Delete", edit_admin_age_bracket_path(age))
-									item("Add Rate", new_admin_rate_path(id: age.id))
-									item("View All Rates", admin_age_bracket_path(age))
-								end				
-							end
+				end
+				if version.future_rate_effective_date
+					row "Update Current Effective Date" do |v| 
+						form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
+							[
+								hidden_field_tag("version_id", v.id),
+								text_field_tag("[future_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Future Effective Date...", readonly: true),
+								submit_tag("Update Future Rates")
+							].join(" ").html_safe
 						end
 					end
 				end
 			end
+			text_node link_to "Add Future Rates", add_future_admin_rate_path(id: v.id),  class: "link_button right"
+		end	
 
+		panel("#{v.detail_type} Details", class: 'group single_show_version') do
+			attributes_table_for v.detail do
+				row :min_age
+				row :max_age
+				if v.detail_type == "Couple"
+					row :has_couple_rate do |d|
+						if d.has_couple_rate
+							status_tag "Yes", :ok
+						else
+							status_tag "No"
+						end
+					end
+				elsif v.detail_type == "Family"
+					row :min_adult
+					row :max_adult
+					row :min_dependant
+					row :max_dependant
+					row :max_kids_age
+				  row :max_age_with_kids
+				  row :has_family_rate do |d|
+						if d.has_special_rate?
+							status_tag "Yes", :ok
+						else
+							status_tag "No"
+						end
+					end
+				end
+			end	
+		end
+
+		panel("Age Brackets", class: 'group single_show_version') do
+			ul do
+				v.age_brackets.order("min_age asc").each do |age|
+					li do
+						div class: "show_version_wrapper group" do
+							attributes_table_for age  do
+								row :range
+								row "Trip Duration" do |a|
+									"#{a.min_trip_duration} - #{a.max_trip_duration} (Days)"
+								end
+								row "Current Effective Date" do 
+									v.rate_effective_date.strftime("%d, %m, %Y")
+								end
+								row :preex do |a|
+									if a.preex
+										status_tag("Yes", :ok)
+									else
+										status_tag("No")
+									end
+								end
+							end
+							table_for age.rates do
+								column :rate
+								column :rate_type
+								column :sum_insured
+								column :effective_date
+								column :status do |r|
+									status_tag r.status, "#{r.status.downcase}"
+								end
+								column " " do |r|
+									[
+										link_to("View", admin_rate_path(r)),
+										link_to("Edit", edit_admin_rate_path(r)),
+				    				link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+			    				].join(" | ").html_safe
+								end
+							end
+							dropdown_menu "Age Bracket Actions", class: "dropdown_menu right" do
+								item("View", admin_age_bracket_path(age))
+								item("Edit", admin_age_bracket_path(age), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+								item("Delete", edit_admin_age_bracket_path(age))
+								item("Add Rate", new_admin_rate_path(id: age.id))
+								item("View All Rates", admin_age_bracket_path(age))
+							end				
+						end
+					end
+				end
+			end
+			text_node link_to "Select Existing Age Brackets", add_admin_age_set_path(id: v.id),  class: "link_button right"
+		end
 	end
 
 	#Form
@@ -213,7 +233,7 @@ ActiveAdmin.register Version do
 	controller do
 
 		def version_params             
-			params.require(:version).permit(:product_id, :type, :detail_type, :detail,
+			params.require(:version).permit(:product_id, :type, :detail_type, :detail, :rate_effective_date,
 				:family_detail => [:min_age, :max_age, :min_adult, :max_adult, :min_dependant, :max_dependant, :max_kids_age, :max_age_with_kids, :has_family_rate],
 				:couple_detail => [:min_age, :max_age, :has_couple_rate],
 				:single_detail => [:min_age, :max_age])        
@@ -221,16 +241,16 @@ ActiveAdmin.register Version do
 
 		def destroy
 			version = Version.find(params[:id])
-			policy_id = version.product.id
 			if version
 				version.destroy_related
 				flash[:notice] = "Version was successfully removed!"
 			end
-			redirect_to admin_product_path(policy_id)
+			redirect_to admin_products_path()
 		end
 
 		def new
-			@version = Version.new
+			@page_title = "New Version For #{params[:name]}"
+			super
 		end
 
 		def create
@@ -238,7 +258,8 @@ ActiveAdmin.register Version do
 			details_params = version_params.delete(:"#{version_type.downcase}_detail")
 			version = Version.new(:product_id => version_params[:product_id],
 														:type => version_params[:type],
-														:detail_type => version_params[:detail_type])
+														:detail_type => "#{version_params[:detail_type]}Detail",
+														:rate_effective_date => version_params[:rate_effective_date])
 			if version.save
 				"#{version_type}Detail".constantize.create!(details_params.merge(version: version))
 				#add age brackets automatically for couple and family

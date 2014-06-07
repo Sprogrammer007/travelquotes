@@ -90,9 +90,17 @@ ActiveAdmin.register Company do
 											status_tag("Not Active")
 										end
 									end
-									text_node link_to "Delete", admin_product_path(p), class: "link_button right", method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}
-									text_node link_to "Edit", edit_admin_product_path(p), class: "link_button right"
-									text_node link_to "View", admin_product_path(p), class: "link_button right"
+									dropdown_menu "Product Actions", class: "dropdown_menu right" do
+										item("View", admin_product_path(p))
+										item("Edit", edit_admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+										item("Delete", admin_product_path(p))
+										item  "Add Version", new_admin_version_path(:id => p.id, name: p.name)
+										item  "Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name)
+										item  "Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name)
+										item  "Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name)
+										item  "Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name, e_date: p.effective_date.strftime("%Y-%m-%d"))
+									end	
+								
 					      end
 					    end
 						end

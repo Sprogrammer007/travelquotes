@@ -1,4 +1,5 @@
 <%= form_tag url_for(:controller => 'admin/rates', :action => 'create_future') do %>
+  <%= hidden_field_tag "version_id", @version.id %>
   <div class="panel">
     <h3>Version Details</h3>
     <div class="panel_contents">
@@ -28,13 +29,12 @@
               <th>Future Rate Effective Date:</th>
               <td>
                 <%= text_field_tag "[effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter Future Effective Date...", readonly: true%>
-                <% if @error %>
-                  "future effective date cannot be blank"
-                <% end %>
+                <%= submit_tag "Apply Future Rates", class: "apply_rate" %>
               </td>
             </tr>
           </tbody>
         </table>
+        <span style="color: red; font-size: 1.3em; font-weight: bold;">Warning: If a new future rate is not enter for any rates below, the current rate will be used as the rate for the new future effective date!</span>
       </div>
     </div>
   </div>
@@ -69,6 +69,6 @@
 
       </div>
     <% end %>
-    <%= submit_tag "Apply Future Rates", class: "apply_rate right" %>
+   
   </div>
 <% end %>
