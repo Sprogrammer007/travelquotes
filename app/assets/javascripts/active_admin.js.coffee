@@ -7,7 +7,7 @@
 $(document).ready ->
   tinyMCE.init
     mode: "textareas"
-    theme: 'advanced'
+
     editor_selector: "tinymce"
-    plugins : 'advlist, autolink, lists, print, preview'
+   
   return
