@@ -2,10 +2,9 @@
 #= require editable_text_column
 #= require admin_form
 #= require jquery.ui.accordion
-#= require tiny_mce/tiny_mce
+#= require tinymce
 
 $(document).ready ->
-  tinyMCE.baseURL = "http://travelquotestest.herokuapp.com/assets/tiny_mce"
   tinyMCE.init
     mode: "textareas"
     theme: 'advanced'

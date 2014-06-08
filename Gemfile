@@ -17,6 +17,7 @@ gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'devise'
 gem 'bootstrap-sass', '~> 3.1.1'
+gem 'tinymce-rails', github: 'spohlenz/tinymce-rails', branch: 'tinymce-3'
 
 group :development do
   gem 'faker', '1.2.0'

@@ -12,7 +12,7 @@ ActiveAdmin.setup do |config|
   # for each of the active admin pages.
   #
   config.site_title = "Travelquotes"
-  config.register_javascript 'tiny_mce/tiny_mce.js'
+  config.register_javascript 'tinymce.js'
   # Set the link url for the title. For example, to take
   # users to your main site. Defaults to no link.
   #
