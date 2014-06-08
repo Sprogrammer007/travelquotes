@@ -5,9 +5,10 @@
 #= require tiny_mce/tiny_mce
 
 $(document).ready ->
+  tinyMCE.baseURL = "http://travelquotestest.herokuapp.com/assets/tiny_mce/"
   tinyMCE.init
     mode: "textareas"
-
+    theme: 'advanced'
     editor_selector: "tinymce"
-   
+    plugins : 'advlist, autolink, lists, print, preview'
   return
