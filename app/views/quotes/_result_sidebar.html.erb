@@ -25,8 +25,9 @@
       <% end %>
     </div>
     <div class="email-button">
-    <%= button_tag "Email Me This Quote!", class: "email-pop btn btn-danger", data: {content: "Your Quote will be send to <strong>#{q.email}</strong> is that correct?<br/>
-    <a href='#{email_quote_path(q)}' class='email-confirm-button btn btn-info pull-right'>Confirm</a>"} %>
+    <%= button_tag "Email Me This Quote!", class: "email-pop btn btn-danger", data: {content: "<p>Your Quote will be send to <strong>#{q.email}</strong> is that correct?</p>
+    <a href='#' data-field='#{render('email_update_form', q: q )}' class='email-update-button btn btn-info pull-right'>No</a>
+    <a href='#{email_quote_path(q)}' class='email-confirm-button btn btn-info pull-right'>Yes</a>"} %>
     </div>
   </div>
 

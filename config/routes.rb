@@ -11,10 +11,9 @@ Travelquotes::Application.routes.draw do
       post 'compare'
       post 'detail'
       post 'email'
+      post 'update_email'
     end
   end
-	namespace :api, path: '/', constraints: { subdomain: 'api' } do
-		resources :policy, except: [:destroy, :update, :edit]
-	end
+
 
 end

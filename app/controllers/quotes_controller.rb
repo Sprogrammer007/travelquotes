@@ -86,9 +86,11 @@ class QuotesController < ApplicationController
 	    	format.js
 	    end
 		end
-
 	end
 	
+	def update_email
+		
+	end
 	private
 
 		def permitted_filters

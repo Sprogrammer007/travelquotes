@@ -607,3 +607,11 @@ h5.collapsed.arrow-black::before {
 .btn:focus {
   border-color: #d2322d !important;
 } 
+
+.popover-content p {
+  line-height: 1em;
+}
+
+.popover-content .email-update-button {
+  margin-left: 3px;
+}

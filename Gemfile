@@ -15,7 +15,6 @@ gem 'jquery-rails'
 gem 'puma'
 gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
-gem 'tinymce-rails'
 gem 'devise'
 gem 'bootstrap-sass', '~> 3.1.1'
 

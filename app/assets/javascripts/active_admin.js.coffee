@@ -2,12 +2,12 @@
 #= require editable_text_column
 #= require admin_form
 #= require jquery.ui.accordion
-#= require tinymce-jquery
+#= require tiny_mce/tiny_mce
 
 $(document).ready ->
   tinyMCE.init
     mode: "textareas"
-    theme: 'modern'
+    theme: 'advanced'
     editor_selector: "tinymce"
-    plugins : 'advlist autolink link image lists charmap print preview'
+    plugins : 'advlist, autolink, lists, print, preview'
   return

@@ -16,6 +16,13 @@ ready = ->
       e.preventDefault()
       url = $(this).attr('href')
       $.post(url, {}, undefined, "script")
+
+    $('.email-update-button').click (e)->
+      e.preventDefault()
+      form = $(this).attr('data-field')
+      $(this).next('a').hide()
+      $(this).hide().prev('p').after(form)
+
  
   # Details
   trip_length = parseInt($('.trip_length').text())
