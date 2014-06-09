@@ -4,6 +4,7 @@ ActiveAdmin.setup do |config|
     admin.build_menu do |menu|
       menu.add :label => "Products", :priority => 1
       menu.add :label => "Global Settings", :priority => 2
+      menu.add :label => "Super Admin", :priority => 3, :if => proc{ current_admin_user.email == "stevenag006@hotmail.com" }
     end
   end
   # == Site Title
@@ -137,7 +138,7 @@ ActiveAdmin.setup do |config|
   #
   # Enable and disable Batch Actions
   #
-  config.batch_actions = true
+  config.batch_actions = false
 
 
   # == Controller Filters

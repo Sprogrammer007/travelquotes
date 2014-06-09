@@ -2,7 +2,7 @@ ActiveAdmin.register AgeSet do
 
 	include_import
 
-	menu :parent => "Super Admin", :if => proc{ current_admin_user.email == "stevenag006@hotmail.com" }
+	menu :parent => "Super Admin"
 
   controller do         
 

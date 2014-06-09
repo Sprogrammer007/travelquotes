@@ -10,7 +10,7 @@
 // Active Admin's got SASS!
 @import "active_admin/mixins";
 @import "active_admin/base";
-@import "jquery-ui-1.8.custom";
+
 
 #ui-datepicker-div {
   width: 249px;
@@ -21,7 +21,6 @@
 
 .ui-datepicker .ui-datepicker-header .ui-datepicker-title {
   padding: 2px;
-  line-height: 1.8em;
 }
 .ui-datepicker table.ui-datepicker-calendar {
   border-bottom-right-radius: 3px;
@@ -36,16 +35,9 @@
   background-color: #f4f4f4;
   border: none;
   margin: 0;
-  position: relative;
-  top: 12px;
-  left: 0;
   width: 249px;
 }
-#mceu_15 {
-  display: inline-block;
-  width: 76% !important;
-  border-radius: 3px;
-}
+
 // Overriding any non-variable SASS must be done after the fact.
 // For example, to change the default status-tag color:
 //
@@ -53,27 +45,29 @@
 
 /* Product Version Dropdown changes */
 .col-versions {
-  width: 100%;
+  width: 20% !important;
 }
-.col-versions .dropdown_menu {
+
+.col-btn-group .dropdown_menu {
   display: inline-block;
   float: left;
 }
 
-.col-versions .dropdown_menu .dropdown_menu_button {
+.col-btn-group .dropdown_menu .dropdown_menu_button {
   margin-right: 0;
 }
-.col-versions>.dropdown_menu:first-child:not(:last-child)>.dropdown_menu_button {
+.col-btn-group>.dropdown_menu:first-child:not(:last-child)>.dropdown_menu_button {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
 }
 
-.col-versions>.dropdown_menu:not(:first-child):not(:last-child)>.dropdown_menu_button {
+.col-btn-group>.dropdown_menu:not(:first-child):not(:last-child)>.dropdown_menu_button,
+.col-btn-group-verticale>.dropdown_menu:not(:first-child):not(:last-child)>.dropdown_menu_button {
   border-radius: 0;
   border-radius: 0;
 }
 
-.col-versions>.dropdown_menu:last-child:not(:first-child)>.dropdown_menu_button {
+.col-btn-group>.dropdown_menu:last-child:not(:first-child)>.dropdown_menu_button {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
@@ -83,6 +77,21 @@
   margin: 0; 
 }
 
+
+.col-btn-group-verticale .dropdown_menu .dropdown_menu_button {
+  border-radius: 6px;
+  margin-right: 0;
+  width: 40px !important;
+}
+.col-btn-group-verticale>.dropdown_menu:first-child:not(:last-child)>.dropdown_menu_button {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.col-btn-group-verticale>.dropdown_menu:last-child:not(:first-child)>.dropdown_menu_button {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
 
 
 /* Other */

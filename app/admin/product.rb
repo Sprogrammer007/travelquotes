@@ -24,10 +24,9 @@ ActiveAdmin.register Product do
 	remove_filter :product_filter_sets
 	remove_filter :description
 	remove_filter :purchase_url
-
+	
 	#Index Table
 	index :title => "Visitor Policies" do
-		selectable_column
 		column "Company" do |p|
 			p.company.name if p.company
 		end
@@ -37,7 +36,7 @@ ActiveAdmin.register Product do
 
 		column :policy_number
 
-		column "Versions" do |p|	
+		column "Versions", class: "col-btn-group col-versions" do |p|	
 			p.versions.reverse.map do |version| 
 				dropdown_menu "#{version.detail_type}", class: "dropdown_menu versions" do
 					item("View", admin_version_path(version))
@@ -54,15 +53,26 @@ ActiveAdmin.register Product do
 			if p.status
 				status_tag("Active", :ok)
 			else
-				status_tag("Not Active")
+				status_tag("Deactive")
 			end
 		end
-		actions defaults: true, dropdown: true do |p|
-			item  "Add Version", new_admin_version_path(:id => p.id, name: p.name)
-			item  "Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name)
-			item  "Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name)
-			item  "Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name)
-			item  "Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name, e_date: p.effective_date.strftime("%Y-%m-%d"))
+		
+		column "Policy Options", class: "col-btn-group-verticale" do |p|
+			dropdown_menu "View" do 
+				item("View Policy Details", admin_product_path(p))
+				item("View Policy Legal Texts", admin_legal_texts_path(q: {product_id_eq: p.id}))
+				item("View Policy Deductibles", admin_deductibles_path(q: {product_id_eq: p.id}))
+				item("Edit Policy", edit_admin_product_path(p))
+				item("Active/Deactive Policy", deactive_admin_product_path(p))
+				item("Delete", admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+			end
+			dropdown_menu "Edit" do 
+				item("Add Version", new_admin_version_path(:id => p.id, name: p.name))
+				item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
+				item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
+				item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
+				item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name, e_date: p.effective_date.strftime("%Y-%m-%d")))
+			end
 		end
 	end
 
@@ -110,7 +120,7 @@ ActiveAdmin.register Product do
 							if p.status
 								status_tag("Active", :ok)
 							else
-								status_tag("Not Active")
+								status_tag("Deactive")
 							end
 						end
 					end
@@ -127,7 +137,7 @@ ActiveAdmin.register Product do
 										if v.status
 											status_tag("Active", :ok)
 											else
-											status_tag("Not Active")
+											status_tag("Deactive")
 										end
 									end
 									row :min_age do |v|
@@ -261,7 +271,7 @@ ActiveAdmin.register Product do
 			f.input :preex_max_age
 			f.input :preex_based_on_sum_insured, :as => :radio, :collection => [["Yes", true], ["No", false]]
 			f.input :purchase_url
-			f.input :status, :as => :radio, :collection => [['Active', true], ['Not Active', false]]
+			f.input :status, :as => :radio, :collection => [['Active', true], ['Deactive', false]]
 		end
 
 		f.inputs do
@@ -309,4 +319,14 @@ ActiveAdmin.register Product do
 		end
 	end
 
+	#Actions
+  member_action :deactive, method: :get do
+  	@product = Product.find(params[:id])
+  	if @product.status
+    	@product.update(status: false)
+    else
+    	@product.update(status: true)
+    end
+    redirect_to :back
+  end
 end

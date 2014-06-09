@@ -7,8 +7,10 @@ ActiveAdmin.register LegalText do
   permit_params :product_id, :legal_text_category_id, :policy_type, :description,
   :effective_date, :status
 
-  index do
-    selectable_column
+  index :title => "Legal Text" do
+    column "Product" do |l|
+      l.product.name()
+    end
     column :policy_type
     column "Category" do |l|
       l.legal_text_category.name() if l.legal_text_category()

@@ -15,8 +15,10 @@ ActiveAdmin.register Company do
 	remove_filter :status
 	remove_filter :products
 
+	#Default Actions
+	actions :all, :except => [:destroy]
+
 	index do
-		selectable_column
 		column "Company Name", :name 
 		column "Company Logo" do |c|
 			image_tag c.logo, height: "60%"
@@ -25,17 +27,21 @@ ActiveAdmin.register Company do
 			if c.status
 				status_tag("Active", :ok)
 			else
-				status_tag("Not Active")
+				status_tag("Deactive")
 			end
 		end
-		actions defaults: true, dropdown: true
+		actions defaults: false, dropdown: true, dropdown_name: "Company Actions" do |c|
+			item("View Company Details", admin_company_path(c))
+			item("Edit Company Details", edit_admin_company_path(c))
+			item("Active/Deactive Company", deactive_admin_company_path(c))
+			item("Add Provinces", add_admin_region_path(id: c.id, name: c.name))
+		end
 
-		column "" do |c|
+		column "", class: "col-btn-group" do |c|
 			dropdown_menu "In-Bound Product" do 
-				item("View Visitor Policy", admin_products_path())
+				item("View Visitor Policy", admin_products_path(q: {company_id_eq: c.id}))
 				item("Add Visitor Policy", new_admin_product_path(id: c.id, name: c.name))
 				item("Add Student Policy", "#")
-				item("Add Provinces", add_admin_region_path(id: c.id, name: c.name))
 			end
 			dropdown_menu "Out-Bound Products" do
    		 	item("View", "#")
@@ -64,7 +70,7 @@ ActiveAdmin.register Company do
 					if c.status
 						status_tag("Active", :ok)
 					else
-						status_tag("Not Active")
+						status_tag("Deactive")
 					end
 				end
     	end
@@ -89,20 +95,23 @@ ActiveAdmin.register Company do
 										if p.status
 											status_tag("Active", :ok)
 										else
-											status_tag("Not Active")
+											status_tag("Deactive")
 										end
 									end
-									dropdown_menu "Product Actions", class: "dropdown_menu right" do
-										item("View", admin_product_path(p))
-										item("Edit", edit_admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-										item("Delete", admin_product_path(p))
-										item  "Add Version", new_admin_version_path(:id => p.id, name: p.name)
-										item  "Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name)
-										item  "Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name)
-										item  "Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name)
-										item  "Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name, e_date: p.effective_date.strftime("%Y-%m-%d"))
-									end	
-								
+									div class: "col-btn-group right" do 
+										dropdown_menu "Policy Actions", class: "dropdown_menu" do
+											item("View", admin_product_path(p))
+											item("Edit", edit_admin_product_path(p))
+											item("Delete", admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+										end	
+										dropdown_menu "Policy Options", class: "dropdown_menu" do
+											item("Add Version", new_admin_version_path(:id => p.id, name: p.name))
+											item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
+											item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
+											item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
+											item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name, e_date: p.effective_date.strftime("%Y-%m-%d")))
+										end	
+									end
 					      end
 					    end
 						end
@@ -133,5 +142,14 @@ ActiveAdmin.register Company do
 			end if c.provinces
 		end
 	end
-
+	#Actions
+  member_action :deactive, method: :get do
+  	@company = Company.find(params[:id])
+  	if @company.status
+    	@company.update(status: false)
+    else
+    	@company.update(status: true)
+    end
+    redirect_to :back
+  end
 end

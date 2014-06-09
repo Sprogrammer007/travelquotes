@@ -8,7 +8,9 @@ ActiveAdmin.register Deductible do
   permit_params :product_id, :amount, :mutiplier, :condition, :age
   
   index do
-    selectable_column
+    column "Product" do |d|
+      d.product.name()
+    end
     column "Deductible Amount", :amount
     column "Deductible Mutiplier", :mutiplier
     column "Condition For Age", :condition
@@ -66,25 +68,4 @@ ActiveAdmin.register Deductible do
     f.actions
   end
 
-  controller do
-    def clean_params
-      params.require(:age_bracket).permit(:min_age, :max_age, :min_trip_duration, :max_trip_duration)
-    end
-
-    def clean_rate_params
-      params.require(:age_bracket).permit(:rates_attributes => [:rate, :rate_type, :sum_insured, :effective_date])
-    end
-
-    def update
-      age = AgeBracket.find(params[:id])
-      age.update(clean_params)
-      if params[:age_bracket][:rates_attributes]
-        params[:age_bracket][:rates_attributes].each_value do |attrs|
-          Rate.find(attrs[:id]).update(rate: attrs[:rate], rate_type: attrs[:rate_type],
-                                      sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
-        end
-      end
-      redirect_to admin_age_bracket_path(age)
-    end
-  end 
 end

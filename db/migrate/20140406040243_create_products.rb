@@ -15,9 +15,9 @@ class CreateProducts < ActiveRecord::Migration
 
       t.boolean :preex
       t.integer :preex_max_age
-      t.boolean :preex_based_on_sum_insured
+      t.boolean :preex_based_on_sum_insured, default: false
       t.boolean :status, default: true
-      t.string :purchase_url
+      t.string :purchase_url, default: "http://"
       t.datetime :effective_date
 
       t.timestamps
