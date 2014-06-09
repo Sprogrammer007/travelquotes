@@ -73,8 +73,10 @@ ActiveAdmin.register LegalText do
         f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"])
         f.input :description, input_html: {value: "No Coverages", class: "tinymce"}
       else
-        f.input :parent_category, :as => :select, :collection => options_for_select(LegalTextParentCategory.all.pluck(:name), f.object.legal_text_category.legal_text_parent_category.name)
-        f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections, f.object.legal_text_category.id)
+        f.input :parent_category, :as => :select, :collection => options_for_select(LegalTextParentCategory.all.pluck(:name), f.object.legal_text_category.legal_text_parent_category.name), 
+        input_html: { disabled: true}
+        f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections, f.object.legal_text_category.id), 
+        input_html: { disabled: true}
         f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"], f.object.policy_type)
         f.input :description, input_html: {class: "tinymce"}
       end
