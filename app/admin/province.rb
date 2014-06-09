@@ -1,7 +1,7 @@
 ActiveAdmin.register Province do
 	config.sort_order = "id_asc"
 	include_import
-  menu :parent => "Companies"
+  menu :parent => "Global Settings"
   permit_params :name, :short_hand, :company_ids
   
   #Filters
