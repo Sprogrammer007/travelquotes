@@ -28,10 +28,14 @@ ActiveAdmin.register Company do
 				status_tag("Not Active")
 			end
 		end
-		actions defaults: true, dropdown: true, dropdown_name: "In-Bound Product"do |c|
-			item  "Add Visitor Policy", new_admin_product_path(id: c.id, name: c.name)
-			item  "Add Student Policy", "#"
-			item  "Add Provinces", add_admin_region_path(id: c.id, name: c.name)
+		actions defaults: true, dropdown: true
+		column "" do |c|
+			dropdown_menu "Out-Bound Products" "In-Bound Product"do |c|
+				item  "View Visitor Policy", admin_product_path()
+				item  "Add Visitor Policy", new_admin_product_path(id: c.id, name: c.name)
+				item  "Add Student Policy", "#"
+				item  "Add Provinces", add_admin_region_path(id: c.id, name: c.name)
+			end
 		end
 		column "" do |c|
 			dropdown_menu "Out-Bound Products" do
@@ -47,7 +51,6 @@ ActiveAdmin.register Company do
 			f.input :logo
 			f.input :status, :as => :radio, :collection => [['Active', true], ['Not', false]]
 		end
-
 		f.actions
 	end
 
