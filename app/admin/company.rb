@@ -29,15 +29,14 @@ ActiveAdmin.register Company do
 			end
 		end
 		actions defaults: true, dropdown: true
+
 		column "" do |c|
-			dropdown_menu "Out-Bound Products" "In-Bound Product"do |c|
-				item  "View Visitor Policy", admin_product_path()
-				item  "Add Visitor Policy", new_admin_product_path(id: c.id, name: c.name)
-				item  "Add Student Policy", "#"
-				item  "Add Provinces", add_admin_region_path(id: c.id, name: c.name)
+			dropdown_menu "In-Bound Product" do 
+				item("View Visitor Policy", admin_products_path())
+				item("Add Visitor Policy", new_admin_product_path(id: c.id, name: c.name))
+				item("Add Student Policy", "#")
+				item("Add Provinces", add_admin_region_path(id: c.id, name: c.name))
 			end
-		end
-		column "" do |c|
 			dropdown_menu "Out-Bound Products" do
    		 	item("View", "#")
 			end
