@@ -12,12 +12,12 @@ ready = ->
     container: 'body'
 
   $('.email-pop').on 'shown.bs.popover', ->
-    $('.email-confirm-button').click (e)->
+    $('.email-yes-button').click (e)->
       e.preventDefault()
       url = $(this).attr('href')
       $.post(url, {}, undefined, "script")
 
-    $('.email-update-button').click (e)->
+    $('.email-no-button').click (e)->
       e.preventDefault()
       form = $(this).attr('data-field')
       $(this).next('a').hide()

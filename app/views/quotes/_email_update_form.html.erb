@@ -1,5 +1,5 @@
-<%= form_tag url_for(:controller => 'quotes', :action => 'update_email') do %>
+<%= form_tag url_for(:controller => 'quotes', :action => 'update_email'), remote: true do %>
   <%= hidden_field_tag "id", q.id %>
   <%= text_field_tag :email, nil, class: "form-control", placeholder: "Enter Your Email..." %>
-  <%= submit_tag "Update", class: "btn btn-info pull-right" %>
+  <%= submit_tag "Update", class: "btn email_update btn-info pull-right" %>
 <% end %>

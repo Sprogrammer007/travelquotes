@@ -509,10 +509,26 @@ aside .email-button button {
   width: 250px;
 }
 
-.email-confirm-button {
+.email-yes-button {
   margin-bottom: 10px;
 }
 
+.popover-content p {
+  line-height: 1em;
+}
+
+.popover-content .email-no-button {
+  margin-left: 3px;
+}
+
+.popover-content input[type="submit"] {
+  margin: 8px 0;
+  width: 100%;
+}
+
+.popover.bottom > .arrow {
+  border-bottom-color: #999999 !important;
+}
 /* FILTERS */ 
 
 .current_filters p {
@@ -608,10 +624,3 @@ h5.collapsed.arrow-black::before {
   border-color: #d2322d !important;
 } 
 
-.popover-content p {
-  line-height: 1em;
-}
-
-.popover-content .email-update-button {
-  margin-left: 3px;
-}

@@ -89,7 +89,12 @@ class QuotesController < ApplicationController
 	end
 	
 	def update_email
-		
+		@quote = Quote.find(params[:id])
+		@quote.update(:email => params[:email])
+		respond_to do |format|
+	    format.html { redirect_to :back}
+	    format.js
+	   end
 	end
 	private
 
