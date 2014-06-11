@@ -13,7 +13,21 @@ ActiveAdmin.register LegalTextCategory do
     end
     column :name
     column :order
+    column :popup_description
     actions defaults: true, dropdown: true
+  end
+
+  show do |l|
+    attributes_table do
+      row "Parent Category" do |l|
+        l.legal_text_parent_category.name() if l.legal_text_parent_category()
+      end
+      row :name, :label => "Category Name"
+      row :order
+      row :popup_description do |l|
+        l.popup_description() if l.popup_description
+      end
+    end
   end
 
   form do |f|

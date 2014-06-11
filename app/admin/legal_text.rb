@@ -33,10 +33,10 @@ ActiveAdmin.register LegalText do
     link_to("Sort Categories",  sort_admin_legal_text_categories_path()) 
   end
   
-  show do |l|
+  show :title => proc{ "LegalText For #{resource.product.name}" } do |l|
     attributes_table do
       row :product
-      row "parent" do |l|
+      row "Parent Category" do |l|
         l.legal_text_category.legal_text_parent_category.name() if l.legal_text_category()
       end
       row "Category" do |l|
@@ -91,6 +91,17 @@ ActiveAdmin.register LegalText do
   end
 
   controller do
+    def create
+      product = Product.find(params[:legal_text][:product_id])
+      category_ids = product.legal_texts.pluck(:legal_text_category_id)
+      if category_ids.include?(params[:legal_text][:legal_text_category_id].to_i)
+        flash[:error] = "There is already a version of legal text for this category!"
+        redirect_to admin_product_path(product)
+      else
+        super
+      end
+    end
+    
     def destroy
       lt = LegalText.find(params[:id])
       id = lt.product.id

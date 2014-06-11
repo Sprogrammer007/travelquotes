@@ -4,7 +4,7 @@ class CreateLegalTextCategories < ActiveRecord::Migration
       t.references :legal_text_parent_category
       t.string :name  
       t.integer :order
-
+      t.text :popup_description
       t.timestamps
     end
   end

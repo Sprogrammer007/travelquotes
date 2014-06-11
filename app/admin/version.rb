@@ -256,6 +256,18 @@ ActiveAdmin.register Version do
 		def create
 			version_type = version_params[:detail_type]
 			details_params = version_params.delete(:"#{version_type.downcase}_detail")
+
+			# Check for duplicate version for policy
+			product = Product.find(version_params[:product_id])
+			current_versions = product.versions
+			version_types = current_versions.pluck(:type)
+			version_detail_types = current_versions.pluck(:detail_type)
+			if version_types.include?(version_params[:type]) && version_detail_types.include?("#{version_type}Detail")
+        flash[:error] = "There is already a #{version_type} Version for this Product!"
+        redirect_to admin_product_path(version_params[:product_id])
+        return
+      end
+
 			version = Version.new(:product_id => version_params[:product_id],
 														:type => version_params[:type],
 														:detail_type => "#{version_params[:detail_type]}Detail",

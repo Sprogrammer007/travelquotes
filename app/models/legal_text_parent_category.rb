@@ -1,5 +1,5 @@
 class LegalTextParentCategory < ActiveRecord::Base
-  DEFAULT_HEADER = %w{name order}
+  DEFAULT_HEADER = %w{name order popup_description}
   has_many :legal_text_categories, dependent: :destroy
 
   before_save :calc_order

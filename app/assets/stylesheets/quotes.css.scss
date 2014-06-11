@@ -45,6 +45,10 @@ textarea {
     zoom: 1; /* For IE 6/7 (trigger hasLayout) */
 }
 
+.tooltip-inner {
+  max-width: 250px;
+  width: 250px; 
+}
 /* typography */
 
 h1, h2, h3, h4, h5, h6 {

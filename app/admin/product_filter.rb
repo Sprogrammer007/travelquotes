@@ -32,10 +32,9 @@ ActiveAdmin.register ProductFilter do
 	form do |f|
 		f.inputs do
 			f.input :name
-			f.input :category, :as => :select, :collection => options_for_select(ProductFilter.filter_categories, f.object.category)
+			f.input :category, :as => :select, :collection => options_for_select(ProductFilter.filter_categories.map(&:upcase), f.object.category)
 			f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", " Super Visa", "Both"], f.object.policy_type)
 			f.input :descriptions, input_html: { class: "tinymce" }
-
 		end
 		f.actions
 	end

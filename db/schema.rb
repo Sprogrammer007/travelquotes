@@ -101,6 +101,7 @@ ActiveRecord::Schema.define(version: 20140530203642) do
     t.integer  "legal_text_parent_category_id"
     t.string   "name"
     t.integer  "order"
+    t.text     "popup_description"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -108,6 +109,7 @@ ActiveRecord::Schema.define(version: 20140530203642) do
   create_table "legal_text_parent_categories", force: true do |t|
     t.string   "name"
     t.integer  "order"
+    t.text     "popup_description"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

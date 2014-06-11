@@ -2,7 +2,10 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 ready = ->
-
+  #tooltips
+  $('.tool_tips').tooltip
+    placement: 'right'
+    html: true
   #email quotes
   $('.email-pop').popover
     animation: true

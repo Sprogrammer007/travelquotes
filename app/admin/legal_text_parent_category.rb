@@ -10,7 +10,18 @@ ActiveAdmin.register LegalTextParentCategory do
     selectable_column
     column :name
     column :order
+    column :popup_description
     actions defaults: true, dropdown: true
+  end
+
+  show do |l|
+    attributes_table do
+      row :name, :label => "Category Name"
+      row :order
+      row :popup_description do |l|
+        l.popup_description() if l.popup_description
+      end
+    end
   end
 
   action_item do
