@@ -29,6 +29,7 @@ ActiveAdmin.register ProductFilter do
 		end
 		actions defaults: true, dropdown: true
 	end
+	
 	form do |f|
 		f.inputs do
 			f.input :name

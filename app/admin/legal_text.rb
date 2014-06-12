@@ -55,6 +55,7 @@ ActiveAdmin.register LegalText do
       end
       row :effective_date
     end
+    text_node link_to "Add Another LegalText For #{l.product.name}", new_admin_legal_text_path(id: l.product.id, name: l.product.name),  class: "link_button right"
   end
       
   #Form
@@ -78,7 +79,7 @@ ActiveAdmin.register LegalText do
         f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections, f.object.legal_text_category.id), 
         input_html: { disabled: true}
         f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"], f.object.policy_type)
-        f.input :description, input_html: {class: "tinymce"}
+        f.input :description, input_html: {class: "tinymce", :plugins => ["style", "paste"] }
       end
       if f.object.new_record?
         f.input :effective_date, label: "Policy Effective date", :as => :datepicker, input_html: {value: params[:e_date]}
