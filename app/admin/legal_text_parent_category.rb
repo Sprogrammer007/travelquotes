@@ -31,6 +31,7 @@ ActiveAdmin.register LegalTextParentCategory do
   form do |f|
     f.inputs do
       f.input :name
+      f.input :popup_description
     end
     f.actions
   end
