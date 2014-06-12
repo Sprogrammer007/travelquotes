@@ -79,7 +79,7 @@ ActiveAdmin.register LegalText do
         f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections, f.object.legal_text_category.id), 
         input_html: { disabled: true}
         f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"], f.object.policy_type)
-        f.input :description, input_html: {class: "tinymce", :plugins => ["style", "paste"] }
+        f.input :description, input_html: {class: "tinymce"}
       end
       if f.object.new_record?
         f.input :effective_date, label: "Policy Effective date", :as => :datepicker, input_html: {value: params[:e_date]}
@@ -92,6 +92,10 @@ ActiveAdmin.register LegalText do
   end
 
   controller do
+    def new
+      @page_title = "New Legal Text For #{params[:name]}" 
+      super
+    end
     def create
       product = Product.find(params[:legal_text][:product_id])
       category_ids = product.legal_texts.pluck(:legal_text_category_id)

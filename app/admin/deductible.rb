@@ -19,7 +19,7 @@ ActiveAdmin.register Deductible do
   end
 
  #Show
-  show :title => proc{ "Deductibles For " + resource.product.name } do |v|
+  show :title => proc{ "Deductibles For " + resource.product.name } do |d|
     attributes_table do
       row "Product" do |d|
         link_to d.product.name, admin_product_path(d.product_id)
@@ -48,6 +48,7 @@ ActiveAdmin.register Deductible do
         d.age
       end
     end
+    text_node link_to "Add Another Deductible For #{d.product.name}", new_admin_deductible_path(id: d.product.id, name: d.product.name),  class: "link_button right"
   end 
 
   #Form
@@ -68,4 +69,10 @@ ActiveAdmin.register Deductible do
     f.actions
   end
 
+  controller do 
+    def new
+      @page_title = "New Deductibles For #{params[:name]}" 
+      super
+    end
+  end
 end
