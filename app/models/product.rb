@@ -3,7 +3,7 @@ class Product < ActiveRecord::Base
   DEFAULT_HEADER = %w{company_id name policy_number description min_price 
     can_buy_after_30_days can_renew_after_30_days renewable_max_age
     preex preex_max_age preex_based_on_sum_insured status purchase_url 
-    rate_effective_date future_rate_effective_date status effective_date }
+    rate_effective_date future_rate_effective_date effective_date }
   
   belongs_to :company
   has_many :deductibles
