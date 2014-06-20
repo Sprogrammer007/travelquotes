@@ -227,8 +227,6 @@ ActiveAdmin.register Product do
 					sortable: true  do
 						column :amount, sortable: :amount
 						column :mutiplier, sortable: false
-						column "Condition for Age", :condition, sortable: false
-						column :age
 						column " " do |d|
 							[
 								link_to("View", admin_deductible_path(d)),

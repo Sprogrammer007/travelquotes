@@ -220,8 +220,7 @@ ActiveAdmin.register Version do
 			super
 		end
 
-		def create
-			version_type = version_params[:detail_type]
+		def create version_type = version_params[:detail_type]
 			details_params = version_params.delete(:"#{version_type.downcase}_detail")
 
 			# Check for duplicate version for policy

@@ -13,8 +13,6 @@ ActiveAdmin.register Deductible do
     end
     column "Deductible Amount", :amount
     column "Deductible Mutiplier", :mutiplier
-    column "Condition For Age", :condition
-    column "Age of Condition", :age
     actions defaults: true, dropdown: true
   end
 
@@ -29,23 +27,6 @@ ActiveAdmin.register Deductible do
       end
       row "Deductible Mutiplier" do |d|
         d.mutiplier
-      end
-      row "Condition For Age"do |d|
-        case d.condition
-        when "gt"
-          "Greater"
-        when "lt"
-          "Lesser"
-        when "gteq"
-          "Greater and Equal"
-        when "lteq" 
-          "Lesser and Equal"
-        else
-          "Not Applicable"
-        end
-      end
-      row "Age of Condition"do |d|
-        d.age
       end
     end
     text_node link_to "Add Another Deductible For #{d.product.name}", new_admin_deductible_path(id: d.product.id, name: d.product.name),  class: "link_button right"
@@ -63,8 +44,6 @@ ActiveAdmin.register Deductible do
       end
       f.input :amount, :label => "Deductible Amount"
       f.input :mutiplier, :label => "Deductible Mutiplier"
-      f.input :condition, :label => "Select Condition for Age" , :as => :select, :collection =>  options_for_select(Deductible.conditions_options, (f.object.condition || "Not Applicable"))
-      f.input :age, :label => "The Age that the Condition Applies to"
     end
     f.actions
   end

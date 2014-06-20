@@ -33,7 +33,7 @@ class Product < ActiveRecord::Base
   def get_deductible
     f = []
     deductibles.each do |d|
-      f << [d.amount, "#{d.mutiplier}-#{d.condition || "none" }-#{d.age || 0}"]
+      f << [d.amount, d.mutiplier]
     end
     return f
   end

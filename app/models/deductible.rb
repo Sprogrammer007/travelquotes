@@ -1,5 +1,5 @@
 class Deductible < ActiveRecord::Base
-  DEFAULT_HEADER = %w{product_id amount mutiplier condition age}
+  DEFAULT_HEADER = %w{product_id amount mutiplier}
 
   belongs_to :product
 
@@ -8,8 +8,8 @@ class Deductible < ActiveRecord::Base
   scope :amount_of, ->(a, b) {amount_gteq(a) & amount_lteq(b)}
   scope :no_deductible, -> {amount_eq(0)}
 
-  validates :amount, :mutiplier, :condition, :age, :product_id, presence: true
-  validates :amount, :age, :numericality => {:only_integer => true}
+  validates :amount, :mutiplier, :product_id, presence: true
+  validates :amount, :numericality => {:only_integer => true}
   validates :mutiplier, :numericality => {:only_integer => false}
   
   def self.deductible_eq(range)
@@ -21,9 +21,10 @@ class Deductible < ActiveRecord::Base
     end
   end
 
-  def self.conditions_options
-    [["Not Applicable"], ['Greater', 'gt'], ['Lesser', 'lt'], 
-    ['Greater and Equal', 'gteq'], ['Lesser and Equal', 'lteq']]
-  end
+  # Not In Use
+  # def self.conditions_options
+  #   [["Not Applicable"], ['Greater', 'gt'], ['Lesser', 'lt'], 
+  #   ['Greater and Equal', 'gteq'], ['Lesser and Equal', 'lteq']]
+  # end
 
 end

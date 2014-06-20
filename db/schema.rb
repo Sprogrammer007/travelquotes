@@ -79,8 +79,6 @@ ActiveRecord::Schema.define(version: 20140530203642) do
     t.integer  "product_id"
     t.integer  "amount"
     t.float    "mutiplier"
-    t.string   "condition"
-    t.integer  "age"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -4,8 +4,8 @@ class CreateDeductibles < ActiveRecord::Migration
     	t.references :product
     	t.integer :amount
       t.float :mutiplier
-      t.string :condition
-      t.integer :age
+      # t.string :condition
+      # t.integer :age
       t.timestamps
     end
   end
