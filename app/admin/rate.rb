@@ -67,55 +67,63 @@ ActiveAdmin.register Rate do
 		end
 
 		def new
-			@age = AgeBracket.find(params[:id])
-			@page_title = "New Rate For #{@age.product.name}"
+      if params[:id]
+  			@age = AgeBracket.find(params[:id])
+  			@page_title = "New Rate For #{@age.product.name}"
+      end
 			super
 		end
 
 		def edit 
 			@page_title = "Edit Rate For #{resource.age_bracket.product.name}(#{resource.age_bracket.range})"
 		end     
+
+    def destroy
+      super do |format|
+        redirect_to :back and return
+      end
+    end
 	end
 	
 	#Actions
   member_action :add_future, method: :get do
-  	@version = Version.find(params[:id])
-    @ages = @version.age_brackets
-    @page_title = "Add Future Rates For #{@version.product.name}(#{@version.detail_type})"
+  	@product = Product.find(params[:id])
+    @ages = @product.age_brackets
+    @page_title = "Add Future Rates For #{@product.name}"
     render template: "admins/add_rate"
   end
 
   collection_action :create_future, method: :post do
   	effective_date = clean_params[:effective_date]
-  	version = Version.find(params[:version_id])
+  	product = Product.find(params[:product_id])
   	if effective_date.empty?
   		flash[:error] = "Future effective date cannot be blank"
 	  else
-	  	version.update(:effective_date => effective_date)
+	  	product.update(:future_rate_effective_date => effective_date)
 	  	Rate.create(clean_params[:future]) do |r|
 	  		r.effective_date = effective_date
 	  		r.status = "Future"
 	  	end
 		end
- 		redirect_to :back
+ 		redirect_to admin_product_path(product)
   end
 
   collection_action :update_effective_date, method: :post do
-  	version = Version.find(params[:version_id])
+  	product = Product.find(params[:product_id])
   	rate_ids = []
   	new_effective_date = (params[:current_effective_date] || params[:future_effective_date])
   	if new_effective_date.blank?
   		flash[:error] = "Please provide a new effective date!"
   	else 
   		if params[:current_effective_date]
-	  		version.update(rate_effective_date: new_effective_date)
-	  		version.age_brackets.each do |age|
+	  		product.update(rate_effective_date: new_effective_date)
+	  		product.age_brackets.each do |age|
 	  			rate_ids << age.rates.current.pluck(:id)
 	  		end
 	  		Rate.where(id: rate_ids.flatten).update_all({effective_date: new_effective_date})
   		else
-	  		version.age_brackets.each do |age|
-	  			version.update(future_rate_effective_date: new_effective_date)
+	  		product.age_brackets.each do |age|
+	  			product.update(future_rate_effective_date: new_effective_date)
 	  			rate_ids << age.rates.future.pluck(:id)
 	  		end
 	  		Rate.where(id: rate_ids.flatten).update_all({effective_date: new_effective_date})

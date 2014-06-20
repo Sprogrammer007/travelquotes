@@ -26,7 +26,7 @@ class Rate < ActiveRecord::Base
   
   def set_effective_date
     unless self.effective_date
-      self.effective_date = self.age_bracket.versions.first.rate_effective_date
+      self.effective_date = self.age_bracket.product.rate_effective_date
     end
   end
   def self.select_age_bracket_options

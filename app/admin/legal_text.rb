@@ -70,13 +70,13 @@ ActiveAdmin.register LegalText do
       end
       if f.object.new_record?
         f.input :parent_category, :as => :select, :collection => options_for_select(LegalTextParentCategory.all.pluck(:name))
-        f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections)
+        f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections(params[:id]))
         f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"])
         f.input :description, input_html: {value: "No Coverages", class: "tinymce"}
       else
         f.input :parent_category, :as => :select, :collection => options_for_select(LegalTextParentCategory.all.pluck(:name), f.object.legal_text_category.legal_text_parent_category.name), 
         input_html: { disabled: true}
-        f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections, f.object.legal_text_category.id), 
+        f.input :legal_text_category_id, :as => :select, :collection => grouped_options_for_select(LegalTextCategory.category_selections(f.object.product_id), f.object.legal_text_category.id), 
         input_html: { disabled: true}
         f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"], f.object.policy_type)
         f.input :description, input_html: {class: "tinymce"}
@@ -108,10 +108,9 @@ ActiveAdmin.register LegalText do
     end
     
     def destroy
-      lt = LegalText.find(params[:id])
-      id = lt.product.id
-      lt.destroy
-      redirect_to admin_product_path(id)
+      super do |format|
+        redirect_to :back and return
+      end
     end
   end
 end

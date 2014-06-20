@@ -154,6 +154,8 @@ ActiveRecord::Schema.define(version: 20140530203642) do
     t.boolean  "preex_based_on_sum_insured", default: false
     t.boolean  "status",                     default: true
     t.string   "purchase_url",               default: "http://"
+    t.datetime "rate_effective_date"
+    t.datetime "future_rate_effective_date"
     t.datetime "effective_date"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -234,9 +236,7 @@ ActiveRecord::Schema.define(version: 20140530203642) do
     t.string   "type"
     t.string   "detail_type"
     t.integer  "detail_id"
-    t.datetime "rate_effective_date"
-    t.datetime "future_rate_effective_date"
-    t.boolean  "status",                     default: true
+    t.boolean  "status",      default: true
     t.datetime "created_at"
     t.datetime "updated_at"
   end

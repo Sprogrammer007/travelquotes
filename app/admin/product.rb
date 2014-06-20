@@ -7,7 +7,7 @@ ActiveAdmin.register Product do
 
 	permit_params :name, :policy_number, :description, :company_id, :min_price, :can_buy_after_30_days,
 	:can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex, :preex_based_on_sum_insured,
-	:purchase_url, :status,  deductibles_attributes: [:amount, :mutiplier, :condition, :age]
+	:purchase_url, :rate_effective_date, :status, :effective_date, deductibles_attributes: [:amount, :mutiplier, :condition, :age]
 
 	#Scopes
 	scope :all, default: true
@@ -24,7 +24,7 @@ ActiveAdmin.register Product do
 	remove_filter :product_filter_sets
 	remove_filter :description
 	remove_filter :purchase_url
-	
+
 	#Index Table
 	index :title => "Visitor Policies" do
 		column "Company" do |p|
@@ -56,7 +56,7 @@ ActiveAdmin.register Product do
 				status_tag("Deactive")
 			end
 		end
-		
+
 		column "Policy Options", class: "col-btn-group-verticale" do |p|
 			dropdown_menu "View" do 
 				item("View Policy Details", admin_product_path(p))
@@ -72,6 +72,7 @@ ActiveAdmin.register Product do
 				item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
 				item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
 				item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name, e_date: p.effective_date.strftime("%Y-%m-%d")))
+				item("Add Future Rate", add_future_admin_rate_path(id: p.id))
 			end
 		end
 	end
@@ -116,6 +117,37 @@ ActiveAdmin.register Product do
 							end
 						end
 						row :purchase_url
+
+						row "Current Rate Effective Date" do |p|
+							p.rate_effective_date.strftime("%m %d %Y")
+						end
+						row :future_rate_effective_date do |p|
+							if p.future_rate_effective_date
+								p.future_rate_effective_date.strftime("%m %d %Y")
+							else
+								"No Future Rate"
+							end
+						end
+						row "Update Current Effective Date" do |p|
+							form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
+								[
+									hidden_field_tag("product_id", p.id),
+									text_field_tag("[current_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Effective Date...", readonly: true),
+									submit_tag("Update Current Rates")
+								].join(" ").html_safe
+							end
+						end
+						if product.future_rate_effective_date
+							row "Update Current Effective Date" do |p| 
+								form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
+									[
+										hidden_field_tag("product_id", p.id),
+										text_field_tag("[future_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Future Effective Date...", readonly: true),
+										submit_tag("Update Future Rates")
+									].join(" ").html_safe
+								end
+							end
+						end
 						row :status do |p|
 							if p.status
 								status_tag("Active", :ok)
@@ -123,7 +155,11 @@ ActiveAdmin.register Product do
 								status_tag("Deactive")
 							end
 						end
+						row "Policy Effective Date" do |p|
+							p.effective_date() if p.effective_date()
+						end
 					end
+					text_node link_to "Add Future Rates", add_future_admin_rate_path(id: p.id),  class: "link_button right"
 				end
 
 				panel("Versions", class: 'group single_show') do
@@ -270,6 +306,10 @@ ActiveAdmin.register Product do
 			f.input :preex_max_age
 			f.input :preex_based_on_sum_insured, :as => :radio, :collection => [["Yes", true], ["No", false]]
 			f.input :purchase_url
+			if f.object.new_record?
+				f.input :rate_effective_date, :label => "Current Rate Effective Date", :as => :datepicker
+			end
+			f.input :effective_date, :label => "Policy Effective Date", :as => :datepicker
 			f.input :status, :as => :radio, :collection => [['Active', true], ['Deactive', false]]
 		end
 
@@ -297,7 +337,7 @@ ActiveAdmin.register Product do
 		def clean_params
 			params.require(:product).permit(:name, :policy_number, :description, :min_price, :renewable_max_age,
 			  :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
-				:preex_based_on_sum_insured, :status)
+				:preex_based_on_sum_insured,:rate_effective_date, :effective_date, :status)
 		end
 
 		def new 

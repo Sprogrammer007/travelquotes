@@ -2,7 +2,8 @@ class Product < ActiveRecord::Base
 
   DEFAULT_HEADER = %w{company_id name policy_number description min_price 
     can_buy_after_30_days can_renew_after_30_days renewable_max_age
-    preex preex_max_age preex_based_on_sum_insured status purchase_url effective_date }
+    preex preex_max_age preex_based_on_sum_insured status purchase_url 
+    rate_effective_date future_rate_effective_date status effective_date }
   
   belongs_to :company
   has_many :deductibles
@@ -17,7 +18,7 @@ class Product < ActiveRecord::Base
   
   delegate :logo, to: :company
   
-  validates :name, :company_id, :min_price, :renewable_max_age, :preex_max_age, :purchase_url, presence: true
+  validates :name, :company_id, :min_price, :renewable_max_age, :preex_max_age, :purchase_url, :rate_effective_date, :effective_date, presence: true
   validates :min_price, :preex_max_age, :renewable_max_age, numericality: { only_integer: true }
   validates :preex, :preex_based_on_sum_insured, :can_renew_after_30_days, :can_buy_after_30_days, :status, inclusion: { in: [true, false] }
   

@@ -18,6 +18,8 @@ class CreateProducts < ActiveRecord::Migration
       t.boolean :preex_based_on_sum_insured, default: false
       t.boolean :status, default: true
       t.string :purchase_url, default: "http://"
+      t.datetime :rate_effective_date
+      t.datetime :future_rate_effective_date
       t.datetime :effective_date
 
       t.timestamps

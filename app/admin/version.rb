@@ -16,7 +16,7 @@ ActiveAdmin.register Version do
 	remove_filter :age_sets
 	remove_filter :age_brackets
 
-	permit_params :product_id, :type, :detail_type, :detail, :rate_effective_date
+	permit_params :product_id, :type, :detail_type, :detail
 	
 	#Index
 	index do 
@@ -26,14 +26,6 @@ ActiveAdmin.register Version do
 		end
 		column :type
 		column :detail_type
-		column :rate_effective_date
-		column :future_rate_effective_date do |v|
-			if v.future_rate_effective_date
-				v.future_rate_effective_date.strftime("%m %d %Y")
-			else
-				"No Future Rate"
-			end
-		end
 		actions defaults: true, dropdown: true do |v|
 			item  "Add Age Bracket",  add_admin_age_set_path(id: v.id)
 		end
@@ -50,38 +42,8 @@ ActiveAdmin.register Version do
 				row :detail_type do |v|
 					v.detail_type() if v.detail_type()
 				end
-				row "Current Rate Effective Date" do |v|
-					v.rate_effective_date.strftime("%m %d %Y")
-				end
-				row :future_rate_effective_date do |v|
-					if v.future_rate_effective_date
-						v.future_rate_effective_date.strftime("%m %d %Y")
-					else
-						"No Future Rate"
-					end
-				end
-				row "Update Current Effective Date" do |v|
-					form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
-						[
-							hidden_field_tag("version_id", v.id),
-							text_field_tag("[current_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Effective Date...", readonly: true),
-							submit_tag("Update Current Rates")
-						].join(" ").html_safe
-					end
-				end
-				if version.future_rate_effective_date
-					row "Update Current Effective Date" do |v| 
-						form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
-							[
-								hidden_field_tag("version_id", v.id),
-								text_field_tag("[future_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Future Effective Date...", readonly: true),
-								submit_tag("Update Future Rates")
-							].join(" ").html_safe
-						end
-					end
-				end
 			end
-			text_node link_to "Add Future Rates", add_future_admin_rate_path(id: v.id),  class: "link_button right"
+			
 		end	
 
 		panel("#{v.detail_type} Details", class: 'group single_show_version') do
@@ -125,7 +87,14 @@ ActiveAdmin.register Version do
 									"#{a.min_trip_duration} - #{a.max_trip_duration} (Days)"
 								end
 								row "Current Effective Date" do 
-									v.rate_effective_date.strftime("%d, %m, %Y")
+									v.product.rate_effective_date.strftime("%d, %m, %Y")
+								end
+								row "Future Effective Date" do 
+									if v.product.future_rate_effective_date()
+										v.product.future_rate_effective_date.strftime("%d, %m, %Y")
+									else
+										text_node "No Future Rate"
+									end
 								end
 								row :preex do |a|
 									if a.preex
@@ -135,11 +104,10 @@ ActiveAdmin.register Version do
 									end
 								end
 							end
-							table_for age.rates do
+							table_for age.rates.current do
 								column :rate
 								column :rate_type
 								column :sum_insured
-								column :effective_date
 								column :status do |r|
 									status_tag r.status, "#{r.status.downcase}"
 								end
@@ -184,7 +152,6 @@ ActiveAdmin.register Version do
 				f.input :detail_type, :as => :select, :collection => options_for_select(["Single", "Couple", "Family"], f.object.detail_type), 
 					input_html: { class: "detail_type", :disabled => true	}
 			end
-			f.input :rate_effective_date, :label => "Current Rate Effective Date", :as => :datepicker
 		end
 		if f.object.new_record?
 			f.inputs "Family Version Details", :for => FamilyDetail.new, class: "family_details inputs hide" do |d|
@@ -233,7 +200,7 @@ ActiveAdmin.register Version do
 	controller do
 
 		def version_params             
-			params.require(:version).permit(:product_id, :type, :detail_type, :detail, :rate_effective_date,
+			params.require(:version).permit(:product_id, :type, :detail_type, :detail,
 				:family_detail => [:min_age, :max_age, :min_adult, :max_adult, :min_dependant, :max_dependant, :max_kids_age, :max_age_with_kids, :has_family_rate],
 				:couple_detail => [:min_age, :max_age, :has_couple_rate],
 				:single_detail => [:min_age, :max_age])        
@@ -270,8 +237,7 @@ ActiveAdmin.register Version do
 
 			version = Version.new(:product_id => version_params[:product_id],
 														:type => version_params[:type],
-														:detail_type => "#{version_params[:detail_type]}Detail",
-														:rate_effective_date => version_params[:rate_effective_date])
+														:detail_type => "#{version_params[:detail_type]}Detail",)
 			if version.save
 				"#{version_type}Detail".constantize.create!(details_params.merge(version: version))
 				#add age brackets automatically for couple and family

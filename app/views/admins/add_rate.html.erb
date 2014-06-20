@@ -1,27 +1,20 @@
 <%= form_tag url_for(:controller => 'admin/rates', :action => 'create_future') do %>
-  <%= hidden_field_tag "version_id", @version.id %>
+  <%= hidden_field_tag "product_id", @product.id %>
   <div class="panel">
-    <h3>Version Details</h3>
+    <h3>Product Details</h3>
     <div class="panel_contents">
       <div class="attributes_table" >
         <table border="0" cellspacing="0" cellpadding="0">
           <tbody>
             <tr class="row">
               <th>Product</th>
-              <td><%= @version.product.name %>
-            </tr>
-
-            <tr class="row">
-              <th>Versions Type</th>
-              <td>
-                <%= "#{@version.detail_type}(#{@version.type})" %>
-              </td>
+              <td><%= @product.name %>
             </tr>
             
             <tr class="row">
               <th>Current Rate Effective Date:</th>
               <td>
-                <%= @version.rate_effective_date.strftime("%m %d %Y") %>
+                <%= @product.rate_effective_date.strftime("%m %d %Y") %>
               </td>
             </tr>
 

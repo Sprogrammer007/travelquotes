@@ -92,7 +92,11 @@
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-
+form input[type=submit]:disabled:hover {
+  background: -webkit-linear-gradient(-90deg, #838a90, #414549);
+  box-shadow: none;
+  cursor: no-drop;
+}
 
 /* Other */
 .radio-width {

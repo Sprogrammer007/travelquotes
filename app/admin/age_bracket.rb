@@ -86,8 +86,11 @@ ActiveAdmin.register AgeBracket do
 					status_tag("No")
 				end
 			end
-			row "Rate Effective Date" do |a|
-				a.rates
+			row "Current Rate Effective Date" do |a|
+				a.product.rate_effective_date
+			end
+			row "Future Rate Effective Date" do |a|
+				(a.product.future_rate_effective_date || "No Future Rate")
 			end
 		end
 

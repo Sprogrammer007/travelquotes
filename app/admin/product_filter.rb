@@ -18,9 +18,9 @@ ActiveAdmin.register ProductFilter do
 	remove_filter :created_at
 	remove_filter :updated_at
 
-	menu :parent => "Global Settings"
+	menu :parent => "Global Settings", :label => "Global Product Filters"
 
-	index do
+	index :title => "Global Product Filters" do
 		selectable_column
 		column :name
 		column :category

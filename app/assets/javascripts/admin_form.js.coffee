@@ -173,12 +173,26 @@ ready = ->
     category_select = $(this).find(':selected').text()
     escaped = category_select.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1')
     options = $(legal_text_sub_cat).filter("optgroup[label='#{escaped}']").html()
+    if (options.indexOf("No More New Sub Categories For") > -1)
+      $('#legal_text_legal_text_category_id').attr('disabled','disabled')
+      $(this).parents('form').find('input[type="submit"]').attr('disabled','disabled')
+    else
+      $('#legal_text_legal_text_category_id').removeAttr('disabled')
+      $(this).parents('form').find('input[type="submit"]').removeAttr('disabled')
 
     if options
       $('#legal_text_legal_text_category_id').html(options)
     else
       $('#legal_text_legal_text_category_id').html(legal_text_sub_cat)  
 
+  $('#legal_text_legal_text_category_id').change ->
+    if ($(this).find(':selected').text().indexOf("No More New Sub Categories For") > -1)
+      $(this).attr('disabled','disabled')
+      $(this).parents('form').find('input[type="submit"]').attr('disabled','disabled')
+    else
+      $(this).removeAttr('disabled')
+      $(this).parents('form').find('input[type="submit"]').removeAttr('disabled')
+      
   #Sorter helpers
   catEnter = (e)->
     e.stopPropagation
