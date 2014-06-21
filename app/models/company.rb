@@ -1,5 +1,5 @@
 class Company < ActiveRecord::Base
-	DEFAULT_HEADER = %w{name logo status}
+	DEFAULT_HEADER = %w{name status}
 	
 	has_many :products, dependent: :destroy
 	 
@@ -9,7 +9,11 @@ class Company < ActiveRecord::Base
 	#query scopes
   scope :active, -> { where(status: true) }
 
-  validates :name, :logo, presence: true
+  has_attached_file :logo
+
+  validates_attachment :logo, :presence => true,
+  :content_type => { :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"] }
+  validates :name, presence: true
   validates :status, inclusion: { in: [true, false] }
   
 end

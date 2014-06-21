@@ -2,7 +2,7 @@ ActiveAdmin.register Company do
 	config.sort_order = "id_asc"
 	include_import
 	menu :priority => 1
-	permit_params :name,:logo, :status
+	permit_params :name,:logo, :logo_image, :status
 
 	#Scopes
 	scope :all, default: true
@@ -20,8 +20,12 @@ ActiveAdmin.register Company do
 
 	index do
 		column "Company Name", :name 
-		column "Company Logo" do |c|
-			image_tag c.logo, height: "60%"
+		column "Logo" do |c|
+	   	if c.logo_file_name
+      	image_tag(c.logo.url())
+      else
+      	"Please Upload Company Logo"
+      end
 		end
 		column :status do |c|
 			if c.status
@@ -53,7 +57,7 @@ ActiveAdmin.register Company do
 	form do |f|
 		f.inputs do
 			f.input :name, label: "Company name"
-			f.input :logo
+			f.input :logo, :as => :file
 			f.input :status, :as => :radio, :collection => [['Active', true], ['Not', false]]
 		end
 		f.actions
@@ -64,7 +68,11 @@ ActiveAdmin.register Company do
 		div class: "show_left" do
 			attributes_table do
 	      row :logo do
-	        image_tag(c.logo)
+	      	if c.logo
+	        	image_tag(c.logo.url())
+	        else
+	        	"Please Upload Company Logo"
+	        end
 	      end
 	      row :status do |c|
 					if c.status

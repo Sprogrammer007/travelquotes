@@ -2,7 +2,7 @@ class CreateCompanies < ActiveRecord::Migration
   def change
     create_table :companies do |t|
       t.string :name
-      t.string :logo
+      t.attachment :logo
       t.boolean :status, default: true
       
       t.timestamps
