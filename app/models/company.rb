@@ -9,7 +9,7 @@ class Company < ActiveRecord::Base
 	#query scopes
   scope :active, -> { where(status: true) }
 
-  has_attached_file :logo, :default_url => ActionController::Base.helpers.asset_path("/assets/no_logo.png")
+  has_attached_file :logo, :default_url => ActionController::Base.helpers.asset_path("no_logo.png")
   validates_attachment :logo, :presence => true,
   :content_type => { :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"] }
   validates :name, presence: true
