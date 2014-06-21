@@ -9,9 +9,9 @@ class Company < ActiveRecord::Base
 	#query scopes
   scope :active, -> { where(status: true) }
 
-  has_attached_file :logo
+  has_attached_file :logo, :default_url => "#{image_path("no_logo.png")}"
 
-  validates_attachment :logo, :presence => true, :default_url => "#{image_path("no_logo.png")}"
+  validates_attachment :logo, :presence => true,
   :content_type => { :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"] }
   validates :name, presence: true
   validates :status, inclusion: { in: [true, false] }
