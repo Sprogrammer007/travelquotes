@@ -2,7 +2,7 @@ ActiveAdmin.register Company do
 	config.sort_order = "id_asc"
 	include_import
 	menu :priority => 1
-	permit_params :name,:logo, :logo_image, :status
+	permit_params :name,:logo, :status
 
 	#Scopes
 	scope :all, default: true
@@ -24,7 +24,7 @@ ActiveAdmin.register Company do
 	   	if c.logo_file_name
       	image_tag(c.logo.url())
       else
-      	"Please Upload Company Logo"
+      	c.logo.url()
       end
 		end
 		column :status do |c|
@@ -68,11 +68,9 @@ ActiveAdmin.register Company do
 		div class: "show_left" do
 			attributes_table do
 	      row :logo do
-	      	if c.logo
-	        	image_tag(c.logo.url())
-	        else
+	    
 	        	"Please Upload Company Logo"
-	        end
+	      
 	      end
 	      row :status do |c|
 					if c.status
