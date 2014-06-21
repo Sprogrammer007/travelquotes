@@ -21,11 +21,7 @@ ActiveAdmin.register Company do
 	index do
 		column "Company Name", :name 
 		column "Logo" do |c|
-	   	if c.logo_file_name
-      	image_tag(c.logo.url())
-      else
-      	c.logo.url()
-      end
+      image_tag(c.logo.url())
 		end
 		column :status do |c|
 			if c.status
@@ -67,11 +63,9 @@ ActiveAdmin.register Company do
 	show do |c|
 		div class: "show_left" do
 			attributes_table do
-	      row :logo do
-	    
-	        	"Please Upload Company Logo"
-	      
-	      end
+	      row "Logo" do |c|
+      		image_tag(c.logo.url())
+				end
 	      row :status do |c|
 					if c.status
 						status_tag("Active", :ok)
