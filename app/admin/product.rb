@@ -315,8 +315,6 @@ ActiveAdmin.register Product do
 			f.has_many :deductibles, :allow_destroy => true, :heading => 'Add Dedutibles' do |d|
 				d.input :amount
 				d.input :mutiplier
-				d.input :condition, :as => :select, :collection => Deductible.conditions_options
-				d.input :age
 			end
 		end
 		f.actions
