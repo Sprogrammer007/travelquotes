@@ -4,6 +4,8 @@ ActiveAdmin.register LegalTextCategory do
 
   menu :parent => "Global Settings"
 
+  remove_filter :legal_texts
+
   permit_params :legal_text_parent_category_id, :name
   
   index do

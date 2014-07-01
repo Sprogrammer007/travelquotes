@@ -10,7 +10,7 @@ class LegalTextCategory < ActiveRecord::Base
     h = Hash.new 
     LegalTextParentCategory.all.map do |text| 
       if text.legal_text_categories
-        filtered_categories = text.legal_text_categories.select { |l| !category_ids.include?(l.id) }
+        filtered_categories = text.legal_text_categories.select { |l| filter_check(p, l.id) }
         if filtered_categories.empty?
           h[text.name] = ["No More New Sub Categories For #{text.name}"]
         else
@@ -23,6 +23,16 @@ class LegalTextCategory < ActiveRecord::Base
     h
   end
 
+  def self.filter_check(product, id)
+    p = product.legal_texts.where(:legal_text_category_id => id)
+    if (p.length == 1) && (p.first.policy_type == "Both")
+      false
+    elsif (p.length >= 2)
+      false
+    else
+      true
+    end
+  end
   private
     #new record order always going to be the last order + 1
     #this is to prevent any order confusion during new category creation
