@@ -2,6 +2,7 @@ ActiveAdmin.register LegalText do
 
   include_import
 
+  # super admin parent
   menu :parent => "Super Admin"
 
   permit_params :product_id, :legal_text_category_id, :policy_type, :description,
