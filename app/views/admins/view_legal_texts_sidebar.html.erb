@@ -1,0 +1,12 @@
+<div class="panel_contents">
+  <%= form_tag "#", class: "filter_form"  do -%>
+    <div class="filter_form_field filter_select">
+      <label class="label" for="legal_text_parent_category">Legal text category</label>
+      <%= select_tag "legal_text_parent_category", options_for_select(LegalTextParentCategory.all.pluck(:name)) %>
+    </div>
+    <div class="buttons">
+      <input name="commit" type="submit" value="Filter">
+      <a class="clear_filters_btn" href="#">Clear Filters</a>
+    </div>
+  <% end %>
+</div>

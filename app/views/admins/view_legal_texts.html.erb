@@ -1,0 +1,53 @@
+<div class="paginated_collection">
+  <div class="paginated_collection_contents">
+    <div class="index_content">
+      <div class="index_as_table">
+        <table border="0" cellspacing="0" cellpadding="0" id="index_table_legal_texts" class="index_table index" paginator="true">
+          <thead>
+            <tr>
+              <th class="col col-product">Product</th>
+              <th class="sortable col col-policy_type"><a href="/admin/legal_texts?order=policy_type_desc&amp;product_id=1">Policy Type</a></th>
+              <th class="col col-category">Category</th>
+              <th class="col col-description">Description</th>
+              <th class="sortable col col-effective_date"><a href="/admin/legal_texts?order=effective_date_desc&amp;product_id=1">Effective Date</a></th>
+              <th class="col col-active">Active</th>
+              <th class="col col-actions"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @lts.each_with_index do |l, i| %>
+              <tr class="<%= cycle("odd", "even") -%>" id="legal_text_<%= i.to_s %>">
+                <td class="col col-product"><%= l.product.name %></td>
+                <td class="col col-policy_type"><%= l.policy_type %></td>
+                <td class="col col-category"><%= l.legal_text_category.name %></td>
+                <td class="col col-description"><p><%= l.description.html_safe() %></p></td>
+                <td class="col col-effective_date"><%= l.effective_date.strftime("%m %d %Y") %></td>
+                <td class="col col-active">
+                  <% if l.status %>
+                    <span class="status_tag yes ok">Yes</span>
+                  <% else %>
+                    <span class="status_tag">No</span>
+                  <% end %>
+                </td>
+                <td class="col col-actions">
+                  <div class="dropdown_menu">
+                    <a class=" dropdown_menu_button" href="#">Actions</a>
+                    <div class="dropdown_menu_list_wrapper" style="display: none;"><div class="dropdown_menu_nipple"></div>
+                      <ul class=" dropdown_menu_list">
+                        <li><%= link_to("View", admin_legal_text_path(l)) %></li>
+                        <li><%= link_to("Edit", edit_admin_legal_text_path(l)) %></li>
+                        <li><%= link_to("Remove", admin_legal_text_path(l), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation') }) %></li>
+                      </ul>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

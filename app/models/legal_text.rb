@@ -5,4 +5,8 @@ class LegalText < ActiveRecord::Base
   belongs_to :legal_text_category
   attr_accessor :parent_category
 
+  def self.ordered
+    joins(:legal_text_category => [:legal_text_parent_category]).order("legal_text_parent_categories.order asc").order("legal_text_categories.order asc")
+  end
+
 end

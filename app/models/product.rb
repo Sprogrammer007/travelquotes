@@ -38,6 +38,19 @@ class Product < ActiveRecord::Base
     return f
   end
 
+  def legal_texts_sorted
+    sorted_legal_texts = []
+    LegalTextParentCategory.order(order: :asc).each do |lp|
+      lp.legal_text_categories.each do |lc|
+        lt = self.legal_texts.where(:legal_text_category_id => lc.id)
+        if lt
+          sorted_legal_texts << lt
+        end
+      end
+    end
+    return sorted_legal_texts
+  end
+  
   def self.find_compare(ps)
     products = []
     ps.each_value do |v| 

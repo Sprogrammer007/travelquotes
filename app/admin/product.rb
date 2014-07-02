@@ -60,7 +60,7 @@ ActiveAdmin.register Product do
 		column "Policy Options", class: "col-btn-group-verticale" do |p|
 			dropdown_menu "View" do 
 				item("View Policy Details", admin_product_path(p))
-				item("View Policy Legal Texts", admin_legal_texts_path(q: {product_id_eq: p.id}))
+				item("View Policy Legal Texts", view_admin_legal_texts_path(product_id: p.id))
 				item("View Policy Deductibles", admin_deductibles_path(q: {product_id_eq: p.id}))
 				item("Edit Policy", edit_admin_product_path(p))
 				item("Active/Deactive Policy", deactive_admin_product_path(p))
@@ -255,7 +255,7 @@ ActiveAdmin.register Product do
 
 		panel("Legal Text", class: 'group') do
 			if p.legal_texts
-				table_for p.legal_texts  do
+				table_for p.legal_texts.joins(:legal_text_category => [:legal_text_parent_category]).order("legal_text_parent_categories.order asc") do
 					column "Category" do |l|
       			l.legal_text_category.name() if l.legal_text_category()
     			end
@@ -364,4 +364,5 @@ ActiveAdmin.register Product do
     end
     redirect_to :back
   end
+
 end

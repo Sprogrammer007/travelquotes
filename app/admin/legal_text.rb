@@ -7,6 +7,7 @@ ActiveAdmin.register LegalText do
 
   permit_params :product_id, :legal_text_category_id, :policy_type, :description,
   :effective_date, :status
+  remove_filter :product
 
   index :title => "Legal Text" do
     column "Product" do |l|
@@ -93,10 +94,6 @@ ActiveAdmin.register LegalText do
   end
 
   controller do
-    def new
-      @page_title = "New Legal Text For #{params[:name]}" 
-      super
-    end
     def create
       product = Product.find(params[:legal_text][:product_id])
       category_ids = product.legal_texts.pluck(:legal_text_category_id)
@@ -113,5 +110,15 @@ ActiveAdmin.register LegalText do
         redirect_to :back and return
       end
     end
+  end
+
+  collection_action :view, method: :get do
+    product = Product.find(params[:product_id])
+    @page_title = "Legal Texts For #{product.name}"
+    @lts = product.legal_texts.merge(LegalText.ordered)
+    render template: 'admins/view_legal_texts'
+  end
+  sidebar 'Filter Legal Texts', only: :view do
+    render template: 'admins/view_legal_texts_sidebar'
   end
 end
