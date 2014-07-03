@@ -5,8 +5,7 @@ ActiveAdmin.register LegalText do
   # super admin parent
   menu :parent => "Super Admin"
 
-  permit_params :product_id, :legal_text_category_id, :policy_type, :description,
-  :effective_date, :status
+  permit_params :product_id, :legal_text_category_id, :policy_type, :description, :status
   remove_filter :product
 
   index :title => "Legal Text" do
@@ -20,7 +19,6 @@ ActiveAdmin.register LegalText do
     column :description do |l|
       l.description.html_safe() if l.description
     end
-    column :effective_date
     column "Active" do |l|
       if l.status
         status_tag "Yes", :ok
@@ -55,7 +53,6 @@ ActiveAdmin.register LegalText do
           status_tag "No"
         end
       end
-      row :effective_date
     end
     text_node link_to "Add Another LegalText For #{l.product.name}", new_admin_legal_text_path(id: l.product.id, name: l.product.name),  class: "link_button right"
   end
@@ -82,11 +79,6 @@ ActiveAdmin.register LegalText do
         input_html: { disabled: true}
         f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Super Visa", "Both"], f.object.policy_type)
         f.input :description, input_html: {class: "tinymce"}
-      end
-      if f.object.new_record?
-        f.input :effective_date, label: "Policy Effective date", :as => :datepicker, input_html: {value: params[:e_date]}
-      else
-        f.input :effective_date, label: "Policy Effective date", :as => :datepicker
       end
       f.input :status, :as => :select, :collection => [["Active", true], ["No Active", false]]
     end

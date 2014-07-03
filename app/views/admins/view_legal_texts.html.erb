@@ -6,10 +6,9 @@
           <thead>
             <tr>
               <th class="col col-product">Product</th>
-              <th class="sortable col col-policy_type"><a href="/admin/legal_texts?order=policy_type_desc&amp;product_id=1">Policy Type</a></th>
+              <th class="sortable col col-policy_type">Policy Type</th>
               <th class="col col-category">Category</th>
               <th class="col col-description">Description</th>
-              <th class="sortable col col-effective_date"><a href="/admin/legal_texts?order=effective_date_desc&amp;product_id=1">Effective Date</a></th>
               <th class="col col-active">Active</th>
               <th class="col col-actions"></th>
             </tr>
@@ -22,12 +21,6 @@
                 <td class="col col-policy_type"><%= l.policy_type %></td>
                 <td class="col col-category"><%= l.legal_text_category.name %></td>
                 <td class="col col-description"><p><%= l.description.html_safe() %></p></td
-                <td class="col col-effective_date">
-                <% if l.effective_date %>
-                  <%= l.effective_date.strftime("%m %d %Y") %>
-                <% end %>
-                
-                </td>
                 <td class="col col-active">
                   <% if l.status %>
                     <span class="status_tag yes ok">Yes</span>
