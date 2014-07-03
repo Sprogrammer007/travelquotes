@@ -71,7 +71,7 @@ ActiveAdmin.register Product do
 				item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
 				item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
 				item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
-				item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name)))
+				item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name))
 				item("Add Future Rate", add_future_admin_rate_path(id: p.id))
 			end
 		end
