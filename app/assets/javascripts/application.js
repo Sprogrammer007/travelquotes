@@ -11,7 +11,6 @@
 // about supported directives.
 //
 //= require jquery
-//= require jquery-ui
 //= require turbolinks
 //= require bootstrap
 //= require quotes
