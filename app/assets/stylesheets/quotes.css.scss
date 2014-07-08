@@ -639,4 +639,17 @@ h5.collapsed.arrow-black::before {
   background-color: #F0F7F9;
   margin-left: 30px;
   border-radius: 0;
+  width: 700px;
+}
+
+#compare .table {
+  table-layout: fixed;
+}
+
+#compare .compare_table .label_td {
+  width: 10%;
+}
+
+#compare .compare_table .content_td  {
+  width: 25%;
 }
