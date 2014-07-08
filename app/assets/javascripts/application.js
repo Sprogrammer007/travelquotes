@@ -15,5 +15,6 @@
 //= require turbolinks
 //= require bootstrap
 //= require quotes
+//= require jquery-ui
 //= require jquery.ui.datepicker
 //= require jquery.ui.accordion
