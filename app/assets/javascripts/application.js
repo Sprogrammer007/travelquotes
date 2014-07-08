@@ -11,8 +11,9 @@
 // about supported directives.
 //
 //= require jquery
-//= require jquery_ujs
+//= require jquery-ui
 //= require turbolinks
 //= require bootstrap
 //= require quotes
-
+//= require jquery.ui.datepicker
+//= require jquery.ui.accordion
