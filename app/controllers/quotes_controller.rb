@@ -69,7 +69,6 @@ class QuotesController < ApplicationController
 	end
 
 	def detail
-
 		@product = Product.find(params[:product_id])
 		respond_to do |format|
     	format.html { redirect_to root_path}

@@ -319,6 +319,7 @@ DEPENDENCIES
   guard-rspec (= 4.2.0)
   jbuilder (~> 1.2)
   jquery-rails
+  jquery-ui-rails (~> 4.2.1)
   letter_opener
   meta_request
   paperclip!
