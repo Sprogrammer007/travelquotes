@@ -20,7 +20,12 @@
                 <td class="col col-product"><%= l.product.name %></td>
                 <td class="col col-policy_type"><%= l.policy_type %></td>
                 <td class="col col-category"><%= l.legal_text_category.name %></td>
-                <td class="col col-description"><p><%= l.description.html_safe() %></p></td>
+                <td class="col col-description">
+                  <div class="lg_accordion">
+                    <div class="excerpt"><%= sanitize(l.description[0...250]) %></div> 
+                    <div class="full" style="display: none;"><%= l.description.html_safe() %></div>
+                  </div>
+                </td>
                 <td class="col col-active">
                   <% if l.status %>
                     <span class="status_tag yes ok">Yes</span>

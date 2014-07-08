@@ -20,4 +20,23 @@
   </tr>
 
 
+  <tr>
+    <td>Policy Legals:</td>   
+    <% products.each do |p| %>
+      <td>
+        <% p.legal_texts.each do |l| %>
+          <div class="accordion">
+            <h3><%= l.legal_text_category.name %></h3>
+            <div>
+              <% if l.description %>
+                <%= l.description.html_safe() %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </td>
+    <% end %>
+  </tr>
+
+
 </table>

@@ -60,6 +60,7 @@ class QuotesController < ApplicationController
 	end
 
 	def compare
+		@quote = Quote.find(params[:quote_id])
 		@products = Product.find_compare(params[:products])
 		respond_to do |format|
     	format.html { redirect_to root_path}
@@ -68,6 +69,7 @@ class QuotesController < ApplicationController
 	end
 
 	def detail
+
 		@product = Product.find(params[:product_id])
 		respond_to do |format|
     	format.html { redirect_to root_path}

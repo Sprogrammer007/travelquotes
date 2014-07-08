@@ -2,6 +2,7 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 ready = ->
+
   #tooltips
   $('.tool_tips').tooltip
     placement: 'right'
@@ -87,7 +88,7 @@ ready = ->
       alert "For the best comparison, please keep the number of policy below 4!"
       return false
     else if checked_product.length >= 2
-      $.post(url, {products: checked_product}, undefined, "script")
+      $.post(url, {products: checked_product, quote_id: $(this).data('quote-id')}, undefined, "script")
     return
 
   $('.compare_results').change (e)->
@@ -276,4 +277,12 @@ ready = ->
 
 $(document).ready(ready)
 $(document).on('page:load', ready)
+$(document).on 'compare:accordion', ->
+  $('.accordion').each (i, e) ->
+    $(e).accordion
+      collapsible: true,
+      autoHeight: false, 
+      active: false,
+      icons: { "header": "icon-triangle", "activeHeader": "icon-triangle-active" }
+      
 

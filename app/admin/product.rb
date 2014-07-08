@@ -260,8 +260,14 @@ ActiveAdmin.register Product do
       			l.legal_text_category.name() if l.legal_text_category()
     			end
 					column :policy_type
-					column :description do |l|
-						l.description.html_safe() if l.description
+					column :description, class: "lg_accordion" do |l|
+						div class: "excerpt" do
+							sanitize(l.description[0...250])
+						end
+						div class: "full" do
+							l.description.html_safe() if l.description
+						end
+					
 					end
 					column "Active" do |l|
 		        if l.status

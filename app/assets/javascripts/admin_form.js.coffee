@@ -1,4 +1,13 @@
 ready = ->
+
+  $('.lg_accordion').each (i, e) ->
+    $(e).mouseenter ->
+      $(this).children(".excerpt").hide()
+      $(this).children(".full").show()
+    $(e).mouseleave ->
+      $(this).children(".excerpt").show()
+      $(this).children(".full").hide()
+      
   $('.accordion').each (i, e) ->
     $(e).accordion
       collapsible: true,

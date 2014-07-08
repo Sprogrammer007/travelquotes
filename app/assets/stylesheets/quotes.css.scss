@@ -292,12 +292,7 @@ fieldset.traveling_members  {
 .result_list_wrapper .logo {
   border: 2px solid #97B6E4;
   width: 100%;
-  -webkit-border-top-left-radius: 4px;
-  -webkit-border-bottom-left-radius: 4px;
-  -moz-border-radius-topleft: 4px;
-  -moz-border-radius-bottomleft: 4px;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
+  padding: 5px;
   }
 
 .result_list_wrapper .col-md-4, .result_list_wrapper .col-md-2,
@@ -628,3 +623,20 @@ h5.collapsed.arrow-black::before {
   border-color: #d2322d !important;
 } 
 
+#compare .ui-accordion h3 {
+  background: none;
+  padding-left: 30px;
+}
+
+#compare .ui-accordion .ui-accordion-header, 
+#compare .ui-accordion .ui-accordion-content {
+  border: none;
+  border-radius: 3px;
+  margin-bottom: 3px;
+}
+
+#compare .ui-accordion .ui-accordion-content {
+  background-color: #F0F7F9;
+  margin-left: 30px;
+  border-radius: 0;
+}
