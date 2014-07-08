@@ -261,8 +261,8 @@ ActiveAdmin.register Product do
     			end
 					column :policy_type
 					column :description, class: "lg_accordion" do |l|
-						div class: "excerpt" do
-							sanitize(l.description[0...250])
+						h3 do
+							"Click to View Description"
 						end
 						div class: "full" do
 							l.description.html_safe() if l.description

@@ -4,8 +4,11 @@ ready = ->
     $(e).accordion
       collapsible: true,
       autoHeight: false, 
-      active: false,
+      active: false, 
+      activate: ( event, ui ) ->
+      icons: { "header": "icon-triangle", "activeHeader": "icon-triangle-active" }
       
+
   $('.accordion').each (i, e) ->
     $(e).accordion
       collapsible: true,
