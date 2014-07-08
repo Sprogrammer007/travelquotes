@@ -1,8 +1,6 @@
 #= require active_admin/base
 #= require editable_text_column
 #= require admin_form
-#= require jquery-ui
-#= require jquery-ui.accordion
 #= require tinymce-jquery
 
 $(document).ready ->
