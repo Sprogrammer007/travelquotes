@@ -2,7 +2,7 @@
 #= require editable_text_column
 #= require admin_form
 #= require jquery-ui
-#= require jquery.ui.accordion
+#= require jquery-ui.accordion
 #= require tinymce-jquery
 
 $(document).ready ->
