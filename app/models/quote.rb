@@ -117,6 +117,11 @@ class Quote < ActiveRecord::Base
       rate = minprice
     end
 
+    d = version.product.deductibles.where(:amount => 0)
+    if d.any?
+      rate = rate * d.first.mutiplier
+    end
+
    return rate
   end
 
