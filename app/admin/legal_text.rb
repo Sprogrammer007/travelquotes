@@ -88,8 +88,8 @@ ActiveAdmin.register LegalText do
   controller do
     def create
       product = Product.find(params[:legal_text][:product_id])
-      category_ids = product.legal_texts.pluck(:legal_text_category_id)
-      if category_ids.include?(params[:legal_text][:legal_text_category_id].to_i)
+      lg = product.legal_texts.where(legal_text_category_id: params[:legal_text][:legal_text_category_id].to_i)
+      if lg.any? && LegalText.has_legal_text_of_version?(lg, params[:legal_text][:policy_type])
         flash[:error] = "There is already a version of legal text for this category!"
         redirect_to admin_product_path(product)
       else
