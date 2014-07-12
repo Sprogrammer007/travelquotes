@@ -121,8 +121,8 @@ ActiveAdmin.register Version do
 							end
 							dropdown_menu "Age Bracket Actions", class: "dropdown_menu right" do
 								item("View", admin_age_bracket_path(age))
-								item("Edit", admin_age_bracket_path(age), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-								item("Delete", edit_admin_age_bracket_path(age))
+								item("Edit", edit_admin_age_bracket_path(age))
+								item("Delete", admin_age_bracket_path(age), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
 								item("Add Rate", new_admin_rate_path(id: age.id))
 								item("View All Rates", admin_age_bracket_path(age))
 							end				

@@ -60,6 +60,7 @@ ActiveAdmin.register Product do
 		column "Policy Options", class: "col-btn-group-verticale" do |p|
 			dropdown_menu "View" do 
 				item("View Policy Details", admin_product_path(p))
+				item("View Policy Age Brackets", admin_age_brackets_path(product_id: p.id, q: {product_id_eq: p.id}))
 				item("View Policy Legal Texts", view_admin_legal_texts_path(product_id: p.id))
 				item("View Policy Deductibles", admin_deductibles_path(q: {product_id_eq: p.id}))
 				item("Edit Policy", edit_admin_product_path(p))

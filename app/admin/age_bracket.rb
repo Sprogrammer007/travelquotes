@@ -16,18 +16,18 @@ ActiveAdmin.register AgeBracket do
 	remove_filter :age_sets
 	remove_filter :rates
 
-	index do
-		selectable_column
-		column :range, :sortable => false 
-		column :min_age
-		column :max_age
-		column :min_trip_duration
-		column :max_trip_duration
-		column :preex
-		actions defaults: true, dropdown: true do |a|
-			item  "Add Rate",  new_admin_rate_path(id: a.id)
-		end
-	end
+	# index do
+	# 	selectable_column
+	# 	column :range, :sortable => false 
+	# 	column :min_age
+	# 	column :max_age
+	# 	column :min_trip_duration
+	# 	column :max_trip_duration
+	# 	column :preex
+	# 	actions defaults: true, dropdown: true do |a|
+	# 		item  "Add Rate",  new_admin_rate_path(id: a.id)
+	# 	end
+	# end
 
 	index :as => :grid  do |age|
 		div class: "custom_grid_index" do
@@ -44,6 +44,9 @@ ActiveAdmin.register AgeBracket do
 						status_tag("No")
 					end
 				end
+				row :effective_date do |a|
+					a.product.rate_effective_date.strftime("%d, %m, %Y")
+				end
 				row " " do |a|
 					[
 						link_to("View", add_future_admin_rate_path(id: a.id)),
@@ -57,9 +60,6 @@ ActiveAdmin.register AgeBracket do
 					column :rate
 					column :rate_type
 					column :sum_insured
-					column :effective_date do |r|
-						r.effective_date.strftime("%d, %m, %Y") if r.effective_date
-					end
 					column :status do |r|
 						status_tag r.status, "#{r.status.downcase}"
 					end
@@ -178,6 +178,7 @@ ActiveAdmin.register AgeBracket do
 	end
 
 	controller do
+
 		def clean_params
 			params.require(:age_bracket).permit(:min_age, :max_age, :min_trip_duration, :max_trip_duration)
 		end
@@ -185,13 +186,11 @@ ActiveAdmin.register AgeBracket do
 		def clean_rate_params
 			params.require(:age_bracket).permit(:rates_attributes => [:rate, :rate_type, :sum_insured])
 		end
-
+		
 		def index
-			#Hotfix for mass load
-			if params[:as] == "grid"
-				@per_page = 9
-			else
-				@per_page = 30
+			@per_page = 9
+			if params[:product_id]
+				@page_title = "Age Brackets for #{Product.find(params[:product_id]).name}"
 			end
 			super
 		end
