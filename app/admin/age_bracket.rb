@@ -55,7 +55,7 @@ ActiveAdmin.register AgeBracket do
 						link_to("View", add_future_admin_rate_path(id: a.id)),
 						link_to("Edit", edit_admin_age_bracket_path(a)),
 						link_to("Delete", admin_age_bracket_path(a), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}),
-						link_to("Add Future Rate", add_future_admin_rate_path(id: a.id))
+						link_to("Add Future Rate", add_future_admin_rate_path(id: a.product.id))
 					].join(" | ").html_safe
 				end
 				
