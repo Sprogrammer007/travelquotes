@@ -44,6 +44,9 @@ ActiveAdmin.register AgeBracket do
 						status_tag("No")
 					end
 				end
+				row "Rate Type" do |a|
+					a.rates.first.rate_type()
+				end
 				row :effective_date do |a|
 					a.product.rate_effective_date.strftime("%d, %m, %Y")
 				end
@@ -58,10 +61,15 @@ ActiveAdmin.register AgeBracket do
 				
 				table_for age.rates.current do
 					column :rate
-					column :rate_type
 					column :sum_insured
 					column :status do |r|
 						status_tag r.status, "#{r.status.downcase}"
+					end
+					column "" do |r|
+						[
+							link_to("Edit", edit_admin_rate_path(r)),
+							link_to("Delete", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}),
+						].join(" | ").html_safe
 					end
 				end
 			end
@@ -205,11 +213,15 @@ ActiveAdmin.register AgeBracket do
 			age.update(clean_params)
 			if params[:age_bracket][:rates_attributes]
 				params[:age_bracket][:rates_attributes].each_value do |attrs|
+					if attrs[:_destroy] == '1'
+					Rate.find(attrs[:id]).destroy 
+					else
 					Rate.find(attrs[:id]).update(rate: attrs[:rate], rate_type: attrs[:rate_type],
 																			sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
+					end
 				end
 			end
-			redirect_to add_future_admin_rate_path(id: age.id)
+			redirect_to admin_age_brackets_path(product_id: params[:age_bracket][:product_id], q: {product_id_eq: params[:age_bracket][:product_id]})
 		end
 	end	
 end
