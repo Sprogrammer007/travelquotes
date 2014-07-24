@@ -1,33 +1,9 @@
 # Place all the behaviors and hooks related to the matching controller here.
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
-ready = ->
 
-  #tooltips
-  $('.tool_tips').tooltip
-    placement: 'right'
-    html: true
-  #email quotes
-  $('.email-pop').popover
-    animation: true
-    html: true
-    trigger: 'click'
-    placement: 'bottom'
-    container: 'body'
-
-  $('.email-pop').on 'shown.bs.popover', ->
-    $('.email-yes-button').click (e)->
-      e.preventDefault()
-      url = $(this).attr('href')
-      $.post(url, {}, undefined, "script")
-
-    $('.email-no-button').click (e)->
-      e.preventDefault()
-      form = $(this).attr('data-field')
-      $(this).next('a').hide()
-      $(this).hide().prev('p').after(form)
-
- 
+refresherFunctions = ->
+  
   # Details
   trip_length = parseInt($('.trip_length').text())
   current_mutiplier = undefined
@@ -109,6 +85,35 @@ ready = ->
     e.preventDefault()
     return
 
+ready = ->
+
+  #Run refresher refresher first time
+  refresherFunctions();
+
+  #tooltips
+  $('.tool_tips').tooltip
+    placement: 'right'
+    html: true
+  #email quotes
+  $('.email-pop').popover
+    animation: true
+    html: true
+    trigger: 'click'
+    placement: 'bottom'
+    container: 'body'
+
+  $('.email-pop').on 'shown.bs.popover', ->
+    $('.email-yes-button').click (e)->
+      e.preventDefault()
+      url = $(this).attr('href')
+      $.post(url, {}, undefined, "script")
+
+    $('.email-no-button').click (e)->
+      e.preventDefault()
+      form = $(this).attr('data-field')
+      $(this).next('a').hide()
+      $(this).hide().prev('p').after(form)
+
   # Filters
   $('.remove_filter').click (e)->
     e.preventDefault()
@@ -153,6 +158,9 @@ ready = ->
   addDatePicker $('#quote_return_home')
   addDatePicker $('#quote_arrival_date')
   addDatePicker $('#quote_renew_expire_date')
+
+  #update year range for return home 
+  $('#quote_return_home').datepicker("option", "yearRange", "-20:+20" )
 
   $('#quote_leave_home').change ->
     selectedFrom = $('#quote_leave_home').datepicker('getDate')
@@ -285,4 +293,7 @@ $(document).on 'compare:accordion', ->
       active: false,
       icons: { "header": "icon-triangle", "activeHeader": "icon-triangle-active" }
       
+$(document).on 'applied:filters', ->
+  console.log("testestset")
+  refresherFunctions();
 
