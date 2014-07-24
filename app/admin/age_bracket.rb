@@ -30,9 +30,12 @@ ActiveAdmin.register AgeBracket do
 	# end
 
 	index :as => :grid  do |age|
-		div class: "custom_grid_index" do
+		div class: "custom_grid_index group" do
 
 			attributes_table_for age  do
+				row "Applied Versions" do |a|
+					a.versions.map(&:detail_type).join(" | ")
+				end
 				row :range
 				row "Trip Duration" do |a|
 					"#{a.min_trip_duration} - #{a.max_trip_duration} (Days)"
@@ -45,7 +48,7 @@ ActiveAdmin.register AgeBracket do
 					end
 				end
 				row "Rate Type" do |a|
-					a.rates.first.rate_type()
+					a.rates.first.rate_type() if a.rates.any?
 				end
 				row :effective_date do |a|
 					a.product.rate_effective_date.strftime("%d, %m, %Y")
@@ -73,6 +76,7 @@ ActiveAdmin.register AgeBracket do
 					end
 				end
 			end
+			text_node(link_to("Add Rate", new_admin_rate_path(id: age.id), class: "right link_button"))
 		end
 	end
 
@@ -214,9 +218,12 @@ ActiveAdmin.register AgeBracket do
 			if params[:age_bracket][:rates_attributes]
 				params[:age_bracket][:rates_attributes].each_value do |attrs|
 					if attrs[:_destroy] == '1'
-					Rate.find(attrs[:id]).destroy 
+						Rate.find(attrs[:id]).destroy 
+					elsif attrs[:id].nil?
+						age.rates.create!(rate: attrs[:rate], rate_type: attrs[:rate_type],
+																			sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
 					else
-					Rate.find(attrs[:id]).update(rate: attrs[:rate], rate_type: attrs[:rate_type],
+						Rate.find(attrs[:id]).update(rate: attrs[:rate], rate_type: attrs[:rate_type],
 																			sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
 					end
 				end
