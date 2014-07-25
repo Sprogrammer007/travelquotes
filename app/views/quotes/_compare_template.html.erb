@@ -1,26 +1,22 @@
 <table class="compare_table table table-bordered">
   <tr>
-    <td class="label_td">Company:</td>   
     <% products.each do |p| %>
       <td class="content_td"><%= image_tag p.company.logo %></td>
     <% end %>
   </tr>
-  <tr>
-    <td class="label_td">Policy:</td>   
+  <tr>   
     <% products.each do |p| %>
       <td class="content_td"><%= p.name %></td>
     <% end %>
   </tr>
 
-  <tr>
-    <td class="label_td">Rate:</td>   
+  <tr> 
     <% products.each do |p| %>
       <td class="content_td"><%= number_to_currency(p.rate) %></td>
     <% end %>
   </tr>
 
   <tr>
-    <td class="label_td">Policy Legals:</td>   
     <% products.each do |p| %>
       <td class="content_td">
         <% p.legal_texts.each do |l| %>
