@@ -32,7 +32,7 @@ class Product < ActiveRecord::Base
 
   def get_deductible
     f = []
-    deductibles.each do |d|
+    deductibles.order("amound ASC").each do |d|
       f << [d.amount, d.mutiplier]
     end
     return f
