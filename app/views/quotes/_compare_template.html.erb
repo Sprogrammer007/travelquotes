@@ -12,14 +12,14 @@
 
   <tr> 
     <% products.each do |p| %>
-      <td class="content_td"><%= number_to_currency(p.rate) %></td>
+      <td class="content_td"><strong>Rate at: <%= number_to_currency(p.rate) %> with an applied Dedutible of: <%= p.applied_ded %></strong></td>
     <% end %>
   </tr>
 
   <tr>
     <% products.each do |p| %>
       <td class="content_td">
-        <% p.legal_texts.each do |l| %>
+        <% p.legal_texts.merge(LegalText.ordered).each do |l| %>
           <div class="accordion">
             <h3><%= l.legal_text_category.name %></h3>
             <div>

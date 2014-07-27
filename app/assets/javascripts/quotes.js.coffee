@@ -73,8 +73,11 @@ refresherFunctions = ->
     products = []
     inputs.each (i, e)->
       if $(e).is(':checked')
-        rate = $(e).parents('.result_item_wrapper').find('.rate p').text().replace("$", "")
-        products.push({rate: rate, id: parseInt($(e).val())})
+        rate = $(e).parents('.result_item_wrapper').find('.rate').data('baserate')
+        selected = $(e).parents('.result_item_wrapper').find('.list_deduct').find(':selected')
+        ded_value = selected.text()
+        ded_mutip = selected.val()
+        products.push({rate: rate, ded_value: ded_value, ded_mutip: ded_mutip, id: parseInt($(e).val())})
     if products.length >= 2
       $('#compare_tab').attr('data-toggle', 'tab')
       $('#compare_tab').parent('li').removeClass('disabled')

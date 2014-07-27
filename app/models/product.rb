@@ -46,8 +46,11 @@ class Product < ActiveRecord::Base
     products = []
     ps.each_value do |v| 
       product = find(v["id"])
+      product.define_singleton_method(:applied_ded) do
+        v["ded_value"]
+      end
       product.define_singleton_method(:rate) do
-        v["rate"]
+        (v["rate"].to_f * v["ded_mutip"].to_f)
       end
       products << product
     end

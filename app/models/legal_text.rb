@@ -8,7 +8,7 @@ class LegalText < ActiveRecord::Base
   def self.ordered
     joins(:legal_text_category => [:legal_text_parent_category]).order("legal_text_parent_categories.order asc").order("legal_text_categories.order asc")
   end
-
+  
   def self.has_legal_text_of_version?(lgs, type)
     if lgs
       a = lgs.select { |lg| lg.policy_type == type}
