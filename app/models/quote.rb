@@ -149,7 +149,7 @@ class Quote < ActiveRecord::Base
       d = version.product.deductibles.merge(Deductible.deductible_eq(deductible_filter))
 
       if d.any?
-        return d.first.amount.to_i
+        return d.first.amount.to_s
       else
         0
       end
