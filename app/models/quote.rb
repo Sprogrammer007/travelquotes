@@ -147,7 +147,12 @@ class Quote < ActiveRecord::Base
   def get_selected_ded(version)
     if self.deductible_filter
       d = version.product.deductibles.merge(Deductible.deductible_eq(deductible_filter))
-      return d.first.amount.to_i
+
+      if d.any?
+        return d.first.amount.to_i
+      else
+        0
+      end
     else
       return 0
     end
