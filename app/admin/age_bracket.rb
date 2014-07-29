@@ -16,6 +16,8 @@ ActiveAdmin.register AgeBracket do
 	remove_filter :age_sets
 	remove_filter :rates
 
+
+
 	# index do
 	# 	selectable_column
 	# 	column :range, :sortable => false 
@@ -62,7 +64,7 @@ ActiveAdmin.register AgeBracket do
 					].join(" | ").html_safe
 				end
 				
-				table_for age.rates.current do
+				table_for age.rates.current.order("sum_insured ASC") do
 					column :rate
 					column :sum_insured
 					column :status do |r|
@@ -169,6 +171,9 @@ ActiveAdmin.register AgeBracket do
 			elsif f.object.new_record? && params[:id]
 				f.input :product_id, :as => :hidden, :input_html => { :value => params[:id] }
 				f.input :product_id, :as => :select, :collection => options_for_select([[params[:name], params[:id]]], params[:id]), input_html: { disabled: true, multiple: false}
+			elsif f.object.new_record?
+				f.input :product_id, :as => :hidden, :input_html => { :value => f.object.product_id }
+				f.input :product, :as => :select, :collection => options_for_select(Product.all.map{ |p| [p.name, p.id]}, f.object.product_id),	:input_html => { :class => 'tier1_select' }
 			else
 				f.input :product_id, :as => :hidden, :input_html => { :value => f.object.product_id }
 				f.input :product, :as => :select, :collection => options_for_select(Product.all.map{ |p| [p.name, p.id]}, f.object.product_id),	:input_html => { :class => 'tier1_select', disabled: true}
@@ -210,6 +215,13 @@ ActiveAdmin.register AgeBracket do
 		def show
 	    @page_title = "Age Bracket (#{resource.range}) For #{resource.product.name}"
 	    super
+		end
+
+		def destroy
+			age = AgeBracket.find(params[:id])
+			product = age.product
+			age.destroy
+			redirect_to admin_age_brackets_path(q: {product_id_eq: product.id})
 		end
 
 		def update

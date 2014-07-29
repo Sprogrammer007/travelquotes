@@ -10,7 +10,7 @@
       <p>Traveler Age:</p>
       <% if q.traveler_type != "Family" %>
         <% q.adult_members.each_with_index do |m, i| %>
-          <p>Traveler #<%= "#{i + 1}"%>:</p>
+          <p>Traveler Adult #<%= "#{i + 1}"%>:</p>
         <% end %>
       <% end %>
     </div>

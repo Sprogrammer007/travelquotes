@@ -117,9 +117,15 @@ class Quote < ActiveRecord::Base
       rate = minprice
     end
 
-    d = version.product.deductibles.where(:amount => 0)
-    if d.any?
+    # check to see if any deductible filter has been applied
+    if self.deductible_filter
+      d = version.product.deductibles.merge(Deductible.deductible_eq(deductible_filter))
       rate = rate * d.first.mutiplier
+    else
+      d = version.product.deductibles.where(:amount => 0)
+      if d.any?
+        rate = rate * d.first.mutiplier
+      end
     end
 
    return rate
@@ -135,6 +141,16 @@ class Quote < ActiveRecord::Base
 
   def not_include_filter?(filter)
     !applied_filter_ids.include?(filter)
+  end
+
+  # fetchs currently selected ded for each product
+  def get_selected_ded(version)
+    if self.deductible_filter
+      d = version.product.deductibles.merge(Deductible.deductible_eq(deductible_filter))
+      return d.first
+    else
+      return 0
+    end
   end
 
   def filter_results
@@ -255,7 +271,7 @@ class Quote < ActiveRecord::Base
       self.visitor_visa_sum.drop(2)
     end
 
-    def deductible_filter
+    def ded_filters
       ["0", "1 - 100", "101 - 250", "251 - 500", "501 - 1000",
        "1001 - 3000", "3001 - 5000", "5001 - 10000"]
     end

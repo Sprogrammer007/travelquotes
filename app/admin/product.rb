@@ -1,13 +1,13 @@
 ActiveAdmin.register Product do
 	config.sort_order = "id_asc"
 	
-	menu :parent => "Products", :priority => 2, :label => "Visitor Policy"
+	menu false
 
 	include_import
 
-	permit_params :name, :policy_number, :description, :company_id, :min_price, :can_buy_after_30_days,
+	permit_params :name, :policy_number, :description, :policy_type, :company_id, :min_price, :can_buy_after_30_days,
 	:can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex, :preex_based_on_sum_insured,
-	:purchase_url, :rate_effective_date, :status, :effective_date, deductibles_attributes: [:amount, :mutiplier, :condition, :age]
+	:purchase_url, :rate_effective_date, :status, :effective_date, deductibles_attributes: [:amount, :mutiplier, :min_age, :max_age]
 
 	#Scopes
 	scope :all, default: true
@@ -16,14 +16,12 @@ ActiveAdmin.register Product do
 
 	#Filters
 	filter :company, :collection => -> { Company.all.map { |c| [c.name, c.id] } }
-	preserve_default_filters!
-	remove_filter :deductibles
-	remove_filter :legal_texts
-	remove_filter :age_brackets
-	remove_filter :versions
-	remove_filter :product_filter_sets
-	remove_filter :description
-	remove_filter :purchase_url
+	filter :policy_number
+	filter :policy_type
+	filter :effective_date
+	filter :can_renew_after_30_days
+	filter :can_buy_after_30_days
+
 
 	#Index Table
 	index :title => "Visitor Policies" do
@@ -46,8 +44,7 @@ ActiveAdmin.register Product do
 				end
 			end	
 		end
-		column "After 30 Days", :can_buy_after_30_days
-		column "Renew 30 Days", :can_renew_after_30_days
+		column :policy_type
 		column "Pre-Med", :preex
 		column :status do |p|
 			if p.status
@@ -62,10 +59,7 @@ ActiveAdmin.register Product do
 				item("View Policy Details", admin_product_path(p))
 				item("View Policy Age Brackets", admin_age_brackets_path(product_id: p.id, q: {product_id_eq: p.id}))
 				item("View Policy Legal Texts", view_admin_legal_texts_path(product_id: p.id))
-				item("View Policy Deductibles", admin_deductibles_path(q: {product_id_eq: p.id}))
-				item("Edit Policy", edit_admin_product_path(p))
-				item("Active/Deactive Policy", deactive_admin_product_path(p))
-				item("Delete", admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+				item("View Policy Deductibles", admin_deductibles_path(q: {product_id_eq: p.id}))			
 			end
 			dropdown_menu "Edit" do 
 				item("Add Version", new_admin_version_path(:id => p.id, name: p.name))
@@ -74,6 +68,9 @@ ActiveAdmin.register Product do
 				item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
 				item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name))
 				item("Add Future Rate", add_future_admin_rate_path(id: p.id))
+				item("Edit Policy", edit_admin_product_path(p))
+				item("Active/Deactive Policy", deactive_admin_product_path(p))
+				item("Delete", admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
 			end
 		end
 	end
@@ -84,6 +81,7 @@ ActiveAdmin.register Product do
 				panel "Policy Eligibiliities" do
 					attributes_table_for product do
 						row :policy_number
+						row :policy_type
 						row :description do |p|
 							p.description.html_safe() if p.description
 						end
@@ -228,6 +226,9 @@ ActiveAdmin.register Product do
 					sortable: true  do
 						column :amount, sortable: :amount
 						column :mutiplier, sortable: false
+						column "Age Range" do |d|
+							"#{d.min_age} - #{d.max_age}" if d.min_age()
+						end
 						column " " do |d|
 							[
 								link_to("View", admin_deductible_path(d)),
@@ -288,7 +289,6 @@ ActiveAdmin.register Product do
 			end
 			text_node link_to "Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name),  class: "link_button right"
 		end 
-		
 	end
 
 	form do |f|
@@ -302,6 +302,7 @@ ActiveAdmin.register Product do
 			end
 			f.input :name, label: "Policy Name"
 			f.input :policy_number
+			f.input :policy_type, :as => :select, :collection => ["Visitor Visa", "Student Visa", "Ex-Pat"]
 			f.input :description, input_html: {class: "tinymce"}
 			f.input :min_price
 			f.input :can_buy_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
@@ -322,6 +323,8 @@ ActiveAdmin.register Product do
 			f.has_many :deductibles, :allow_destroy => true, :heading => 'Add Dedutibles' do |d|
 				d.input :amount
 				d.input :mutiplier
+				d.input :min_age
+				d.input :max_age
 			end
 		end
 		f.actions
@@ -331,7 +334,6 @@ ActiveAdmin.register Product do
 	member_action :remove_region, method: :delete do
 
 	Region.where("province_id = ? AND company_id = ?", params[:province_id], params[:id]).each { |r| r.destroy }
-
 		flash[:notice] = "Province was successfully removed!"
 		redirect_to admin_company_path(params[:id])
 	end
@@ -340,7 +342,7 @@ ActiveAdmin.register Product do
 		def clean_params
 			params.require(:product).permit(:name, :policy_number, :description, :min_price, :renewable_max_age,
 			  :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
-				:preex_based_on_sum_insured,:rate_effective_date, :effective_date, :status)
+				:preex_based_on_sum_insured,:rate_effective_date, :effective_date, :status, :policy_type)
 		end
 
 		def new 
@@ -353,8 +355,15 @@ ActiveAdmin.register Product do
 			p.update(clean_params)
 			if params[:product][:deductibles_attributes]
 				params[:product][:deductibles_attributes].each_value do |attrs|
-					Deductible.find(attrs[:id]).update(amount: attrs[:amount], mutiplier: attrs[:mutiplier],
-																			condition: attrs[:condition], age: attrs[:age])
+					if attrs[:_destroy] == '1'
+						Deductible.find(attrs[:id]).destroy 
+					elsif attrs[:id].nil?
+						p.deductibles.create!(amount: attrs[:amount], mutiplier: attrs[:mutiplier],
+							min_age: attrs[:min_age], max_age: attrs[:max_age])
+					else
+						Deductible.find(attrs[:id]).update(amount: attrs[:amount], mutiplier: attrs[:mutiplier],
+							min_age: attrs[:min_age], max_age: attrs[:max_age])
+					end
 				end
 			end
 			redirect_to admin_product_path(p)
@@ -371,5 +380,4 @@ ActiveAdmin.register Product do
     end
     redirect_to :back
   end
-
 end

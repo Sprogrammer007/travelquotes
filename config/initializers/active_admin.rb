@@ -2,8 +2,12 @@ ActiveAdmin.setup do |config|
   config.namespace :admin do |admin|
 
     admin.build_menu do |menu|
-      menu.add :label => "Products", :priority => 1
+      menu.add :label => "Products", :priority => 1 do |products|
+        products.add :label => "Visitor Visa", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Visitor Visa"})
+        products.add :label => "Sudent Visa", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Student Visa"})
+      end
       menu.add :label => "Global Settings", :priority => 2
+ 
       menu.add :label => "Super Admin", :priority => 3, :if => proc{ current_admin_user.email == "stevenag006@hotmail.com" }
     end
   end

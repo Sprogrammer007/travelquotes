@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140703144333) do
+ActiveRecord::Schema.define(version: 20140729025836) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -84,6 +84,8 @@ ActiveRecord::Schema.define(version: 20140703144333) do
     t.float    "mutiplier"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "min_age"
+    t.integer  "max_age"
   end
 
   create_table "family_details", force: true do |t|
@@ -159,6 +161,7 @@ ActiveRecord::Schema.define(version: 20140703144333) do
     t.datetime "effective_date"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "policy_type"
   end
 
   add_index "products", ["company_id"], name: "index_products_on_company_id", using: :btree

@@ -5,7 +5,7 @@ ActiveAdmin.register Deductible do
 
 	menu :parent => "Super Admin"
 
-  permit_params :product_id, :amount, :mutiplier, :condition, :age
+  permit_params :product_id, :amount, :mutiplier, :min_age, :max_age
   
   index do
     column "Product" do |d|
@@ -13,6 +13,9 @@ ActiveAdmin.register Deductible do
     end
     column "Deductible Amount", :amount
     column "Deductible Mutiplier", :mutiplier
+    column "Age Range" do |d|
+      "#{d.min_age} - #{d.max_age}"
+    end
     actions defaults: true, dropdown: true
   end
 
@@ -44,6 +47,8 @@ ActiveAdmin.register Deductible do
       end
       f.input :amount, :label => "Deductible Amount"
       f.input :mutiplier, :label => "Deductible Mutiplier"
+      f.input :min_age
+      f.input :max_age
     end
     f.actions
   end
