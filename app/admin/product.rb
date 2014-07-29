@@ -302,7 +302,7 @@ ActiveAdmin.register Product do
 			end
 			f.input :name, label: "Policy Name"
 			f.input :policy_number
-			f.input :policy_type, :as => :select, :collection => ["Visitor Visa", "Student Visa", "Ex-Pat"]
+			f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", "Student Visa", "Ex-Pat"], (params[:p_type] || "Visitor Visa"))
 			f.input :description, input_html: {class: "tinymce"}
 			f.input :min_price
 			f.input :can_buy_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
@@ -346,7 +346,7 @@ ActiveAdmin.register Product do
 		end
 
 		def new 
-			@page_title = "New Visitor Policy For #{params[:name]}"
+			@page_title = "New #{params[:p_type] || ""} Policy For #{params[:name]}"
 			super
 		end
 
