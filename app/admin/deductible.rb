@@ -58,5 +58,11 @@ ActiveAdmin.register Deductible do
       @page_title = "New Deductibles For #{params[:name]}" 
       super
     end
+
+    def update
+      update! do |format|
+        format.html { redirect_to :back}
+      end
+    end
   end
 end
