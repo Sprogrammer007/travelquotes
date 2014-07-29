@@ -30,17 +30,15 @@ class Product < ActiveRecord::Base
   scope :can_buy_after_30, -> { can_buy_after_30_days_eq(true) }
   scope :renewable_after_30, -> {  can_renew_after_30_days_eq(true) | can_buy_after_30_days_eq(true) }
 
-  def get_deductible
+  def get_deductible_by_age(age)
     f = []
-    deductibles.order("amount ASC").each do |d|
+    deductibles.age_between(age).order("amount ASC").each do |d|
       f << [d.amount, d.mutiplier]
     end
     return f
   end
 
-  def legal_texts_sorted
 
-  end
   
   def self.find_compare(ps)
     products = []

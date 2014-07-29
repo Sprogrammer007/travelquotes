@@ -158,6 +158,18 @@ class Quote < ActiveRecord::Base
     end
   end
 
+  def get_deductible_by_age(product, person)
+    if self.traveler_type == "Couple"
+      if person == "Traveler #2"
+        product.get_deductible_by_age(@ages['Adult'][1])
+      elsif person == "Couple"
+        product.get_deductible_by_age(@ages['Adult'].max)
+      end
+    else
+      product.get_deductible_by_age(@ages['Adult'].first)
+    end
+  end
+
   def filter_results
     self.search() unless cached_results(@pre_filtered_results)
     original_results = cached_results(@pre_filtered_results)

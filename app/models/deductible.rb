@@ -7,6 +7,7 @@ class Deductible < ActiveRecord::Base
   generate_scopes
   scope :amount_of, ->(a, b) {amount_gteq(a) & amount_lteq(b)}
   scope :no_deductible, -> {amount_eq(0)}
+  scope :age_between, ->(age) {min_age_gteq(age) & max_age_lteq(age)}
 
   validates :amount, :mutiplier, :product_id, presence: true
   validates :amount, :numericality => {:only_integer => true}

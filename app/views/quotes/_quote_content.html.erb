@@ -31,7 +31,7 @@
         <div id="filtered_results_<%= k.downcase.gsub(" ", "").gsub("#", "") %>" class="panel-collapse collapse">
 
         <% if quote.filtered_results %>
-          <%= render 'result_list', quote: quote, results: quote.filtered_results[k], type: "filtered_results" %>
+          <%= render 'result_list', quote: quote, results: quote.filtered_results[k],  type: "filtered_results" %>
         <% end %>
         </div>
    
