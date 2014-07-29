@@ -144,9 +144,11 @@ class Quote < ActiveRecord::Base
   end
 
   # fetchs currently selected ded for each product
-  def get_selected_ded(version)
+  def get_selected_ded(version, person)
+    age = get_age_by_person(person)
+
     if self.deductible_filter
-      d = version.product.deductibles.merge(Deductible.deductible_eq(deductible_filter))
+      d = version.product.deductibles.age_between(age).merge(Deductible.deductible_eq(deductible_filter))
 
       if d.any?
         return d.first.mutiplier
@@ -159,14 +161,20 @@ class Quote < ActiveRecord::Base
   end
 
   def get_deductible_by_age(product, person)
+    age = get_age_by_person(person)
+    product.get_deductible_by_age(age) 
+  end
+
+  #get age by person for couple rate
+  def get_age_by_person(person)
     if self.traveler_type == "Couple"
       if person == "Traveler #2"
-        product.get_deductible_by_age(@ages['Adult'][1])
+        @ages['Adult'][1]
       elsif person == "Couple"
-        product.get_deductible_by_age(@ages['Adult'].max)
+        @ages['Adult'].max
       end
     else
-      product.get_deductible_by_age(@ages['Adult'].first)
+      @ages['Adult'].first
     end
   end
 
