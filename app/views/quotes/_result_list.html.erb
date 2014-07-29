@@ -27,8 +27,9 @@
 
                 <div class="col-md-2 rate_box">
                   <% unless type == "filtered_results" %>
-                    <div class="rate" data-baserate="<%= quote.calc_rate(result)%>">
-                      <p><%= number_to_currency(quote.calc_rate(result)) %></p>
+                    <% @base_rate = quote.calc_base_rate(result) %>
+                    <div class="rate" data-baserate="<%= @base_rate %>">
+                      <p><%= number_to_currency(quote.calc_rate_with_ded(result, @base_rate, type)) %></p>
                     </div>
 
                     <div class="buy-now">                

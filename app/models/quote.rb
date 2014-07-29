@@ -89,7 +89,8 @@ class Quote < ActiveRecord::Base
     return daily_rate
   end
   
-  def calc_rate(version)
+  def calc_base_rate(version)
+   
     rate = version.product_rate
     ratetype = version.rate_type
 
@@ -117,9 +118,15 @@ class Quote < ActiveRecord::Base
       rate = minprice
     end
 
+   return rate
+  end
+
+  def calc_rate_with_ded(version, base_rate, person)
+    rate = base_rate
+    age = get_age_by_person(person)
     # check to see if any deductible filter has been applied
     if self.deductible_filter
-      d = version.product.deductibles.merge(Deductible.deductible_eq(deductible_filter))
+      d = version.product.deductibles.age_between(age).merge(Deductible.deductible_eq(deductible_filter))
       rate = rate * d.first.mutiplier
     else
       d = version.product.deductibles.where(:amount => 0)
@@ -127,8 +134,7 @@ class Quote < ActiveRecord::Base
         rate = rate * d.first.mutiplier
       end
     end
-
-   return rate
+    return rate
   end
 
   def applied_filter_ids
@@ -174,7 +180,7 @@ class Quote < ActiveRecord::Base
         @ages['Adult'].max
       end
     else
-      @ages['Adult'].first
+      @ages['Adult'].max
     end
   end
 
@@ -191,12 +197,12 @@ class Quote < ActiveRecord::Base
     end
   end
 
-  def single_filter(results)
+  def single_filter(results, person = nil)
     dfiltered = []
     ffiltered = nil
-
-    unless deductible_filter == "None" || !deductible_filter
-      dfiltered = results - filter_deductible(results)
+    age = get_age_by_person((person || "Couple"))
+    unless !deductible_filter
+      dfiltered = results - filter_deductible(results, age)
     end
 
     ffiltered = results.to_a.reject do |r| 
@@ -212,7 +218,7 @@ class Quote < ActiveRecord::Base
   def couple_filter(couple_results)
     h = Hash.new()
     couple_results.each do |k, v|
-      h[k] = single_filter(v)
+      h[k] = single_filter(v, k)
     end
     return h
   end
@@ -226,8 +232,8 @@ class Quote < ActiveRecord::Base
     return h
   end
 
-  def filter_deductible(original_results)
-    original_results.joins(:product => [:deductibles]).merge(Deductible.deductible_eq(deductible_filter))
+  def filter_deductible(original_results, age)
+    original_results.joins(:product => [:deductibles]).merge(Deductible.deductible_eq(deductible_filter).age_between(age))
   end
 
   def traveled_days
