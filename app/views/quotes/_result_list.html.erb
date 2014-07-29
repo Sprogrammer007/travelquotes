@@ -53,7 +53,7 @@
                     <label for="deductible">Deductible:</label></div>
 
                      <div class="ded-select">
-                    <%= select_tag "deductible", options_for_select(result.product.get_deductible, 250), class: "form-control list_deduct", id: "deductible_select_#{result.id}" %>
+                    <%= select_tag "deductible", options_for_select(result.product.get_deductible, quote.get_selected_ded(result)), class: "form-control list_deduct", id: "deductible_select_#{result.id}" %>
                     </div>
                   </div>
                 </div>
