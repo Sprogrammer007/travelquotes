@@ -60,8 +60,9 @@ ActiveAdmin.register Deductible do
     end
 
     def update
+      p_id = Deductible.find(params[:id]).product_id
       update! do |format|
-        format.html { redirect_to :back}
+        format.html { redirect_to admin_deductibles_path(q: {product_id_eq: p_id}) }
       end
     end
   end

@@ -24,7 +24,7 @@ ActiveAdmin.register Product do
 
 
 	#Index Table
-	index :title => "Visitor Policies" do
+	index do
 		column "Company" do |p|
 			p.company.name if p.company
 		end
@@ -343,6 +343,11 @@ ActiveAdmin.register Product do
 			params.require(:product).permit(:name, :policy_number, :description, :min_price, :renewable_max_age,
 			  :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
 				:preex_based_on_sum_insured,:rate_effective_date, :effective_date, :status, :policy_type)
+		end
+
+		def index
+			@page_title = "#{params[:q][:policy_type_equals] || ""} Policies"
+			super
 		end
 
 		def new 
