@@ -39,14 +39,14 @@ ActiveAdmin.register Company do
 
 		column "", class: "col-btn-group" do |c|
 			dropdown_menu "In-Bound Product" do 
-				item("View Visitor Policy", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor Visa"}))
-				item("View All Inclusive Policy", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor All Inclusive"}))
-				item("View Student Policy", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Student Visa"}))
-				item("View Ex-Pat Policy", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Ex-Pat"}))
-				item("Add Visitor Policy", new_admin_product_path(id: c.id, name: c.name, p_type: "Visitor Visa"))
-				item("Add Student Policy", new_admin_product_path(id: c.id, name: c.name, p_type: "Student Visa"))
-				item("Add Ex-Pat Policy", new_admin_product_path(id: c.id, name: c.name, p_type: "Ex-Pat"))
-				item("Add All Inclusive Policy", new_admin_product_path(id: c.id, name: c.name, p_type: "Visitor All Inclusive"))
+				item("View Visitor Medical Emergency", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor Medical Emergency"}))
+				item("View All Inclusive", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor All Inclusive"}))
+				item("View Student Medical Inbound", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Student Medical Inbound"}))
+				item("View Ex-Pat Policy", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Canadian Ex-Pat"}))
+				item("Add Visitor Medical Emergency", new_admin_product_path(id: c.id, name: c.name, p_type: "Visitor Medical Emergency"))
+				item("Add Student Medical Inbound", new_admin_product_path(id: c.id, name: c.name, p_type: "Student Medical Inbound"))
+				item("Add Canadian Ex-Pat", new_admin_product_path(id: c.id, name: c.name, p_type: "Canadian Ex-Pat"))
+				item("Add All Inclusive", new_admin_product_path(id: c.id, name: c.name, p_type: "All Inclusive"))
 			end
 			dropdown_menu "Out-Bound Products" do
    		 	item("View", "#")
