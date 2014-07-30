@@ -3,7 +3,7 @@ ActiveAdmin.setup do |config|
 
     admin.build_menu do |menu|
       menu.add :label => "Products", :priority => 1 do |products|
-        oducts.add :label => "All Policies", :url => Rails.application.routes.url_helpers.admin_products_path()
+        products.add :label => "All Policies", :url => Rails.application.routes.url_helpers.admin_products_path()
         products.add :label => "Visitor All Inclusive", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Visitor All Inclusive"})
         products.add :label => "Visitor Visa", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Visitor Visa"})
         products.add :label => "Sudent Visa", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Student Visa"})

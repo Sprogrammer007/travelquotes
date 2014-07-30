@@ -15,7 +15,7 @@ class Product < ActiveRecord::Base
 
   accepts_nested_attributes_for :versions
   accepts_nested_attributes_for :deductibles
-  
+
   delegate :logo, to: :company
   
   validates :name, :company_id, :min_price, :renewable_max_age, :preex_max_age, :purchase_url, :rate_effective_date, :effective_date, presence: true
@@ -42,8 +42,23 @@ class Product < ActiveRecord::Base
     return f
   end
 
+  #gets only the legal text that the quote has applied filters for
+  def get_legal_texts_by_filter(applied_filters, type)
+    if applied_filters.any?
+      lt_ids = applied_filters.pluck(:associated_lt_id).uniq
+      @applied_lts = self.legal_texts.where(legal_text_category_id: lt_ids)
+      return @applied_lts
+    end
+  end
 
-  
+  def get_lts_after_filters(type)
+    lts = legal_texts.merge(LegalText.ordered).to_a
+    if @applied_lts.any?
+      lts = lts - @applied_lts
+    end
+    return lts
+  end
+
   def self.find_compare(ps)
     products = []
     ps.each_value do |v| 
@@ -59,5 +74,8 @@ class Product < ActiveRecord::Base
     return products
   end
 
+  private
+    attr_reader :applied_lts
+  
 
 end

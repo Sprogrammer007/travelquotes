@@ -2,6 +2,7 @@ class LegalTextCategory < ActiveRecord::Base
   DEFAULT_HEADER = %w{legal_text_parent_category_id name order popup_description}
 
   has_many :legal_texts, dependent: :destroy
+  has_one :product_filter, foreign_key: "associated_lt_id"
   belongs_to :legal_text_parent_category
   before_save :calc_order
   before_destroy :destroy_order_change

@@ -3,7 +3,7 @@ class ProductFilter < ActiveRecord::Base
 
   has_many :product_filter_sets
   has_many :product, :through => :product_filter_sets
- 
+  belongs_to :legal_text_category, foreign_key: "associated_lt_id"
   has_many :applied_filters
   has_many :quotes, :through => :applied_filters
   

@@ -642,8 +642,12 @@ h5.collapsed.arrow-black::before {
   width: inherit;
 }
 
-#compare .table {
+#compare .compare_table {
   table-layout: fixed;
+}
+
+#compare .compare_table .odd{
+  background-color: #E5E5E5;
 }
 
 #compare .compare_table .label_td {

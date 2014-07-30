@@ -4,7 +4,7 @@
       <td class="content_td"><%= image_tag p.company.logo %></td>
     <% end %>
   </tr>
-  <tr>   
+  <tr class="odd">   
     <% products.each do |p| %>
       <td class="content_td"><%= p.name %></td>
     <% end %>
@@ -16,10 +16,30 @@
     <% end %>
   </tr>
 
+  <tr class="odd">
+    <% products.each do |p| %>
+      <td class="content_td">
+        <% if quote.applied_filters.any? %>
+          <% p.get_legal_texts_by_filter(quote.product_filters, quote.quote_type).each do |l| %>
+            <div class="accordion">
+              <h3><%= l.legal_text_category.name %></h3>
+              <div>
+                <% if l.description %>
+                  <%= l.description.html_safe() %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+        <% end %>
+      </td>
+    <% end %>
+  </tr>
+
   <tr>
     <% products.each do |p| %>
       <td class="content_td">
-        <% p.legal_texts.merge(LegalText.ordered).each do |l| %>
+        <% p.get_lts_after_filters(quote.quote_type).each do |l| %>
           <div class="accordion">
             <h3><%= l.legal_text_category.name %></h3>
             <div>
