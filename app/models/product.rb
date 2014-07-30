@@ -24,8 +24,7 @@ class Product < ActiveRecord::Base
   
   #PDF
   has_attached_file :pdf
-  validates_attachment :pdf, :presence => true,
-  :content_type => { :content_type => "application/pdf" }
+  validates_attachment :pdf, :content_type => { :content_type => "application/pdf" }
 
   #scopes
   generate_scopes
