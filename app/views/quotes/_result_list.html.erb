@@ -46,9 +46,17 @@
                       <%= check_box_tag :"compare_results_#{type.downcase}", result.product_id, nil, id: "compare_results_#{type.downcase}_#{result.id}", class: "compare_results" %> Compare
                     </label>
                   <% end %>
+
                   <div class="btn btn-default detail_modal">
-                  <%= link_to(raw("<span class='glyphicon glyphicon-file'></span> Details"), detail_quote_path(quote, product_id: result.product_id), data: {rate: quote.calc_daily_rate(result.product_rate, result.rate_type)}) %>
+                  <%= link_to(raw("<span class='glyphicon glyphicon-plus-sign'></span> Details"), detail_quote_path(quote, product_id: result.product_id, t_age: quote.get_age_by_person(type)), data: {rate: quote.calc_daily_rate(result.product_rate, result.rate_type)}) %>
                   </div>
+                  
+                  <% if !result.product.pdf_file_name.nil? %>
+                    <div class="btn btn-default pdf">
+                    <%= link_to(raw("<span class='glyphicon glyphicon-file'></span> PDF"), result.product.pdf.url()) %>
+                    </div> 
+                  <% end %>
+              
                   <div class="btn btn-default deduct-form">
                     <div class="ded-label">
                     <label for="deductible">Deductible:</label></div>

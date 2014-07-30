@@ -5,7 +5,7 @@ ActiveAdmin.register Product do
 
 	include_import
 
-	permit_params :name, :policy_number, :description, :policy_type, :company_id, :min_price, :can_buy_after_30_days,
+	permit_params :name, :policy_number, :pdf, :description, :policy_type, :company_id, :min_price, :can_buy_after_30_days,
 	:can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex, :preex_based_on_sum_insured,
 	:purchase_url, :rate_effective_date, :status, :effective_date, deductibles_attributes: [:amount, :mutiplier, :min_age, :max_age]
 
@@ -146,6 +146,9 @@ ActiveAdmin.register Product do
 									].join(" ").html_safe
 								end
 							end
+						end
+						row "PDF" do |p|
+							link_to("PDF", p.pdf.url())
 						end
 						row :status do |p|
 							if p.status
@@ -315,6 +318,7 @@ ActiveAdmin.register Product do
 			if f.object.new_record?
 				f.input :rate_effective_date, :label => "Current Rate Effective Date", :as => :datepicker
 			end
+			f.input :pdf, :as => :file, :label => "Policy PDF"
 			f.input :effective_date, :label => "Policy Effective Date", :as => :datepicker
 			f.input :status, :as => :radio, :collection => [['Active', true], ['Deactive', false]]
 		end
@@ -340,13 +344,18 @@ ActiveAdmin.register Product do
 	
 	controller do
 		def clean_params
-			params.require(:product).permit(:name, :policy_number, :description, :min_price, :renewable_max_age,
+			params.require(:product).permit(:name, :policy_number, :pdf, :description, :min_price, :renewable_max_age,
 			  :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
 				:preex_based_on_sum_insured,:rate_effective_date, :effective_date, :status, :policy_type)
 		end
 
-		def index
-			@page_title = "#{params[:q][:policy_type_equals] || ""} Policies"
+		def index 
+			if params[:q]
+				@page_title = "#{params[:q][:policy_type_equals]} Policies"
+			else
+				@page_title = "All Policies"
+			end
+
 			super
 		end
 

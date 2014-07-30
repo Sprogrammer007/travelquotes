@@ -22,6 +22,11 @@ class Product < ActiveRecord::Base
   validates :min_price, :preex_max_age, :renewable_max_age, numericality: { only_integer: true }
   validates :preex, :preex_based_on_sum_insured, :can_renew_after_30_days, :can_buy_after_30_days, :status, inclusion: { in: [true, false] }
   
+  #PDF
+  has_attached_file :pdf
+  validates_attachment :pdf, :presence => true,
+  :content_type => { :content_type => "application/pdf" }
+
   #scopes
   generate_scopes
   scope :has_preex, -> { preex_eq(true) }

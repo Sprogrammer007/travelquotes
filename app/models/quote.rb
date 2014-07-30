@@ -77,6 +77,7 @@ class Quote < ActiveRecord::Base
     }
   end
   
+  #math for daily rate
   def calc_daily_rate(rate, type)
     case type
     when "Monthly"
@@ -89,8 +90,8 @@ class Quote < ActiveRecord::Base
     return daily_rate
   end
   
+  #get the base rate for the version
   def calc_base_rate(version)
-   
     rate = version.product_rate
     ratetype = version.rate_type
 
@@ -121,6 +122,7 @@ class Quote < ActiveRecord::Base
    return rate
   end
 
+  #if there is deductible we applie deductible multipler to the rates
   def calc_rate_with_ded(version, base_rate, person)
     rate = base_rate
     age = get_age_by_person(person)

@@ -70,6 +70,7 @@ class QuotesController < ApplicationController
 
 	def detail
 		@product = Product.find(params[:product_id])
+		@age = params[:t_age]
 		respond_to do |format|
     	format.html { redirect_to root_path}
     	format.js
