@@ -306,7 +306,7 @@ ActiveAdmin.register Product do
 			f.input :name, label: "Policy Name"
 			f.input :policy_number
 			f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Medical Emergency", "All Inclusive", "Student Medical Inbound", "Canadian Ex-Pat"], (params[:p_type] || "Visitor Medical Emergency"))
-			f.input :description, input_html: {class: "tinymce"}
+			f.input :description
 			f.input :min_price
 			f.input :can_buy_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
 			f.input :can_renew_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
