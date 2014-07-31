@@ -13,7 +13,7 @@
 
     <%= form_for @quote, class: "form-horizontal" do |f|%>
       <%= f.hidden_field :quote_type, :value =>  @quote.quote_type || params[:quote_type]  %>
-
+      <%= f.hidden_field :quote_sub_type, :value => @quote.quote_sub_type || params[:policy_sub_type] %>
         <div class="form-group row">
           <div class="col-sm-4"> 
             <%= f.label :email, "Email:", class: "control-label" %>
@@ -129,14 +129,14 @@
           <div class="question_mark"><%= image_tag "question.png"  %></div>
         </div>
         <div class="col-sm-8">
-          <%= f.select :sum_insured,options_for_select(Quote.send("#{ (@quote.quote_type || params[:quote_type]).downcase.gsub(" ", "_") }_sum")), {}, class: "form-control" %>
+          <%= f.select :sum_insured,  options_for_select(Quote.send("#{(@quote.quote_sub_type || params[:policy_sub_type]).downcase.gsub(" ", "_") }_sum")), {}, class: "form-control" %>
         </div>
       </div>
 
       <div class="form-group row">
         <%= f.label :traveler_type, "Number of travelers", class: "col-sm-4 control-label" %>
         <div class="col-sm-8">
-          <%= f.select :traveler_type, options_for_select(Quote.send("#{(@quote.quote_type || params[:quote_type]).downcase.gsub(" ", "_")}_selections")), {}, class: "form-control" %>
+          <%= f.select :traveler_type, options_for_select(Quote.send("#{(@quote.quote_sub_type || params[:policy_sub_type]).downcase.gsub(" ", "_")}_selections")), {}, class: "form-control" %>
         </div>
       </div>
 
