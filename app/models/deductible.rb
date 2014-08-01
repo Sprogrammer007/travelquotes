@@ -17,8 +17,8 @@ class Deductible < ActiveRecord::Base
     if range == "0"
       no_deductible
     else
-      r = range.gsub(" ", "").split("-").minmax
-      amount_of(r[0].to_i, r[1].to_i)
+      r = range.gsub(" ", "").split("-").map(&:to_i).minmax
+      amount_of(r[0], r[1])
     end
   end
 
