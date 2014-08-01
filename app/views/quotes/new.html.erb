@@ -23,7 +23,7 @@
           </div>
         </div>
 
-      <% if  @quote.quote_type == "Visitor Medical Emergency" || params[:quote_type] == "Visitor Medical Emergency" %>
+      <% if @quote.quote_sub_type == "Visitor Visa" || params[:policy_sub_type] == "Visitor Visa" %>
         <div class="form-group row">
           <div class="col-sm-4"> 
             <%= f.label :leave_home, "What was your departure date?", class: "control-label" %>
@@ -112,7 +112,7 @@
         </div>
       </div>
 
-      <% if @quote.quote_type == "Visitor Medical Emergency" || params[:quote_type] == "Visitor Medical Emergency" %>
+      <% if @quote.quote_sub_type == "Visitor Visa" || params[:policy_sub_type] == "Visitor Visa"  %>
         <div class="form-group row">
           <div class="col-sm-4"> 
             <%= f.label :trip_cost, "What was the cost of your trip? (In Canadian Dollars - Optional)", class: "control-label" %>
