@@ -48,8 +48,8 @@ class Product < ActiveRecord::Base
     if applied_filters.any?
       lt_ids = applied_filters.pluck(:associated_lt_id).uniq
       @applied_lts = self.legal_texts.where(legal_text_category_id: lt_ids)
-      return @applied_lts
     end
+    return @applied_lts
   end
 
   def get_lts_after_filters(type)
