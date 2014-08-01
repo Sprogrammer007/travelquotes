@@ -26,7 +26,7 @@
       <% if @quote.quote_sub_type == "Visitor Visa" || params[:policy_sub_type] == "Visitor Visa" %>
         <div class="form-group row">
           <div class="col-sm-4"> 
-            <%= f.label :leave_home, "What was your departure date?", class: "control-label" %>
+            <%= f.label :leave_home, " Your departure date?", class: "control-label" %>
             <div class="question_mark"><%= image_tag "question.png"  %></div>
           </div>
           <div class="col-sm-8">
@@ -125,7 +125,7 @@
       <% end %>
       <div class="form-group row">
         <div class="col-sm-4"> 
-          <%= f.label :sum_insured, "Select insure sum? (Super Visa minimun $100,000)", class: "control-label" %>
+          <%= f.label :sum_insured, "Select insured sum? (Super Visa minimun $100,000)", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
         </div>
         <div class="col-sm-8">
