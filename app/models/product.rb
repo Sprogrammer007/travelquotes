@@ -44,6 +44,7 @@ class Product < ActiveRecord::Base
 
   #gets only the legal text that the quote has applied filters for
   def get_legal_texts_by_filter(applied_filters, type)
+    @applied_lts = []
     if applied_filters.any?
       lt_ids = applied_filters.pluck(:associated_lt_id).uniq
       @applied_lts = self.legal_texts.where(legal_text_category_id: lt_ids)
