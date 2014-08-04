@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140731195845) do
+ActiveRecord::Schema.define(version: 20140804152821) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -97,7 +97,7 @@ ActiveRecord::Schema.define(version: 20140731195845) do
     t.integer "max_adult"
     t.integer "max_kids_age"
     t.integer "max_age_with_kids"
-    t.boolean "has_family_rate"
+    t.string  "family_rate_type"
   end
 
   create_table "legal_text_categories", force: true do |t|

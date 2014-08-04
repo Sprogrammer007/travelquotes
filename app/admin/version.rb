@@ -65,13 +65,7 @@ ActiveAdmin.register Version do
 					row :max_dependant
 					row :max_kids_age
 				  row :max_age_with_kids
-				  row :has_family_rate do |d|
-						if d.has_special_rate?
-							status_tag "Yes", :ok
-						else
-							status_tag "No"
-						end
-					end
+				  row :family_rate_type
 				end
 			end	
 		end
@@ -146,10 +140,10 @@ ActiveAdmin.register Version do
 			end
 			f.input :type, :as => :select, :collection => options_for_select(Version.get_types, f.object.type)
 			if f.object.new_record?
-				f.input :detail_type, :as => :select, :collection => options_for_select(["Single", "Couple", "Family"], "Single"), 
+				f.input :detail_type, :as => :select, :collection => options_for_select(["Single", "Couple", "Family"], "Single"),
 					input_html: { class: "detail_type"}
 			else
-				f.input :detail_type, :as => :select, :collection => options_for_select(["Single", "Couple", "Family"], f.object.detail_type), 
+				f.input :detail_type, :as => :select, :collection => options_for_select(["Single", "Couple", "Family"], f.object.detail_type),
 					input_html: { class: "detail_type", :disabled => true	}
 			end
 		end
@@ -163,7 +157,7 @@ ActiveAdmin.register Version do
 				d.input :max_dependant
 				d.input :max_kids_age
 				d.input :max_age_with_kids
-				d.input :has_family_rate, :as => :radio, :collection => [["Yes", true], ["No", false]]
+				d.input :family_rate_type, :as => :select, :collection => options_for_select(['Add Every Member Rate', 'Eldest X2', 'Has Family Rate'])
 			end
 
 			f.inputs "Couple Version Details", :for => CoupleDetail.new, class: "couple_details inputs hide" do |d|
@@ -179,7 +173,7 @@ ActiveAdmin.register Version do
 		else
 			f.inputs "#{f.object.detail_type} Version Details", :for => f.object.detail, class: "inputs" do |d|
 				d.input :min_age
-			d.input :max_age
+				d.input :max_age
 				if f.object.detail_type == "Family"
 					d.input :min_adult
 					d.input :max_adult
@@ -187,7 +181,7 @@ ActiveAdmin.register Version do
 					d.input :max_dependant
 					d.input :max_kids_age
 					d.input :max_age_with_kids
-					d.input :has_family_rate, :as => :radio, :collection => [["Yes", true], ["No", false]]
+					d.input :family_rate_type, :as => :select, :collection => options_for_select(['Add Every Member Rate', 'Eldest X2', 'Has Family Rate'])
 				elsif f.object.detail_type == "Couple"
 					d.input :has_couple_rate, :as => :radio, :collection => [["Yes", true], ["No", false]]
 				end	
@@ -201,7 +195,7 @@ ActiveAdmin.register Version do
 
 		def version_params             
 			params.require(:version).permit(:product_id, :type, :detail_type, :detail,
-				:family_detail => [:min_age, :max_age, :min_adult, :max_adult, :min_dependant, :max_dependant, :max_kids_age, :max_age_with_kids, :has_family_rate],
+				:family_detail => [:min_age, :max_age, :min_adult, :max_adult, :min_dependant, :max_dependant, :max_kids_age, :max_age_with_kids, :family_rate_type],
 				:couple_detail => [:min_age, :max_age, :has_couple_rate],
 				:single_detail => [:min_age, :max_age])        
 		end     

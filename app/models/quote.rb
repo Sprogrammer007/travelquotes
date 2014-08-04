@@ -104,7 +104,7 @@ class Quote < ActiveRecord::Base
         rate = t1[0].product_rate + t2[0].product_rate
       end
     elsif self.traveler_type == "Family"
-      rate = rate * 2
+      rate = calc_family_rate(rate), version
     end
     
     #reduce all rate to daily
@@ -137,6 +137,33 @@ class Quote < ActiveRecord::Base
       end
     end
     return rate
+  end
+
+  def calc_family_rate(rate, version)
+    r = nil;
+    family_detail = version.family_details
+    if family_detail.family_rate_type == "Has Family Rate"
+      r = rate
+    elsif family_detail.family_rate_type == "Eldest X2"
+      r =  rate * 2
+    else
+      ages = [@ages["Adult"], @ages["Dependent"]].flatten
+      rts = []
+
+      ages.each do |age|
+        rt  = version.age_brackets.merge(AgeBracket.include_age(age))[0].rates.merge(Rate.include_sum(self.sum_insured))
+        if rate
+          rts << rt[0]
+        end
+      end
+
+      if rates.any?  
+        r = rts.inject {|sum, n| sum + n } 
+      else
+        r = rate
+      end
+    end
+    return r
   end
 
   def applied_filter_ids

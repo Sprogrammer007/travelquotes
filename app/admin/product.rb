@@ -200,13 +200,7 @@ ActiveAdmin.register Product do
 										row :max_dependant do |v| v.detail.max_dependant end
 										row :max_kids_age do |v| v.detail.max_kids_age end
 									  row :max_age_with_kids do |v| v.detail.max_age_with_kids end
-									  row :has_family_rate do |v|
-											if v.has_special_rate?
-												status_tag "Yes", :ok
-											else
-												status_tag "No"
-											end
-										end
+									  row :family_rate_type
 									end
 									dropdown_menu "Version Actions", class: "dropdown_menu right" do
 										item("View", admin_version_path(version))

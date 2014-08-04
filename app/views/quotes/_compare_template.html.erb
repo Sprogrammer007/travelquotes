@@ -9,13 +9,21 @@
       <td class="content_td"><%= p.name %></td>
     <% end %>
   </tr>
-
-  <tr> 
+  <tr>
     <% products.each do |p| %>
-      <td class="content_td"><strong>Rate at: <%= number_to_currency(p.rate) %> with an applied Dedutible of: <%= p.applied_ded %></strong></td>
+      <td class="content_td"><%= link_to "Buy Now", p.purchase_url(), class: "btn-danger compare_buy_now" %></td>
     <% end %>
   </tr>
-
+  <tr class="odd">
+    <% products.each do |p| %>
+      <td class="content_td"><strong>Rate: <%= number_to_currency(p.rate) %></strong></td>
+    <% end %>
+  </tr>
+  <tr> 
+   <% products.each do |p| %>
+      <td class="content_td"><strong>Dedutible of: <%= p.applied_ded %><strong></td>
+    <% end %>
+    </tr>
   <tr class="odd">
     <% products.each do |p| %>
       <td class="content_td">

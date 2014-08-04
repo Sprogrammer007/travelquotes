@@ -372,11 +372,21 @@ border-radius: 0;
   width: 100%;
 }
 
-.rate_box .buy-now {
+.rate_box .buy-now,  {
   position: relative;
   display: block;
   right: 0;
   width: 100%;
+}
+
+.compare_table .btn-danger {
+  display: block;
+  width: 30%;
+  margin: 10px auto;
+  padding: 10px 20px;
+  border-radius: 4px;
+  text-align: center;
+
 }
 
 .rate_box .buy-now a {
@@ -582,7 +592,7 @@ h5.collapsed.arrow-black::before {
   margin: 0 -15px;
 }
 .modal-body .odd {
-  background-color: #eee;
+  background-color: #B6D3E0;
 }
 
 .rate-body {
