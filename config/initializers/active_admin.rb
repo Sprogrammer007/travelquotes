@@ -4,7 +4,7 @@ ActiveAdmin.setup do |config|
     admin.build_menu do |menu|
       menu.add :label => "Products", :priority => 1 do |products|
         products.add :label => "All Policies", :url => Rails.application.routes.url_helpers.admin_products_path()
-        products.add :label => "Visitor All Inclusive", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Visitor All Inclusive"})
+        products.add :label => "Visitor All Inclusive", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "All Inclusive"})
         products.add :label => "Visitor Medical Emergency", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Visitor Medical Emergency"})
         products.add :label => "Student Medical Inbound", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Student Medical Inbound"})
         products.add :label => "Canadian Ex-Pat", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Canadian Ex-Pat"})
