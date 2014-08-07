@@ -4,6 +4,12 @@
     <tr>
       <th class="col col-rate">Rate</th>
       <th class="col col-rate_type">Rate Type</th>
+      <% if type == "All Inclusive" %>
+        <th class="col col-rate_type">Date - Range</th>
+        <th class="col col-rate_type">Value of Trip</th>
+      <% end %>
+
+
       <th class="col col-sum_insured">Sum Insured</th>
       <th class="col col-status">Status</th>
       <th class="col col-future"></th>
@@ -21,6 +27,15 @@
           <%= r.rate_type %>
           <%= hidden_field_tag "future[][rate_type]", r.rate_type, id: "future_sum_insured" %>
         </td>
+
+        <% if type == "All Inclusive" %>
+          <td class="col">
+            <%= "#{r.min_date} - #{r.max_date}" %>
+          </td>
+          <td class="col">
+            <%= r.rate_trip_value %>
+          </td>
+        <% end %>
         <td class="col">
           <%= r.sum_insured %>
           <%= hidden_field_tag "future[][sum_insured]", r.sum_insured, id: "future_rate_type" %>

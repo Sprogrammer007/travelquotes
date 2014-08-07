@@ -1,4 +1,6 @@
-<%= form_tag url_for(:controller => 'admin/rates', :action => 'create_future') do %>
+
+<%= form_tag url_for(:controller => @controller, :action => 'create_future') do %>
+
   <%= hidden_field_tag "product_id", @product.id %>
   <div class="panel">
     <h3>Product Details</h3>
@@ -58,8 +60,11 @@
             </tbody>
           </table>
         </div>
-        <%= render("admins/rate_table", rates: age.rates.current) %>
-
+          <% if  @product.policy_type == "All Inclusive" %>
+            <%= render("admins/rate_table", rates: age.all_inclusive_rates.current, type: "All Inclusive") %>
+          <% else %>
+            <%= render("admins/rate_table", rates: age.rates.current, type: "Normal")%>
+          <% end %>
       </div>
     <% end %>
    

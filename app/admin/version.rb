@@ -98,28 +98,53 @@ ActiveAdmin.register Version do
 									end
 								end
 							end
-							table_for age.rates.current do
-								column :rate
-								column :rate_type
-								column :sum_insured
-								column :status do |r|
-									status_tag r.status, "#{r.status.downcase}"
+							if age.product.policy_type == "All Inclusive"
+								table_for age.all_inclusive_rates.current do
+									column :rate
+									column :rate_type
+									column :sum_insured
+									column :status do |r|
+										status_tag r.status, "#{r.status.downcase}"
+									end
+									column " " do |r|
+										[
+											link_to("View", admin_all_inclusive_rate_path(r)),
+											link_to("Edit", edit_admin_all_inclusive_rate_path(r)),
+					    				link_to("Remove", admin_all_inclusive_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+				    				].join(" | ").html_safe
+									end
 								end
-								column " " do |r|
-									[
-										link_to("View", admin_rate_path(r)),
-										link_to("Edit", edit_admin_rate_path(r)),
-				    				link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-			    				].join(" | ").html_safe
+								dropdown_menu "Age Bracket Actions", class: "dropdown_menu right" do
+									item("View", admin_age_bracket_path(age))
+									item("Edit", edit_admin_age_bracket_path(age))
+									item("Delete", admin_age_bracket_path(age), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+									item("Add Rate", new_admin_all_inclusive_rate_path(id: age.id))
+									item("View All Rates", admin_age_bracket_path(age))
+								end		
+							else
+								table_for age.rates.current do
+									column :rate
+									column :rate_type
+									column :sum_insured
+									column :status do |r|
+										status_tag r.status, "#{r.status.downcase}"
+									end
+									column " " do |r|
+										[
+											link_to("View", admin_rate_path(r)),
+											link_to("Edit", edit_admin_rate_path(r)),
+					    				link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+				    				].join(" | ").html_safe
+									end
 								end
+								dropdown_menu "Age Bracket Actions", class: "dropdown_menu right" do
+									item("View", admin_age_bracket_path(age))
+									item("Edit", edit_admin_age_bracket_path(age))
+									item("Delete", admin_age_bracket_path(age), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+									item("Add Rate", new_admin_rate_path(id: age.id))
+									item("View All Rates", admin_age_bracket_path(age))
+								end				
 							end
-							dropdown_menu "Age Bracket Actions", class: "dropdown_menu right" do
-								item("View", admin_age_bracket_path(age))
-								item("Edit", edit_admin_age_bracket_path(age))
-								item("Delete", admin_age_bracket_path(age), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-								item("Add Rate", new_admin_rate_path(id: age.id))
-								item("View All Rates", admin_age_bracket_path(age))
-							end				
 						end
 					end
 				end

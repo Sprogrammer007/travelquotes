@@ -9,8 +9,6 @@ ActiveAdmin.register Rate do
 
 	#Filters
 	filter :age_bracket, :collection => proc { Rate.select_age_bracket_options }  
-	filter :preex, :as => :select, :collection => [['Yes', 'true'], ['No', 'false']]
-	remove_filter :preex
 	preserve_default_filters!
 
 	menu :parent => "Super Admin"
@@ -89,6 +87,7 @@ ActiveAdmin.register Rate do
   member_action :add_future, method: :get do
   	@product = Product.find(params[:id])
     @ages = @product.age_brackets
+    @controller = "admin/rates"
     @page_title = "Add Future Rates For #{@product.name}"
     render template: "admins/add_rate"
   end

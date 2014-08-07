@@ -61,16 +61,30 @@ ActiveAdmin.register Product do
 				item("View Policy Legal Texts", view_admin_legal_texts_path(product_id: p.id))
 				item("View Policy Deductibles", admin_deductibles_path(q: {product_id_eq: p.id}))			
 			end
-			dropdown_menu "Edit" do 
-				item("Add Version", new_admin_version_path(:id => p.id, name: p.name))
-				item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
-				item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
-				item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
-				item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name))
-				item("Add Future Rate", add_future_admin_rate_path(id: p.id))
-				item("Edit Policy", edit_admin_product_path(p))
-				item("Active/Deactive Policy", deactive_admin_product_path(p))
-				item("Delete", admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+			if p.policy_type == "All Inclusive"
+				dropdown_menu "Edit" do 
+					item("Add Version", new_admin_version_path(:id => p.id, name: p.name))
+					item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
+					item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
+					item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
+					item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name))
+					item("Add Future Rate", add_future_admin_all_inclusive_rate_path(id: p.id))
+					item("Edit Policy", edit_admin_product_path(p))
+					item("Active/Deactive Policy", deactive_admin_product_path(p))
+					item("Delete", admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+				end
+			else
+				dropdown_menu "Edit" do 
+					item("Add Version", new_admin_version_path(:id => p.id, name: p.name))
+					item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
+					item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
+					item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
+					item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name))
+					item("Add Future Rate", add_future_admin_rate_path(id: p.id))
+					item("Edit Policy", edit_admin_product_path(p))
+					item("Active/Deactive Policy", deactive_admin_product_path(p))
+					item("Delete", admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+				end
 			end
 		end
 	end
@@ -78,7 +92,7 @@ ActiveAdmin.register Product do
 	show :title => "Policy Details" do |p|
 		div class: "top group" do
 			div class: "show_left" do
-				panel "Policy Eligibiliities" do
+				panel "Policy Eligibiliities", class: "group" do
 					attributes_table_for product do
 						row :policy_number
 						row :policy_type
@@ -127,23 +141,47 @@ ActiveAdmin.register Product do
 								"No Future Rate"
 							end
 						end
-						row "Update Current Effective Date" do |p|
-							form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
-								[
-									hidden_field_tag("product_id", p.id),
-									text_field_tag("[current_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Effective Date...", readonly: true),
-									submit_tag("Update Current Rates")
-								].join(" ").html_safe
+						if p.policy_type == "All Inclusive"
+
+							row "Update Current Effective Date" do |p|
+								form_tag url_for(:controller => 'admin/all_inclusive_rates', :action => 'update_effective_date') do
+									[
+										hidden_field_tag("product_id", p.id),
+										text_field_tag("[current_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Effective Date...", readonly: true),
+										submit_tag("Update Current Rates")
+									].join(" ").html_safe
+								end
 							end
-						end
-						if product.future_rate_effective_date
-							row "Update Current Effective Date" do |p| 
+							if product.future_rate_effective_date
+								row "Update Future Effective Date" do |p| 
+									form_tag url_for(:controller => 'admin/all_inclusive_rates', :action => 'update_effective_date') do
+										[
+											hidden_field_tag("product_id", p.id),
+											text_field_tag("[future_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Future Effective Date...", readonly: true),
+											submit_tag("Update Future Rates")
+										].join(" ").html_safe
+									end
+								end
+							end
+						else
+							row "Update Current Effective Date" do |p|
 								form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
 									[
 										hidden_field_tag("product_id", p.id),
-										text_field_tag("[future_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Future Effective Date...", readonly: true),
-										submit_tag("Update Future Rates")
+										text_field_tag("[current_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Effective Date...", readonly: true),
+										submit_tag("Update Current Rates")
 									].join(" ").html_safe
+								end
+							end
+							if product.future_rate_effective_date
+								row "Update Future Effective Date" do |p| 
+									form_tag url_for(:controller => 'admin/rates', :action => 'update_effective_date') do
+										[
+											hidden_field_tag("product_id", p.id),
+											text_field_tag("[future_effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter New Future Effective Date...", readonly: true),
+											submit_tag("Update Future Rates")
+										].join(" ").html_safe
+									end
 								end
 							end
 						end
@@ -161,7 +199,11 @@ ActiveAdmin.register Product do
 							p.effective_date() if p.effective_date()
 						end
 					end
-					text_node link_to "Add Future Rates", add_future_admin_rate_path(id: p.id),  class: "link_button right"
+					if p.policy_type == "All Inclusive"
+						text_node link_to "Add Future Rates", add_future_admin_all_inclusive_rate_path(id: p.id),  class: "link_button right"
+					else
+						text_node link_to "Add Future Rates", add_future_admin_rate_path(id: p.id),  class: "link_button right"
+					end
 				end
 
 				panel("Versions", class: 'group single_show') do
@@ -202,13 +244,23 @@ ActiveAdmin.register Product do
 									  row :max_age_with_kids do |v| v.detail.max_age_with_kids end
 									  row :family_rate_type
 									end
-									dropdown_menu "Version Actions", class: "dropdown_menu right" do
-										item("View", admin_version_path(version))
-										item("Edit", edit_admin_version_path(version))
-										item("Delete", admin_version_path(version), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-										item("Add Future Rates", add_future_admin_rate_path(id: version.id))
-										item("Select Existing Age Bracket",  add_admin_age_set_path(id: version.id))
-									end	
+									if p.policy_type == "All Inclusive"
+										dropdown_menu "Version Actions", class: "dropdown_menu right" do
+											item("View", admin_version_path(version))
+											item("Edit", edit_admin_version_path(version))
+											item("Delete", admin_version_path(version), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+											item("Add Future Rates", add_future_admin_all_inclusive_rate_path(id: version.id))
+											item("Select Existing Age Bracket",  add_admin_age_set_path(id: version.id))
+										end	
+									else
+										dropdown_menu "Version Actions", class: "dropdown_menu right" do
+											item("View", admin_version_path(version))
+											item("Edit", edit_admin_version_path(version))
+											item("Delete", admin_version_path(version), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+											item("Add Future Rates", add_future_admin_rate_path(id: version.id))
+											item("Select Existing Age Bracket",  add_admin_age_set_path(id: version.id))
+										end	
+									end
 					      end
 					    end
 						end

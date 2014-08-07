@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140804152821) do
+ActiveRecord::Schema.define(version: 20140806133645) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,22 @@ ActiveRecord::Schema.define(version: 20140804152821) do
 
   add_index "age_sets", ["age_bracket_id"], name: "index_age_sets_on_age_bracket_id", using: :btree
   add_index "age_sets", ["version_id"], name: "index_age_sets_on_version_id", using: :btree
+
+  create_table "all_inclusive_rates", force: true do |t|
+    t.integer  "age_bracket_id"
+    t.float    "rate"
+    t.string   "rate_type"
+    t.integer  "min_date"
+    t.integer  "max_date"
+    t.integer  "rate_trip_value"
+    t.integer  "sum_insured"
+    t.datetime "effective_date"
+    t.string   "status"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "all_inclusive_rates", ["age_bracket_id"], name: "index_all_inclusive_rates_on_age_bracket_id", using: :btree
 
   create_table "applied_filters", id: false, force: true do |t|
     t.integer "quote_id"

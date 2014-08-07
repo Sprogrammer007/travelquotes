@@ -6,7 +6,8 @@ class AgeBracket < ActiveRecord::Base
 	has_many :age_sets
 	has_many :versions, :through => :age_sets 
 	has_many :rates, :dependent => :destroy
-	accepts_nested_attributes_for :rates
+	has_many :all_inclusive_rates, :dependent => :destroy
+	accepts_nested_attributes_for :rates, :all_inclusive_rates
 	
 	#Callbacks
 	before_save :set_preex

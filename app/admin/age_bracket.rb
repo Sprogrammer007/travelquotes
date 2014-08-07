@@ -3,10 +3,11 @@ ActiveAdmin.register AgeBracket do
 	config.sort_order = "id_asc"
 	include_import
 
-	permit_params :product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration,
-    rates_attributes: [:rate, :rate_type, :sum_insured, :effective_date]
-	
-	#Scopes
+	permit_params(:product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration,
+    rates_attributes: [:rate, :rate_type, :sum_insured, :effective_date],
+    all_inclusive_rates_attributes: [:rate, :rate_type, :sum_insured, :min_date, :max_date, :rate_trip_value])
+
+  #Scopes
 	scope :all, default: true
 	scope :preex
 	#Filters
@@ -15,7 +16,8 @@ ActiveAdmin.register AgeBracket do
 	filter :versions, :collection => -> {AgeBracket.versions_filter_selection}
 	remove_filter :age_sets
 	remove_filter :rates
-
+	remove_filter :all_inclusive_rates
+	remove_filter :preex
 
 
 	# index do
@@ -64,21 +66,42 @@ ActiveAdmin.register AgeBracket do
 					].join(" | ").html_safe
 				end
 				
-				table_for age.rates.current.order("sum_insured ASC") do
-					column :rate
-					column :sum_insured
-					column :status do |r|
-						status_tag r.status, "#{r.status.downcase}"
+				if age.product.policy_type == "All Inclusive"
+					table age.admin_all_inclusive_rates.current.order("sum_insured ASC") do
+						column :rate
+						column "Date Range" do |r|
+							"#{r.min_date} - #{r.max_date}"
+						end
+						column :rate_trip_value
+						column :sum_insured
+						column :status do |r|
+							status_tag r.status, "#{r.status.downcase}"
+						end
+						column "" do |r|
+							[
+								link_to("Edit", edit_admin_all_inclusive_rate_path(r)),
+								link_to("Delete", admin_all_inclusive_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}),
+							].join(" | ").html_safe
+						end
 					end
-					column "" do |r|
-						[
-							link_to("Edit", edit_admin_rate_path(r)),
-							link_to("Delete", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}),
-						].join(" | ").html_safe
+			
+				else
+					table_for age.rates.current.order("sum_insured ASC") do
+						column :rate
+						column :sum_insured
+						column :status do |r|
+							status_tag r.status, "#{r.status.downcase}"
+						end
+						column "" do |r|
+							[
+								link_to("Edit", edit_admin_rate_path(r)),
+								link_to("Delete", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}),
+							].join(" | ").html_safe
+						end
 					end
 				end
 			end
-			text_node(link_to("Add Rate", new_admin_rate_path(id: age.id), class: "right link_button"))
+			text_node(link_to("Add Rate", new_admin_all_inclusive_rate_path(id: age.id), class: "right link_button"))
 		end
 	end
 
@@ -108,58 +131,114 @@ ActiveAdmin.register AgeBracket do
 			end
 		end
 
-		panel("Current Rates", class: "group") do 
-			table_for a.rates.current do
-				column :rate
-				column :rate_type
-				column :sum_insured
-				column :status do |r|
-					status_tag r.status, "#{r.status.downcase}"
-				end
-				column "" do |r|
-					[	
-						link_to("Edit", edit_admin_rate_path(r)),
-						link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
-					].join(" | ").html_safe
-				end
-				
-			end	
-			text_node link_to "Add Rate",new_admin_rate_path(id: a.id), class: "link_button right"
-		end
+		if a.product.policy_type == "All Inclusive"
+			panel("Current Rates", class: "group") do 
+				table_for a.all_inclusive_rates.current do
+					column :rate
+					column :rate_type
+					column :sum_insured
+					column :status do |r|
+						status_tag r.status, "#{r.status.downcase}"
+					end
+					column "" do |r|
+						[	
+							link_to("Edit", edit_admin_all_inclusive_rate_path(r)),
+							link_to("Remove", admin_all_inclusive_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+						].join(" | ").html_safe
+					end
+					
+				end	
+				text_node link_to "Add All Inclusive Rate",new_admin_all_inclusive_rate_path(id: a.id), class: "link_button right"
+			end
 
-		panel("Future Rates", class: "group") do 
-			table_for a.rates.future do
-				column :rate
-				column :rate_type
-				column :sum_insured
-				column :status do |r|
-					status_tag r.status, "#{r.status.downcase}"
-				end
-				column "" do |r|
-					[	
-						link_to("Edit", edit_admin_rate_path(r)),
-						link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
-					].join(" | ").html_safe
-				end
-				
-			end	
-		end
+			panel("Future Rates", class: "group") do 
+				table_for a.all_inclusive_rates.future do
+					column :rate
+					column :rate_type
+					column :sum_insured
+					column :status do |r|
+						status_tag r.status, "#{r.status.downcase}"
+					end
+					column "" do |r|
+						[	
+							link_to("Edit", edit_admin_all_inclusive_rate_path(r)),
+							link_to("Remove", admin_all_inclusive_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+						].join(" | ").html_safe
+					end
+					
+				end	
+			end
 
-		panel("OutDated Rates", class: "group") do 
-			table_for a.rates.outdated do
-				column :rate
-				column :rate_type
-				column :sum_insured
-				column :status do |r|
-					status_tag r.status, "#{r.status.downcase}"
-				end
-				column "" do |r|
-					[	
-						link_to("Edit", edit_admin_rate_path(r)),
-						link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
-					].join(" | ").html_safe
-				end
-			end	
+			panel("OutDated Rates", class: "group") do 
+				table_for a.all_inclusive_rates.outdated do
+					column :rate
+					column :rate_type
+					column :sum_insured
+					column :status do |r|
+						status_tag r.status, "#{r.status.downcase}"
+					end
+					column "" do |r|
+						[	
+							link_to("Edit", edit_admin_all_inclusive_rate_path(r)),
+							link_to("Remove", admin_all_inclusive_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+						].join(" | ").html_safe
+					end
+				end	
+			end
+		else
+			panel("Current Rates", class: "group") do 
+				table_for a.rates.current do
+					column :rate
+					column :rate_type
+					column :sum_insured
+					column :status do |r|
+						status_tag r.status, "#{r.status.downcase}"
+					end
+					column "" do |r|
+						[	
+							link_to("Edit", edit_admin_rate_path(r)),
+							link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+						].join(" | ").html_safe
+					end
+					
+				end	
+				text_node link_to "Add Rate",new_admin_rate_path(id: a.id), class: "link_button right"
+			end
+
+			panel("Future Rates", class: "group") do 
+				table_for a.rates.future do
+					column :rate
+					column :rate_type
+					column :sum_insured
+					column :status do |r|
+						status_tag r.status, "#{r.status.downcase}"
+					end
+					column "" do |r|
+						[	
+							link_to("Edit", edit_admin_rate_path(r)),
+							link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+						].join(" | ").html_safe
+					end
+					
+				end	
+			end
+
+			panel("OutDated Rates", class: "group") do 
+				table_for a.rates.outdated do
+					column :rate
+					column :rate_type
+					column :sum_insured
+					column :status do |r|
+						status_tag r.status, "#{r.status.downcase}"
+					end
+					column "" do |r|
+						[	
+							link_to("Edit", edit_admin_rate_path(r)),
+							link_to("Remove", admin_rate_path(r), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')} )
+						].join(" | ").html_safe
+					end
+				end	
+			end
 		end
 	end
 
@@ -189,6 +268,19 @@ ActiveAdmin.register AgeBracket do
 				cf.input :rate
 				cf.input :rate_type, :as => :select, :collection => Rate.rate_types
 				cf.input :sum_insured
+				cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"])
+			end
+		end
+
+		f.inputs do
+			f.has_many :all_inclusive_rates, :allow_destroy => true, :heading => 'Add All Inclusive Rates' do |cf|
+				cf.input :rate
+				cf.input :rate_type, :as => :select, :collection => AllInclusiveRate.rate_types
+				cf.input :min_date
+				cf.input :max_date
+				cf.input :rate_trip_value
+				cf.input :sum_insured
+				cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"])
 			end
 		end
 		f.actions
@@ -197,13 +289,11 @@ ActiveAdmin.register AgeBracket do
 	controller do
 
 		def clean_params
-			params.require(:age_bracket).permit(:min_age, :max_age, :min_trip_duration, :max_trip_duration)
+			params.require(:age_bracket).permit(:min_age, :max_age, :min_trip_duration, :max_trip_duration,
+				:rates_attributes => [:rate, :rate_type, :sum_insured, :status],
+				:all_inclusive_rates_attributes => [:rate, :rate_type, :sum_insured, :min_date, :max_date, :rate_trip_value, :status])
 		end
 
-		def clean_rate_params
-			params.require(:age_bracket).permit(:rates_attributes => [:rate, :rate_type, :sum_insured])
-		end
-		
 		def index
 			@per_page = 9
 			if params[:product_id]
@@ -239,7 +329,23 @@ ActiveAdmin.register AgeBracket do
 																			sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
 					end
 				end
+			elsif params[:age_bracket][:all_inclusive_rates_attributes]
+				params[:age_bracket][:all_inclusive_rates_attributes].each_value do |attrs|
+					if attrs[:_destroy] == '1'
+						AllInclusiveRate.find(attrs[:id]).destroy 
+					elsif attrs[:id].nil?
+						age.all_inclusive_rates.create!(rate: attrs[:rate], min_date: attrs[:min_date], max_date: attrs[:max_date], 
+							rate_type: attrs[:rate_type], rate_trip_value: [:rate_trip_value], sum_insured: attrs[:sum_insured], 
+							effective_date: attrs[:effective_date])
+					else
+						AllInclusiveRate.find(attrs[:id]).update(rate: attrs[:rate], min_date: attrs[:min_date], max_date: attrs[:max_date], 
+							rate_type: attrs[:rate_type], rate_trip_value: [:rate_trip_value], sum_insured: attrs[:sum_insured], 
+							effective_date: attrs[:effective_date])
+					end
+				end
+
 			end
+				
 			redirect_to admin_age_brackets_path(product_id: params[:age_bracket][:product_id], q: {product_id_eq: params[:age_bracket][:product_id]})
 		end
 	end	
