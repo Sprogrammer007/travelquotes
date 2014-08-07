@@ -4,7 +4,8 @@ class AllInclusiveRate < ActiveRecord::Base
   belongs_to :age_bracket
   before_save :set_status
 
-
+  #scopes
+  generate_scopes
 
   scope :current, -> { status_eq("Current") }
   scope :outdated, -> { status_eq("Outdated")}
