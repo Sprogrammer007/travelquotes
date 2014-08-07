@@ -26,6 +26,35 @@ class LegalTextCategory < ActiveRecord::Base
     h
   end
 
+
+  #gets only the legal text that the quote has applied filters for
+  def self.get_legal_texts_by_filter(applied_filters, type)
+    @applied_lts = []
+    options = []
+    if applied_filters.any?
+      lt_ids = applied_filters.pluck(:associated_lt_id).uniq
+      @applied_lts = LegalTextCategory.where(legal_text_category_id: lt_ids)
+    end
+    
+    @applied_lts.each do |lt|
+      options << [lt.name, lt.id]
+    end
+
+    return options
+  end
+
+  def self.get_lts_after_filters(type)
+    lts = LegalTextCategory.all
+    options = []
+    if @applied_lts.any?
+      lts = lts - @applied_lts
+    end
+    lts.each do |lt|
+      options << [lt.name, lt.id]
+    end
+    return options
+  end
+
   def self.filter_check(product, id)
     p = product.legal_texts.where(:legal_text_category_id => id)
     if (p.length == 1) && (p.first.policy_type == "Both")

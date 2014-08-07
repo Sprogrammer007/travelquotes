@@ -42,23 +42,8 @@ class Product < ActiveRecord::Base
     return f
   end
 
-  #gets only the legal text that the quote has applied filters for
-  def get_legal_texts_by_filter(applied_filters, type)
-    @applied_lts = []
-    if applied_filters.any?
-      lt_ids = applied_filters.pluck(:associated_lt_id).uniq
-      @applied_lts = self.legal_texts.where(legal_text_category_id: lt_ids)
-    end
-    return @applied_lts
-  end
 
-  def get_lts_after_filters(type)
-    lts = legal_texts.merge(LegalText.ordered).to_a
-    if @applied_lts.any?
-      lts = lts - @applied_lts
-    end
-    return lts
-  end
+
 
   def self.find_compare(ps)
     products = []
@@ -71,6 +56,7 @@ class Product < ActiveRecord::Base
         (v["rate"].to_f * v["ded_mutip"].to_f)
       end
       products << product
+      products.sort_by! { |p| p.id }
     end
     return products
   end

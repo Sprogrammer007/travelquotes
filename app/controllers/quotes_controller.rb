@@ -68,6 +68,14 @@ class QuotesController < ApplicationController
     end
 	end
 
+	def compare_legals
+		@products = Product.find(params[:products].split(",").map(&:to_i)).sort_by!{ |p| p.id }
+		respond_to do |format|
+    	format.html { redirect_to root_path}
+    	format.js
+    end
+	end
+
 	def detail
 		@product = Product.find(params[:product_id])
 		@age = params[:t_age]

@@ -25,40 +25,33 @@
     <% end %>
     </tr>
   <tr class="odd">
-    <% products.each do |p| %>
-      <td class="content_td">
-        <% if quote.applied_filters%>
-          <% p.get_legal_texts_by_filter(quote.product_filters, quote.quote_type).each do |l| %>
-            <div class="accordion">
-              <h3><%= l.legal_text_category.name %></h3>
-              <div>
-                <% if l.description %>
-                  <%= l.description.html_safe() %>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
-        <% else %>
-        <% end %>
-      </td>
-    <% end %>
-  </tr>
+    <td class="content_td" colspan="<%=  products.count.to_s  %>" data-products="<%= "#{products.map(&:id).join(",")}" %>">
+      <% if quote.applied_filters%>
+      
+      <%= select_tag "applied_filters_legal_texts", options_for_select(LegalTextCategory.get_legal_texts_by_filter(quote.product_filters, quote.quote_type)), class: "form-control", id: "applied_filters_legal_texts", prompt: "Please Select The Legal Text For Comparing", data: {url: compare_legals_quote_path(type: "not_filtered") } %>
+      <% end %>
+    </td>
 
-  <tr>
-    <% products.each do |p| %>
-      <td class="content_td">
-        <% p.get_lts_after_filters(quote.quote_type).each do |l| %>
-          <div class="accordion">
-            <h3><%= l.legal_text_category.name %></h3>
-            <div>
-              <% if l.description %>
-                <%= l.description.html_safe() %>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-      </td>
-    <% end %>
+  </tr>
+  <tr class="not_filtered">
+    <td class="content_td" colspan="<%= products.count.to_s  %>">
+        No Legal Text Comparison Selected Yet
+    </td>
+  </tr>
+  <tr class="odd">
+    <td class="content_td" colspan="<%=  products.count.to_s  %>" data-products="<%= "#{products.map(&:id).join(",")}" %>">
+      <% if quote.applied_filters%>
+      
+      <%= select_tag "compare_legal_texts", options_for_select(LegalTextCategory.get_lts_after_filters(quote.quote_type), " "), class: "form-control", id: "compare_legal_texts", prompt: "Please Select The Legal Text For Comparing", data: {url: compare_legals_quote_path(type: "filtered") }  %>
+      <% end %>
+    </td>
+
+  </tr>
+  <tr class="filtered">
+    <td class="content_td" colspan="<%= products.count.to_s  %>">
+        No Legal Text Comparison Selected Yet
+    </td>
+
   </tr>
 
 

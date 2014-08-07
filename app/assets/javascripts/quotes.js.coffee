@@ -60,8 +60,8 @@ refresherFunctions = ->
   $('#compare_tab').on "click", (e)->  
     url = $(this).data('url')
     e.preventDefault()
-    if checked_product.length > 4
-      alert "For the best comparison, please keep the number of policy below 4!"
+    if checked_product.length > 3
+      alert "For the best comparison, please keep the number of policy below 3!"
       return false
     else if checked_product.length >= 2
       $.post(url, {products: checked_product, quote_id: $(this).data('quote-id')}, undefined, "script")
@@ -292,9 +292,20 @@ ready = ->
     event.preventDefault()
 
 
+
 $(document).ready(ready)
 $(document).on('page:load', ready)
 $(document).on 'compare:accordion', ->
+  $('#compare_legal_texts').change ->
+    url = $(this).attr('data-url')
+    products = $(this).parents('td').attr('data-products')
+    id = $(this).find(':selected').val()
+
+    if (id==null||id=="")
+      return
+    else
+      $.post(url, {products: products, legal_id: id}, undefined, "script")
+
   $('.accordion').each (i, e) ->
     $(e).accordion
       collapsible: true,
@@ -303,6 +314,5 @@ $(document).on 'compare:accordion', ->
       icons: { "header": "icon-triangle", "activeHeader": "icon-triangle-active" }
       
 $(document).on 'applied:filters', ->
-  console.log("testestset")
   refresherFunctions();
 
