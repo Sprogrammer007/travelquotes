@@ -33,7 +33,7 @@ class LegalTextCategory < ActiveRecord::Base
     options = []
     if applied_filters.any?
       lt_ids = applied_filters.pluck(:associated_lt_id).uniq
-      @applied_lts = LegalTextCategory.where(legal_text_category_id: lt_ids)
+      @applied_lts = LegalTextCategory.find(lt_ids)
     end
     
     @applied_lts.each do |lt|
