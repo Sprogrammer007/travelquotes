@@ -296,7 +296,7 @@ ready = ->
 $(document).ready(ready)
 $(document).on('page:load', ready)
 $(document).on 'compare:accordion', ->
-  $('#compare_legal_texts', '#applied_filters_legal_texts').change ->
+  $('#compare_legal_texts, #applied_filters_legal_texts').change ->
     url = $(this).attr('data-url')
     products = $(this).parents('td').attr('data-products')
     id = $(this).find(':selected').val()
