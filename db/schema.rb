@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140807190954) do
+ActiveRecord::Schema.define(version: 20140808013345) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -252,6 +252,14 @@ ActiveRecord::Schema.define(version: 20140807190954) do
     t.datetime "updated_at"
   end
 
+  create_table "student_age_sets", id: false, force: true do |t|
+    t.integer "student_age_bracket_id"
+    t.integer "student_version_id"
+  end
+
+  add_index "student_age_sets", ["student_age_bracket_id"], name: "index_student_age_sets_on_student_age_bracket_id", using: :btree
+  add_index "student_age_sets", ["student_version_id"], name: "index_student_age_sets_on_student_version_id", using: :btree
+
   create_table "student_couple_details", force: true do |t|
     t.integer "min_age"
     t.integer "max_age"
@@ -267,7 +275,7 @@ ActiveRecord::Schema.define(version: 20140807190954) do
     t.integer "max_adult"
     t.integer "max_kids_age"
     t.integer "max_age_with_kids"
-    t.boolean "has_family_rate"
+    t.boolean "family_rate_type"
   end
 
   create_table "student_filter_sets", id: false, force: true do |t|
@@ -285,11 +293,11 @@ ActiveRecord::Schema.define(version: 20140807190954) do
   end
 
   create_table "student_legal_texts", force: true do |t|
-    t.integer  "studentproduct_id"
+    t.integer  "student_product_id"
     t.integer  "student_lg_cat_id"
     t.text     "description"
     t.datetime "effective_date"
-    t.boolean  "status",            default: true
+    t.boolean  "status",             default: true
     t.datetime "created_at"
     t.datetime "updated_at"
   end

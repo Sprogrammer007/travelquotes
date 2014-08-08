@@ -148,7 +148,12 @@ ActiveAdmin.register AgeBracket do
 					end
 					
 				end	
-				text_node link_to "Add All Inclusive Rate",new_admin_all_inclusive_rate_path(id: a.id), class: "link_button right"
+
+				if a.product.policy_type == "All Inclusive"
+					text_node link_to "Add All Inclusive Rate",new_admin_all_inclusive_rate_path(id: a.id), class: "link_button right"
+				else
+					text_node link_to "Add Rate",new_admin_rate_path(id: a.id), class: "link_button right"
+				end
 			end
 
 			panel("Future Rates", class: "group") do 

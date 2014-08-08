@@ -380,14 +380,6 @@ ActiveAdmin.register Product do
 		f.actions
 	end
 
-	#Actions
-	member_action :remove_region, method: :delete do
-
-	Region.where("province_id = ? AND company_id = ?", params[:province_id], params[:id]).each { |r| r.destroy }
-		flash[:notice] = "Province was successfully removed!"
-		redirect_to admin_company_path(params[:id])
-	end
-	
 	controller do
 		def clean_params
 			params.require(:product).permit(:name, :policy_number, :pdf, :description, :min_price, :renewable_max_age,

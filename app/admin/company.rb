@@ -42,7 +42,7 @@ ActiveAdmin.register Company do
 			dropdown_menu "In-Bound Product" do 
 				item("View Visitor Medical Emergency", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor Medical Emergency"}))
 				item("View All Inclusive", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor All Inclusive"}))
-				item("View Student Medical Inbound", admin_student_products_path())
+				item("View Student Medical Inbound", admin_student_products_path(name: c.name))
 				item("View Ex-Pat Policy", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Canadian Ex-Pat"}))
 				item("Add Visitor Medical Emergency", new_admin_product_path(id: c.id, name: c.name, p_type: "Visitor Medical Emergency"))
 				item("Add Student Medical Inbound", new_admin_student_product_path(id: c.id, name: c.name))
@@ -148,7 +148,7 @@ ActiveAdmin.register Company do
 			end if c.provinces
 		end
 	end
-	#Actions
+
   member_action :deactive, method: :get do
   	@company = Company.find(params[:id])
   	if @company.status

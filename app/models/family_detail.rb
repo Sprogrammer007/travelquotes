@@ -3,4 +3,7 @@ class FamilyDetail < ActiveRecord::Base
   min_adult max_adult max_kids_age max_age_with_kids family_rate_type}
   has_one :version, as: :detail
 
+  def has_special_rate?
+    family_rate_type == "Has Family Rate"
+  end
 end

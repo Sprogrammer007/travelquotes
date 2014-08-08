@@ -5,7 +5,7 @@ ActiveAdmin.register StudentProduct do
 
   include_import
 
-  permit_params :name, :policy_number, :pdf, :description, :policy_type, :company_id, :min_price, :can_buy_after_30_days,
+  permit_params :name, :policy_number, :pdf, :description, :company_id, :min_price, :can_buy_after_30_days,
   :can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex, :preex_based_on_sum_insured,
   :purchase_url, :rate_effective_date, :status, :effective_date, deductibles_attributes: [:amount, :mutiplier, :min_age, :max_age]
 
@@ -17,7 +17,6 @@ ActiveAdmin.register StudentProduct do
   #Filters
   filter :company, :collection => -> { Company.all.map { |c| [c.name, c.id] } }
   filter :policy_number
-  filter :policy_type
   filter :effective_date
   filter :can_renew_after_30_days
   filter :can_buy_after_30_days
@@ -40,11 +39,11 @@ ActiveAdmin.register StudentProduct do
           item("View", admin_student_version_path(version))
           item("Edit", edit_admin_student_version_path(version))
           item("Delete", admin_student_version_path(version), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-          item("Select Existing Age Bracket",  add_admin_age_set_path(id: version.id))
+          item("Select Existing Age Bracket",  add_admin_student_age_set_path(id: version.id))
         end
       end 
     end
-    column :policy_type
+
     column "Pre-Med", :preex
     column :status do |p|
       if p.status
@@ -65,14 +64,13 @@ ActiveAdmin.register StudentProduct do
         item("Add Version", new_admin_student_version_path(:id => p.id, name: p.name))
         # item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
         item("Add Age Bracket", new_admin_student_age_bracket_path(:id => p.id, name: p.name))
-        # item("Select Product Filters", add_admin_student_filter_set_path(id: p.id, name: p.name))
+        item("Select Product Filters", add_admin_student_filter_set_path(id: p.id, name: p.name))
         item("Add Legal Text", new_admin_student_legal_text_path(:id => p.id, name: p.name))
-        # item("Add Future Rate", add_future_admin_rate_path(id: p.id))
+        item("Add Future Rate", add_future_admin_student_rate_path(id: p.id))
         item("Edit Policy", edit_admin_student_product_path(p))
         item("Active/Deactive Policy", deactive_admin_student_product_path(p))
-        item("Delete", admin_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+        item("Delete", admin_student_product_path(p), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
       end
-      
     end
   end
 
@@ -80,9 +78,8 @@ ActiveAdmin.register StudentProduct do
     div class: "top group" do
       div class: "show_left" do
         panel "Policy Eligibiliities", class: "group" do
-          attributes_table_for product do
+          attributes_table_for p do
             row :policy_number
-            row :policy_type
             row :description do |p|
               p.description.html_safe() if p.description
             end
@@ -138,7 +135,7 @@ ActiveAdmin.register StudentProduct do
                 ].join(" ").html_safe
               end
             end
-            if product.future_rate_effective_date
+            if p.future_rate_effective_date
               row "Update Future Effective Date" do |p| 
                 form_tag url_for(:controller => 'admin/student_rates', :action => 'update_effective_date') do
                   [
@@ -207,73 +204,62 @@ ActiveAdmin.register StudentProduct do
                     row :max_age_with_kids do |v| v.detail.max_age_with_kids end
                     row :family_rate_type
                   end
-                  if p.policy_type == "All Inclusive"
-                    dropdown_menu "Version Actions", class: "dropdown_menu right" do
-                      item("View", admin_version_path(version))
-                      item("Edit", edit_admin_version_path(version))
-                      item("Delete", admin_version_path(version), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-                      item("Add Future Rates", add_future_admin_all_inclusive_rate_path(id: version.id))
-                      item("Select Existing Age Bracket",  add_admin_age_set_path(id: version.id))
-                    end 
-                  else
-                    dropdown_menu "Version Actions", class: "dropdown_menu right" do
-                      item("View", admin_version_path(version))
-                      item("Edit", edit_admin_version_path(version))
-                      item("Delete", admin_version_path(version), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-                      item("Add Future Rates", add_future_admin_rate_path(id: version.id))
-                      item("Select Existing Age Bracket",  add_admin_age_set_path(id: version.id))
-                    end 
-                  end
+                  dropdown_menu "Version Actions", class: "dropdown_menu right" do
+                    item("View", admin_student_version_path(version))
+                    item("Edit", edit_admin_student_version_path(version))
+                    item("Delete", admin_student_version_path(version), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+                    item("Add Future Rates", add_future_admin_student_rate_path(id: version.id))
+                    item("Select Existing Age Bracket",  add_admin_student_age_set_path(id: version.id))
+                  end 
+                  
                 end
               end
             end
           end
-          text_node link_to "Add New Version",  new_admin_version_path(:id => p.id, name: p.name), method: :get, class: "link_button right"
+          text_node link_to "Add New Version",  new_admin_student_version_path(:id => p.id, name: p.name), method: :get, class: "link_button right"
         end
       end
 
       div class: "show_right" do
-        panel("Deductibles", class: 'group') do
-          table_for p.deductibles.order((params[:order] || "amount_asc").gsub('_', ' ') ), 
-          sortable: true  do
-            column :amount, sortable: :amount
-            column :mutiplier, sortable: false
-            column "Age Range" do |d|
-              "#{d.min_age} - #{d.max_age}" if d.min_age()
-            end
-            column " " do |d|
-              [
-                link_to("View", admin_deductible_path(d)),
-                link_to("Edit", edit_admin_deductible_path(d)),
-                link_to("Remove", admin_deductible_path(d), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
-              ].join(" | ").html_safe
-            end
-          end
-          text_node link_to "Add Deductible", new_admin_deductible_path(id: p.id, name: p.name), class: "link_button right"
-        end if p.deductibles
+        # panel("Deductibles", class: 'group') do
+        #   table_for p.deductibles.order((params[:order] || "amount_asc").gsub('_', ' ') ), 
+        #   sortable: true  do
+        #     column :amount, sortable: :amount
+        #     column :mutiplier, sortable: false
+        #     column "Age Range" do |d|
+        #       "#{d.min_age} - #{d.max_age}" if d.min_age()
+        #     end
+        #     column " " do |d|
+        #       [
+        #         link_to("View", admin_deductible_path(d)),
+        #         link_to("Edit", edit_admin_deductible_path(d)),
+        #         link_to("Remove", admin_deductible_path(d), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+        #       ].join(" | ").html_safe
+        #     end
+        #   end
+        #   text_node link_to "Add Deductible", new_admin_deductible_path(id: p.id, name: p.name), class: "link_button right"
+        # end if p.deductibles
 
-        panel("Product Filters", class: 'group') do
-          if p.product_filters
-            table_for p.product_filters  do
+        panel("Student Filters", class: 'group') do
+          if p.student_filters
+            table_for p.student_filters  do
               column :name
-              column :policy_type
               column "" do |f|
-                text_node link_to "Remove Filter", remove_admin_product_filter_set_path(id: f.id, product_id: p.id), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}
+                text_node link_to "Remove Filter", remove_admin_student_filter_set_path(id: f.id, product_id: p.id), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}
               end
             end
           end
-          text_node link_to "Add/Remove Filters", add_admin_product_filter_set_path(id: p.id, name: p.name),  class: "link_button right"
+          text_node link_to "Add/Remove Filters", add_admin_student_filter_set_path(id: p.id, name: p.name),  class: "link_button right"
         end 
       end
     end
 
-    panel("Legal Text", class: 'group') do
-      if p.legal_texts
-        table_for p.legal_texts.joins(:legal_text_category => [:legal_text_parent_category]).order("legal_text_parent_categories.order asc") do
+    panel("Student Legal Text", class: 'group') do
+      if p.student_legal_texts
+        table_for p.student_legal_texts.joins(:student_lg_cat => [:student_lg_parent_cat]).order("student_lg_parent_cats.order asc") do
           column "Category" do |l|
-            l.legal_text_category.name() if l.legal_text_category()
+            l.student_lg_cat.name() if l.student_lg_cat()
           end
-          column :policy_type
           column :description, class: "lg_accordion" do |l|
             h3 do
               "Click to View Description"
@@ -292,14 +278,14 @@ ActiveAdmin.register StudentProduct do
           end
           column "" do |l|
             [
-              link_to("View", admin_legal_text_path(l)),
-              link_to("Edit", edit_admin_legal_text_path(l)),
-              link_to("Remove", admin_legal_text_path(l), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+              link_to("View", admin_student_legal_text_path(l)),
+              link_to("Edit", edit_admin_student_legal_text_path(l)),
+              link_to("Remove", admin_student_legal_text_path(l), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
             ].join(" | ").html_safe
           end
         end
       end
-      text_node link_to "Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name),  class: "link_button right"
+      text_node link_to "Add Legal Text", new_admin_student_legal_text_path(:id => p.id, name: p.name),  class: "link_button right"
     end 
   end
 
@@ -314,7 +300,6 @@ ActiveAdmin.register StudentProduct do
       end
       f.input :name, label: "Policy Name"
       f.input :policy_number
-      f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Medical Emergency", "All Inclusive", "Canadian Ex-Pat"], (params[:p_type] || "Visitor Medical Emergency"))
       f.input :description
       f.input :min_price
       f.input :can_buy_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
@@ -332,70 +317,52 @@ ActiveAdmin.register StudentProduct do
       f.input :status, :as => :radio, :collection => [['Active', true], ['Deactive', false]]
     end
 
-    f.inputs do
-      f.has_many :deductibles, :allow_destroy => true, :heading => 'Add Dedutibles' do |d|
-        d.input :amount
-        d.input :mutiplier
-        d.input :min_age
-        d.input :max_age
-      end
-    end
+    # f.inputs do
+    #   f.has_many :deductibles, :allow_destroy => true, :heading => 'Add Dedutibles' do |d|
+    #     d.input :amount
+    #     d.input :mutiplier
+    #     d.input :min_age
+    #     d.input :max_age
+    #   end
+    # end
     f.actions
   end
 
-  #Actions
-  member_action :remove_region, method: :delete do
-
-  Region.where("province_id = ? AND company_id = ?", params[:province_id], params[:id]).each { |r| r.destroy }
-    flash[:notice] = "Province was successfully removed!"
-    redirect_to admin_company_path(params[:id])
-  end
-  
   controller do
     def clean_params
-      params.require(:product).permit(:name, :policy_number, :pdf, :description, :min_price, :renewable_max_age,
+      params.require(:student_product).permit(:name, :policy_number, :pdf, :description, :min_price, :renewable_max_age,
         :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
-        :preex_based_on_sum_insured,:rate_effective_date, :effective_date, :status, :policy_type)
-    end
-
-    def index 
-      if params[:q]
-        @page_title = "#{params[:q][:policy_type_equals]} Policies"
-      else
-        @page_title = "All Policies"
-      end
-
-      super
+        :preex_based_on_sum_insured,:rate_effective_date, :effective_date, :status)
     end
 
     def new 
-      @page_title = "New #{params[:p_type] || ""} Policy For #{params[:name]}"
+      @page_title = "New Student Policy For #{params[:name]}"
       super
     end
 
     def update
-      p = Product.find(params[:id])
+      p = StudentProduct.find(params[:id])
       p.update(clean_params)
-      if params[:product][:deductibles_attributes]
-        params[:product][:deductibles_attributes].each_value do |attrs|
-          if attrs[:_destroy] == '1'
-            Deductible.find(attrs[:id]).destroy 
-          elsif attrs[:id].nil?
-            p.deductibles.create!(amount: attrs[:amount], mutiplier: attrs[:mutiplier],
-              min_age: attrs[:min_age], max_age: attrs[:max_age])
-          else
-            Deductible.find(attrs[:id]).update(amount: attrs[:amount], mutiplier: attrs[:mutiplier],
-              min_age: attrs[:min_age], max_age: attrs[:max_age])
-          end
-        end
-      end
+      # if params[:product][:deductibles_attributes]
+      #   params[:product][:deductibles_attributes].each_value do |attrs|
+      #     if attrs[:_destroy] == '1'
+      #       Deductible.find(attrs[:id]).destroy 
+      #     elsif attrs[:id].nil?
+      #       p.deductibles.create!(amount: attrs[:amount], mutiplier: attrs[:mutiplier],
+      #         min_age: attrs[:min_age], max_age: attrs[:max_age])
+      #     else
+      #       Deductible.find(attrs[:id]).update(amount: attrs[:amount], mutiplier: attrs[:mutiplier],
+      #         min_age: attrs[:min_age], max_age: attrs[:max_age])
+      #     end
+      #   end
+      # end
       redirect_to admin_product_path(p)
     end
   end
 
   #Actions
   member_action :deactive, method: :get do
-    @product = Product.find(params[:id])
+    @product = StudentProduct.find(params[:id])
     if @product.status
       @product.update(status: false)
     else
