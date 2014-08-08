@@ -51,7 +51,12 @@ ActiveAdmin.register AgeBracket do
 					end
 				end
 				row "Rate Type" do |a|
-					a.rates.first.rate_type() if a.rates.any?
+					if a.product.policy_type == "All Inclusive" && a.all_inclusive_rates.any?
+						a.all_inclusive_rates.first.rate_type() 
+
+					elsif a.rates.any?
+						a.rates.first.rate_type() 
+					end
 				end
 				row :effective_date do |a|
 					a.product.rate_effective_date.strftime("%d, %m, %Y")
