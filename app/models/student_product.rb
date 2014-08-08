@@ -25,12 +25,12 @@ class StudentProduct < ActiveRecord::Base
   validates_attachment :pdf, :content_type => { :content_type => "application/pdf" }
 
   #scopes
-  # generate_scopes
-  # scope :has_preex, -> { preex_eq(true) }
-  # scope :has_no_preex, -> { preex_eq(false) }
-  # scope :active, -> { status_eq(true)}
-  # scope :can_buy_after_30, -> { can_buy_after_30_days_eq(true) }
-  # scope :renewable_after_30, -> {  can_renew_after_30_days_eq(true) | can_buy_after_30_days_eq(true) }
+  generate_scopes
+  scope :has_preex, -> { preex_eq(true) }
+  scope :has_no_preex, -> { preex_eq(false) }
+  scope :active, -> { status_eq(true)}
+  scope :can_buy_after_30, -> { can_buy_after_30_days_eq(true) }
+  scope :renewable_after_30, -> {  can_renew_after_30_days_eq(true) | can_buy_after_30_days_eq(true) }
 
   # def get_deductible_by_age(age)
   #   f = []

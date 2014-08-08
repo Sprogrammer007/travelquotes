@@ -270,7 +270,7 @@ ActiveRecord::Schema.define(version: 20140807190954) do
     t.boolean "has_family_rate"
   end
 
-  create_table "student_filter_sets", force: true do |t|
+  create_table "student_filter_sets", id: false, force: true do |t|
     t.integer "student_filter_id"
     t.integer "student_product_id"
   end
