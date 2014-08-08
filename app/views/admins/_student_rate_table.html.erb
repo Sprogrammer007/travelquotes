@@ -1,0 +1,40 @@
+<table border="0" cellspacing="0" cellpadding="0">
+
+  <thead>
+    <tr>
+      <th class="col col-rate">Rate</th>
+      <th class="col col-rate_type">Rate Type</th>
+      <th class="col col-sum_insured">Sum Insured</th>
+      <th class="col col-status">Status</th>
+      <th class="col col-future"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% rates.each_with_index do |r, i| %>
+     <%= hidden_field_tag "future[][student_age_bracket_id]", r.student_age_bracket_id, id: "future_age_bracket_id" %>
+      <tr class="<%= i.even? ? "even" : " odd" %>">
+        <td class="col">
+          <%= r.rate %>
+        </td>
+        <td class="col">
+          <%= r.rate_type %>
+          <%= hidden_field_tag "future[][rate_type]", r.rate_type, id: "future_sum_insured" %>
+        </td>
+
+        <td class="col">
+          <%= r.sum_insured %>
+          <%= hidden_field_tag "future[][sum_insured]", r.sum_insured, id: "future_rate_type" %>
+        </td>
+        <td class="col">
+          <span class="status_tag <%= r.status.downcase %>"><%= r.status %></span>
+        </td>
+        <td class="col">
+          <%= hidden_field_tag "future[][rate]", r.rate, id: "future_current_rate" %>
+          <%= link_to_add_fields "Add Future Rate", :add_future, r %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+
+</table>

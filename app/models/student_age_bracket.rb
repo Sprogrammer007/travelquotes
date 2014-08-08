@@ -35,7 +35,7 @@ class StudentAgeBracket < ActiveRecord::Base
     
     def set_preex
       if self.new_record?
-        self.preex = self.product.preex
+        self.preex = self.student_product.preex
       end
     end
 end

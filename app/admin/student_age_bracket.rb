@@ -11,21 +11,8 @@ ActiveAdmin.register StudentAgeBracket do
   scope :preex
   #Filters
   filter :student_product
-  filter :student_versions, :collection => -> {AgeBracket.versions_filter_selection}
+  filter :student_versions, :collection => -> {StudentAgeBracket.versions_filter_selection}
 
-
-  # index do
-  #   selectable_column
-  #   column :range, :sortable => false 
-  #   column :min_age
-  #   column :max_age
-  #   column :min_trip_duration
-  #   column :max_trip_duration
-  #   column :preex
-  #   actions defaults: true, dropdown: true do |a|
-  #     item  "Add Rate",  new_admin_rate_path(id: a.id)
-  #   end
-  # end
 
   index :as => :grid  do |age|
     div class: "custom_grid_index group" do
@@ -165,7 +152,7 @@ ActiveAdmin.register StudentAgeBracket do
   form do |f|
     f.inputs do
       if f.object.new_record? && params[:product_id]
-        f.input :student_product_id, :as => :hidden, :input_html => { :value => StudentVersion.find(params[:student_product_id]).product_id }
+        f.input :student_product_id, :as => :hidden, :input_html => { :value => params[:product_id] }
         f.input :student_product_id, :as => :select, :collection => options_for_select([[params[:name], params[:product_id]]], params[:product_id]), input_html: { disabled: true, multiple: false}
       elsif f.object.new_record? && params[:id]
         f.input :student_product_id, :as => :hidden, :input_html => { :value => params[:id] }
@@ -219,7 +206,7 @@ ActiveAdmin.register StudentAgeBracket do
       age = StudentAgeBracket.find(params[:id])
       product = age.student_product
       age.destroy
-      redirect_to admin_student_age_brackets_path(q: {product_id_eq: product.id})
+      redirect_to admin_student_age_brackets_path(q: {student_product_id_eq: product.id})
     end
 
     def update
