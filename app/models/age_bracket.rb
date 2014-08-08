@@ -10,7 +10,7 @@ class AgeBracket < ActiveRecord::Base
 	accepts_nested_attributes_for :rates, :all_inclusive_rates
 	
 	#Callbacks
-	before_save :set_preex
+	after_save :set_preex
 
 	#scopes
 	generate_scopes
@@ -35,7 +35,7 @@ class AgeBracket < ActiveRecord::Base
 	private
 		
 		def set_preex
-			if self.new_record?
+			if self.preex.nil?
 				self.preex = self.product.preex
 			end
 		end

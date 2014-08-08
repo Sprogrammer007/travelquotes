@@ -3,7 +3,7 @@ ActiveAdmin.register AgeBracket do
 	config.sort_order = "id_asc"
 	include_import
 
-	permit_params(:product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration,
+	permit_params(:product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration, :preex,
     rates_attributes: [:rate, :rate_type, :sum_insured, :effective_date],
     all_inclusive_rates_attributes: [:rate, :rate_type, :sum_insured, :min_date, :max_date, :rate_trip_value])
 
@@ -35,7 +35,6 @@ ActiveAdmin.register AgeBracket do
 
 	index :as => :grid  do |age|
 		div class: "custom_grid_index group" do
-
 			attributes_table_for age  do
 				row "Applied Versions" do |a|
 					a.versions.map(&:detail_type).join(" | ")
@@ -67,7 +66,7 @@ ActiveAdmin.register AgeBracket do
 				end
 				
 				if age.product.policy_type == "All Inclusive"
-					table age.admin_all_inclusive_rates.current.order("sum_insured ASC") do
+					table_for age.all_inclusive_rates.current.order("sum_insured ASC") do
 						column :rate
 						column "Date Range" do |r|
 							"#{r.min_date} - #{r.max_date}"
@@ -266,6 +265,7 @@ ActiveAdmin.register AgeBracket do
 			f.input :max_age
 			f.input :min_trip_duration
 			f.input :max_trip_duration
+			f.input :preex, :as => :radio, :collection => [["Yes", true], ["No", false]]
 		end
 
 		f.inputs do
@@ -293,11 +293,6 @@ ActiveAdmin.register AgeBracket do
 
 	controller do
 
-		def clean_params
-			params.require(:age_bracket).permit(:min_age, :max_age, :min_trip_duration, :max_trip_duration,
-				:rates_attributes => [:rate, :rate_type, :sum_insured, :status],
-				:all_inclusive_rates_attributes => [:rate, :rate_type, :sum_insured, :min_date, :max_date, :rate_trip_value, :status])
-		end
 
 		def index
 			@per_page = 9
@@ -305,6 +300,30 @@ ActiveAdmin.register AgeBracket do
 				@page_title = "Age Brackets for #{Product.find(params[:product_id]).name}"
 			end
 			super
+		end
+
+		def create
+			age = AgeBracket.new(:product_id => params[:age_bracket][:product_id], 
+				:min_age => params[:age_bracket][:min_age], 
+				:max_age => params[:age_bracket][:max_age], 
+				:min_trip_duration => params[:age_bracket][:min_trip_duration], 
+				:max_trip_duration => params[:age_bracket][:max_trip_duration], 
+				:preex => params[:age_bracket][:preex])
+			if age.save!
+				if params[:age_bracket][:rates_attributes]
+					params[:age_bracket][:rates_attributes].each_value do |attrs|
+						age.rates.create!(rate: attrs[:rate], rate_type: attrs[:rate_type],
+							sum_insured: attrs[:sum_insured], effective_date: attrs[:effective_date])
+					end
+				elsif params[:age_bracket][:all_inclusive_rates_attributes]
+					params[:age_bracket][:all_inclusive_rates_attributes].each_value do |attrs|
+						age.all_inclusive_rates.create!(rate: attrs[:rate], min_date: attrs[:min_date], max_date: attrs[:max_date], 
+							rate_type: attrs[:rate_type], rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
+							effective_date: attrs[:effective_date])
+					end
+				end
+			end
+			redirect_to admin_age_brackets_path(product_id: params[:age_bracket][:product_id], q: {product_id_eq: params[:age_bracket][:product_id]})
 		end
 
 		def show
@@ -321,7 +340,12 @@ ActiveAdmin.register AgeBracket do
 
 		def update
 			age = AgeBracket.find(params[:id])
-			age.update(clean_params)
+			age.update(:product_id => params[:age_bracket][:product_id], 
+				:min_age => params[:age_bracket][:min_age], 
+				:max_age => params[:age_bracket][:max_age], 
+				:min_trip_duration => params[:age_bracket][:min_trip_duration], 
+				:max_trip_duration => params[:age_bracket][:max_trip_duration], 
+				:preex => params[:age_bracket][:preex])
 			if params[:age_bracket][:rates_attributes]
 				params[:age_bracket][:rates_attributes].each_value do |attrs|
 					if attrs[:_destroy] == '1'
@@ -340,11 +364,11 @@ ActiveAdmin.register AgeBracket do
 						AllInclusiveRate.find(attrs[:id]).destroy 
 					elsif attrs[:id].nil?
 						age.all_inclusive_rates.create!(rate: attrs[:rate], min_date: attrs[:min_date], max_date: attrs[:max_date], 
-							rate_type: attrs[:rate_type], rate_trip_value: [:rate_trip_value], sum_insured: attrs[:sum_insured], 
+							rate_type: attrs[:rate_type], rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
 							effective_date: attrs[:effective_date])
 					else
 						AllInclusiveRate.find(attrs[:id]).update(rate: attrs[:rate], min_date: attrs[:min_date], max_date: attrs[:max_date], 
-							rate_type: attrs[:rate_type], rate_trip_value: [:rate_trip_value], sum_insured: attrs[:sum_insured], 
+							rate_type: attrs[:rate_type], rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
 							effective_date: attrs[:effective_date])
 					end
 				end
