@@ -2,7 +2,7 @@ class Company < ActiveRecord::Base
 	DEFAULT_HEADER = %w{name status}
 	
 	has_many :products, dependent: :destroy
-	 
+	has_many :student_products, dependent: :destroy
  	has_many :regions
  	has_many :provinces, :through => :regions
 

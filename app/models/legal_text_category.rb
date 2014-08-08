@@ -26,7 +26,6 @@ class LegalTextCategory < ActiveRecord::Base
     h
   end
 
-
   #gets only the legal text that the quote has applied filters for
   def self.get_legal_texts_by_filter(applied_filters, type)
     @applied_lts = []

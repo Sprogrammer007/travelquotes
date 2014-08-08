@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140806133645) do
+ActiveRecord::Schema.define(version: 20140807190954) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -240,6 +240,126 @@ ActiveRecord::Schema.define(version: 20140806133645) do
     t.integer "min_age"
     t.integer "max_age"
   end
+
+  create_table "student_age_brackets", force: true do |t|
+    t.integer  "student_product_id"
+    t.integer  "min_age"
+    t.integer  "max_age"
+    t.integer  "min_trip_duration"
+    t.integer  "max_trip_duration"
+    t.boolean  "preex"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "student_couple_details", force: true do |t|
+    t.integer "min_age"
+    t.integer "max_age"
+    t.boolean "has_couple_rate"
+  end
+
+  create_table "student_family_details", force: true do |t|
+    t.integer "min_age"
+    t.integer "max_age"
+    t.integer "min_dependant"
+    t.integer "max_dependant"
+    t.integer "min_adult"
+    t.integer "max_adult"
+    t.integer "max_kids_age"
+    t.integer "max_age_with_kids"
+    t.boolean "has_family_rate"
+  end
+
+  create_table "student_filter_sets", force: true do |t|
+    t.integer "student_filter_id"
+    t.integer "student_product_id"
+  end
+
+  add_index "student_filter_sets", ["student_filter_id"], name: "index_student_filter_sets_on_student_filter_id", using: :btree
+  add_index "student_filter_sets", ["student_product_id"], name: "index_student_filter_sets_on_student_product_id", using: :btree
+
+  create_table "student_filters", force: true do |t|
+    t.string "category"
+    t.string "name"
+    t.text   "descriptions"
+  end
+
+  create_table "student_legal_texts", force: true do |t|
+    t.integer  "studentproduct_id"
+    t.integer  "student_lg_cat_id"
+    t.text     "description"
+    t.datetime "effective_date"
+    t.boolean  "status",            default: true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "student_lg_cats", force: true do |t|
+    t.integer "student_lg_parent_cat_id"
+    t.string  "name"
+    t.integer "order"
+    t.text    "popup_description"
+  end
+
+  create_table "student_lg_parent_cats", force: true do |t|
+    t.string  "name"
+    t.integer "order"
+    t.text    "popup_description"
+  end
+
+  create_table "student_products", force: true do |t|
+    t.integer  "company_id"
+    t.string   "name"
+    t.string   "policy_number"
+    t.text     "description"
+    t.integer  "min_price"
+    t.string   "pdf_file_name"
+    t.string   "pdf_content_type"
+    t.integer  "pdf_file_size"
+    t.datetime "pdf_updated_at"
+    t.boolean  "can_buy_after_30_days"
+    t.boolean  "can_renew_after_30_days"
+    t.integer  "renewable_max_age"
+    t.boolean  "preex"
+    t.integer  "preex_max_age"
+    t.boolean  "preex_based_on_sum_insured", default: false
+    t.boolean  "status",                     default: true
+    t.string   "purchase_url",               default: "http://"
+    t.datetime "rate_effective_date"
+    t.datetime "future_rate_effective_date"
+    t.datetime "effective_date"
+  end
+
+  add_index "student_products", ["company_id"], name: "index_student_products_on_company_id", using: :btree
+
+  create_table "student_rates", force: true do |t|
+    t.integer  "student_age_bracket_id"
+    t.float    "rate"
+    t.string   "rate_type"
+    t.integer  "sum_insured"
+    t.datetime "effective_date"
+    t.string   "status"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "student_rates", ["student_age_bracket_id"], name: "index_student_rates_on_student_age_bracket_id", using: :btree
+
+  create_table "student_single_details", force: true do |t|
+    t.integer "min_age"
+    t.integer "max_age"
+  end
+
+  create_table "student_versions", force: true do |t|
+    t.integer  "student_product_id"
+    t.string   "detail_type"
+    t.integer  "detail_id"
+    t.boolean  "status",             default: true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "student_versions", ["student_product_id"], name: "index_student_versions_on_student_product_id", using: :btree
 
   create_table "traveler_members", force: true do |t|
     t.integer  "quote_id"

@@ -42,9 +42,6 @@ class Product < ActiveRecord::Base
     return f
   end
 
-
-
-
   def self.find_compare(ps)
     products = []
     ps.each_value do |v| 

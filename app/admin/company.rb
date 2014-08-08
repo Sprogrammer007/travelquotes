@@ -14,6 +14,7 @@ ActiveAdmin.register Company do
 	remove_filter :logo
 	remove_filter :status
 	remove_filter :products
+	remove_filter :student_products
 
 	#Default Actions
 	actions :all, :except => [:destroy]
@@ -41,10 +42,10 @@ ActiveAdmin.register Company do
 			dropdown_menu "In-Bound Product" do 
 				item("View Visitor Medical Emergency", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor Medical Emergency"}))
 				item("View All Inclusive", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor All Inclusive"}))
-				item("View Student Medical Inbound", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Student Medical Inbound"}))
+				item("View Student Medical Inbound", admin_student_products_path())
 				item("View Ex-Pat Policy", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Canadian Ex-Pat"}))
 				item("Add Visitor Medical Emergency", new_admin_product_path(id: c.id, name: c.name, p_type: "Visitor Medical Emergency"))
-				item("Add Student Medical Inbound", new_admin_product_path(id: c.id, name: c.name, p_type: "Student Medical Inbound"))
+				item("Add Student Medical Inbound", new_admin_student_product_path(id: c.id, name: c.name))
 				item("Add Canadian Ex-Pat", new_admin_product_path(id: c.id, name: c.name, p_type: "Canadian Ex-Pat"))
 				item("Add All Inclusive", new_admin_product_path(id: c.id, name: c.name, p_type: "All Inclusive"))
 			end

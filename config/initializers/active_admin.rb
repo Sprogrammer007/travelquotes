@@ -6,7 +6,7 @@ ActiveAdmin.setup do |config|
         products.add :label => "All Policies", :url => Rails.application.routes.url_helpers.admin_products_path()
         products.add :label => "Visitor All Inclusive", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "All Inclusive"})
         products.add :label => "Visitor Medical Emergency", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Visitor Medical Emergency"})
-        products.add :label => "Student Medical Inbound", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Student Medical Inbound"})
+        products.add :label => "Student Medical Inbound", :url => Rails.application.routes.url_helpers.admin_student_products_path()
         products.add :label => "Canadian Ex-Pat", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Canadian Ex-Pat"})
       end
       menu.add :label => "Global Settings", :priority => 2
