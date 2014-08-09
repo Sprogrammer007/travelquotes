@@ -114,9 +114,15 @@ class Quote < ActiveRecord::Base
 
     # check to see if there is a min price and if there is
     # we use the greater of the two
-    minprice = version.min_price
-    if rate < minprice
-      rate = minprice
+    if version.product.min_rate_type == "Price"
+      minprice = version.min_price
+      if rate < minprice
+        rate = minprice
+      end
+    else
+      if version.min_date > self.traveled_days
+        rate = (version.min_date * version.product_rate).round(2)
+      end
     end
 
    return rate
@@ -274,12 +280,13 @@ class Quote < ActiveRecord::Base
     rate_type = rate_type || self.traveler_type.downcase
     result = Version.send(rate_type).joins(:product)
 
+
     if self.apply_from && beyond_30_days? && !self.renew
-      result = result.merge(Product.can_buy_after_30.active)
+      result = result.merge(Product.can_buy_after_30.policy_type_of(self.quote_type).active)
     elsif self.apply_from && beyond_30_days? && self.renew
-      result = result.merge(Product.renewable_after_30.active)
+      result = result.merge(Product.renewable_after_30.policy_type_of(self.quote_type).active)
     end
-    
+
     if self.has_preex
       result = result.merge(Product.has_preex)
       result = result.joins(:age_brackets).merge(AgeBracket.include_age(age).preex)
@@ -287,10 +294,17 @@ class Quote < ActiveRecord::Base
       result = result.joins(:age_brackets).merge(AgeBracket.include_age(age))
     end
 
-    result = result.joins(age_brackets: [:rates]).merge(Rate.include_sum(self.sum_insured))
-    result = result.select("versions.*, rates.rate as product_rate, 
-      rates.rate_type as rate_type, products.min_price as min_price, 
-      products.id as product_id").order("product_rate ASC")
+    if self.quote_type == "All Inclusive"
+      result = result.joins(age_brackets: [:all_inclusive_rates]).merge(AllInclusiveRate.include_sum(self.sum_insured))
+      result = result.select("versions.*, all_inclusive_rates.rate as product_rate, 
+        all_inclusive_rates.rate_type as rate_type, products.min_price as min_price, 
+        products.min_date as min_date, products.id as product_id").order("product_rate ASC")
+    else
+      result = result.joins(age_brackets: [:rates]).merge(Rate.include_sum(self.sum_insured))
+      result = result.select("versions.*, rates.rate as product_rate, 
+        rates.rate_type as rate_type, products.min_price as min_price, 
+        products.min_date as min_date, products.id as product_id").order("product_rate ASC")
+    end
 
     return result
   end

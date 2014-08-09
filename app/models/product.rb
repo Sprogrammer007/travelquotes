@@ -18,7 +18,7 @@ class Product < ActiveRecord::Base
 
   delegate :logo, to: :company
   
-  validates :name, :company_id, :min_price, :renewable_max_age, :preex_max_age, :purchase_url, :rate_effective_date, :effective_date, presence: true
+  validates :name, :company_id, :renewable_max_age, :preex_max_age, :purchase_url, :rate_effective_date, :effective_date, presence: true
   validates :min_price, :preex_max_age, :renewable_max_age, numericality: { only_integer: true }
   validates :preex, :preex_based_on_sum_insured, :can_renew_after_30_days, :can_buy_after_30_days, :status, inclusion: { in: [true, false] }
   
@@ -33,6 +33,7 @@ class Product < ActiveRecord::Base
   scope :active, -> { status_eq(true)}
   scope :can_buy_after_30, -> { can_buy_after_30_days_eq(true) }
   scope :renewable_after_30, -> {  can_renew_after_30_days_eq(true) | can_buy_after_30_days_eq(true) }
+  scope :policy_type_of, -> (t) { policy_type_matches(t) }
 
   def get_deductible_by_age(age)
     f = []

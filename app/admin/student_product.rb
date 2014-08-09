@@ -5,7 +5,7 @@ ActiveAdmin.register StudentProduct do
 
   include_import
 
-  permit_params :name, :policy_number, :pdf, :description, :company_id, :min_price, :can_buy_after_30_days,
+  permit_params :name, :policy_number, :pdf, :description, :company_id, :min_price, :min_date, :min_rate_type, :can_buy_after_30_days,
   :can_renew_after_30_days, :renewable_max_age, :preex_max_age, :preex, :preex_based_on_sum_insured,
   :purchase_url, :rate_effective_date, :status, :effective_date, deductibles_attributes: [:amount, :mutiplier, :min_age, :max_age]
 
@@ -110,6 +110,9 @@ ActiveAdmin.register StudentProduct do
                 status_tag("No")
               end
             end
+            row :min_rate_type
+            row :min_price
+            row :min_date
             row :purchase_url
 
             row "Current Rate Effective Date" do |p|
@@ -298,7 +301,9 @@ ActiveAdmin.register StudentProduct do
       f.input :name, label: "Policy Name"
       f.input :policy_number
       f.input :description
+      f.input :min_rate_type, :as => :select, :collection => options_for_select(["Price","Date"], (f.object.min_rate_type || "")) 
       f.input :min_price
+      f.input :min_date
       f.input :can_buy_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
       f.input :can_renew_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]
       f.input :renewable_max_age
@@ -327,7 +332,7 @@ ActiveAdmin.register StudentProduct do
 
   controller do
     def clean_params
-      params.require(:student_product).permit(:name, :policy_number, :pdf, :description, :min_price, :renewable_max_age,
+      params.require(:student_product).permit(:name, :policy_number, :pdf, :description, :min_price, :min_date, :min_rate_type, :renewable_max_age,
         :can_buy_after_30_days, :can_renew_after_30_days, :preex_max_age, :preex, :purchase_url,
         :preex_based_on_sum_insured,:rate_effective_date, :effective_date, :status)
     end

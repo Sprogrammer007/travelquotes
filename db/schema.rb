@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140808013345) do
+ActiveRecord::Schema.define(version: 20140809021558) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -183,6 +183,8 @@ ActiveRecord::Schema.define(version: 20140808013345) do
     t.string   "pdf_content_type"
     t.integer  "pdf_file_size"
     t.datetime "pdf_updated_at"
+    t.string   "min_rate_type"
+    t.integer  "min_date"
   end
 
   add_index "products", ["company_id"], name: "index_products_on_company_id", using: :btree
@@ -259,6 +261,14 @@ ActiveRecord::Schema.define(version: 20140808013345) do
 
   add_index "student_age_sets", ["student_age_bracket_id"], name: "index_student_age_sets_on_student_age_bracket_id", using: :btree
   add_index "student_age_sets", ["student_version_id"], name: "index_student_age_sets_on_student_version_id", using: :btree
+
+  create_table "student_applied_filters", id: false, force: true do |t|
+    t.integer "quote_id"
+    t.integer "product_filter_id"
+  end
+
+  add_index "student_applied_filters", ["product_filter_id"], name: "index_student_applied_filters_on_product_filter_id", using: :btree
+  add_index "student_applied_filters", ["quote_id"], name: "index_student_applied_filters_on_quote_id", using: :btree
 
   create_table "student_couple_details", force: true do |t|
     t.integer "min_age"
@@ -337,9 +347,30 @@ ActiveRecord::Schema.define(version: 20140808013345) do
     t.datetime "rate_effective_date"
     t.datetime "future_rate_effective_date"
     t.datetime "effective_date"
+    t.string   "min_rate_type"
+    t.integer  "min_date"
   end
 
   add_index "student_products", ["company_id"], name: "index_student_products_on_company_id", using: :btree
+
+  create_table "student_quotes", force: true do |t|
+    t.string   "quote_id"
+    t.string   "client_ip"
+    t.string   "email"
+    t.boolean  "renew"
+    t.datetime "renew_expire_date"
+    t.datetime "leave_home"
+    t.datetime "return_home"
+    t.boolean  "apply_from"
+    t.string   "deductible_filter"
+    t.boolean  "has_preex"
+    t.datetime "arrival_date"
+    t.integer  "trip_cost"
+    t.integer  "sum_insured"
+    t.string   "traveler_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "student_rates", force: true do |t|
     t.integer  "student_age_bracket_id"
@@ -357,6 +388,13 @@ ActiveRecord::Schema.define(version: 20140808013345) do
   create_table "student_single_details", force: true do |t|
     t.integer "min_age"
     t.integer "max_age"
+  end
+
+  create_table "student_traveler_members", force: true do |t|
+    t.integer  "student_quote_id"
+    t.datetime "birthday"
+    t.string   "gender"
+    t.string   "member_type"
   end
 
   create_table "student_versions", force: true do |t|
