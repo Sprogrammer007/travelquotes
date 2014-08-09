@@ -173,7 +173,7 @@ ActiveAdmin.register StudentAgeBracket do
         cf.input :rate
         cf.input :rate_type, :as => :select, :collection => StudentRate.rate_types
         cf.input :sum_insured
-        cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"])
+        cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"], (cf.object.status || "Current"))
       end
     end
 

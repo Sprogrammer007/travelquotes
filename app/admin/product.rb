@@ -65,7 +65,7 @@ ActiveAdmin.register Product do
 				dropdown_menu "Edit" do 
 					item("Add Version", new_admin_version_path(:id => p.id, name: p.name))
 					item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
-					item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
+					item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name, policy_type: p.policy_type))
 					item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
 					item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name))
 					item("Add Future Rate", add_future_admin_all_inclusive_rate_path(id: p.id))
@@ -77,7 +77,7 @@ ActiveAdmin.register Product do
 				dropdown_menu "Edit" do 
 					item("Add Version", new_admin_version_path(:id => p.id, name: p.name))
 					item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
-					item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name))
+					item("Add Age Bracket", new_admin_age_bracket_path(:id => p.id, name: p.name, policy_type: p.policy_type))
 					item("Select Product Filters", add_admin_product_filter_set_path(id: p.id, name: p.name))
 					item("Add Legal Text", new_admin_legal_text_path(:id => p.id, name: p.name))
 					item("Add Future Rate", add_future_admin_rate_path(id: p.id))
@@ -356,7 +356,7 @@ ActiveAdmin.register Product do
 			f.input :policy_number
 			f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Medical Emergency", "All Inclusive", "Canadian Ex-Pat"], (params[:p_type] || "Visitor Medical Emergency"))
 			f.input :description
-			f.input :min_rate_type, :as => :select, :collection => options_for_select(["Price","Date"], (f.object.min_rate_type || "")) 
+			f.input :min_rate_type, :as => :select, :collection => options_for_select(["Price","Date"], (f.object.min_rate_type || "Price")) 
 			f.input :min_price
 			f.input :min_date
 			f.input :can_buy_after_30_days, :as => :radio, :collection => [["Yes", true], ["No", false]]

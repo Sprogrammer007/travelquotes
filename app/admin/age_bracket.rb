@@ -270,26 +270,54 @@ ActiveAdmin.register AgeBracket do
 			f.input :preex, :as => :radio, :collection => [["Yes", true], ["No", false]]
 		end
 
-		f.inputs do
-			f.has_many :rates, :allow_destroy => true, :heading => 'Add Rates' do |cf|
-				cf.input :rate
-				cf.input :rate_type, :as => :select, :collection => Rate.rate_types
-				cf.input :sum_insured
-				cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"])
+		if f.object.new_record?
+			if params[:policy_type] == "All Inclusive" 	
+				f.inputs do
+					f.has_many :all_inclusive_rates, :allow_destroy => true, :heading => 'Add All Inclusive Rates' do |cf|
+						cf.input :rate
+						cf.input :rate_type, :as => :select, :collection => AllInclusiveRate.rate_types
+						cf.input :min_date
+						cf.input :max_date
+						cf.input :rate_trip_value
+						cf.input :sum_insured
+						cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"])
+					end
+				end
+			else
+				f.inputs do
+					f.has_many :rates, :allow_destroy => true, :heading => 'Add Rates' do |cf|
+						cf.input :rate
+						cf.input :rate_type, :as => :select, :collection => Rate.rate_types
+						cf.input :sum_insured
+						cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"], (cf.object.status || "Current"))
+					end
+				end
+			end
+		else
+			if f.object.product.policy_type == "All Inclusive"
+				f.inputs do
+					f.has_many :all_inclusive_rates, :allow_destroy => true, :heading => 'Add All Inclusive Rates' do |cf|
+						cf.input :rate
+						cf.input :rate_type, :as => :select, :collection => AllInclusiveRate.rate_types
+						cf.input :min_date
+						cf.input :max_date
+						cf.input :rate_trip_value
+						cf.input :sum_insured
+						cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"], (cf.object.status || "Current"))
+					end
+				end
+			else
+				f.inputs do
+					f.has_many :rates, :allow_destroy => true, :heading => 'Add Rates' do |cf|
+						cf.input :rate
+						cf.input :rate_type, :as => :select, :collection => Rate.rate_types
+						cf.input :sum_insured
+						cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"], (cf.object.status || "Current"))
+					end
+				end
 			end
 		end
 
-		f.inputs do
-			f.has_many :all_inclusive_rates, :allow_destroy => true, :heading => 'Add All Inclusive Rates' do |cf|
-				cf.input :rate
-				cf.input :rate_type, :as => :select, :collection => AllInclusiveRate.rate_types
-				cf.input :min_date
-				cf.input :max_date
-				cf.input :rate_trip_value
-				cf.input :sum_insured
-				cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"])
-			end
-		end
 		f.actions
 	end
 
