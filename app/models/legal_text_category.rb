@@ -26,6 +26,13 @@ class LegalTextCategory < ActiveRecord::Base
     h
   end
 
+  def self.get_legal_texts_compare_option(applied_filters, type)
+    options = {}
+    options["Filtered"] = LegalTextCategory.get_legal_texts_by_filter(applied_filters, type)
+    options["Not Filtered"] = LegalTextCategory.get_lts_after_filters(type)
+    return options
+  end
+
   #gets only the legal text that the quote has applied filters for
   def self.get_legal_texts_by_filter(applied_filters, type)
     @applied_lts = []

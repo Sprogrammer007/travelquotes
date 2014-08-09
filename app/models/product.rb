@@ -33,7 +33,7 @@ class Product < ActiveRecord::Base
   scope :active, -> { status_eq(true)}
   scope :can_buy_after_30, -> { can_buy_after_30_days_eq(true) }
   scope :renewable_after_30, -> {  can_renew_after_30_days_eq(true) | can_buy_after_30_days_eq(true) }
-  scope :policy_type_of, -> (t) { policy_type_matches(t) }
+  scope :policy_type_of, -> (t) { policy_type_eq(t) }
 
   def get_deductible_by_age(age)
     f = []

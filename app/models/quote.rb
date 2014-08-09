@@ -114,14 +114,16 @@ class Quote < ActiveRecord::Base
 
     # check to see if there is a min price and if there is
     # we use the greater of the two
+    Rails.logger.warn "#{version.product.inspect}"
     if version.product.min_rate_type == "Price"
       minprice = version.min_price
       if rate < minprice
         rate = minprice
       end
     else
-      if version.min_date > self.traveled_days
-        rate = (version.min_date * version.product_rate).round(2)
+      mindate = version.product.min_date
+      if mindate > self.traveled_days
+        rate = (mindate * version.product_rate).round(2)
       end
     end
 

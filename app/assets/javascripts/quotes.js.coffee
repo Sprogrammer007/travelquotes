@@ -145,10 +145,10 @@ ready = ->
 
   # date picker
   # callback function for to min date after from is set
-  setMinDateTo = (input, inst) ->
-    currentFromDate = $('#quote_leave_home').val()
-    if currentFromDate
-      $(input).datepicker("option", "minDate", currentFromDate) 
+  # setMinDateTo = (input, inst) ->
+  #  currentFromDate = $('#quote_leave_home').val()
+  #  if currentFromDate
+  #    $(input).datepicker("option", "minDate", currentFromDate) 
 
 
   addDatePicker = (element) ->
@@ -160,8 +160,8 @@ ready = ->
       changeMonth :true
       yearRange: "-100:+0"
 
-    if element.selector == "#quote_return_home"
-      element.datepicker("option", "beforeShow", setMinDateTo )
+  #  if element.selector == "#quote_return_home"
+  #    element.datepicker("option", "beforeShow", setMinDateTo )
   
   addDatePicker $('#quote_leave_home')
   addDatePicker $('#quote_return_home')
@@ -171,13 +171,13 @@ ready = ->
   #update year range for return home 
   $('#quote_return_home').datepicker("option", "yearRange", "-20:+20" )
 
-  $('#quote_leave_home').change ->
-    selectedFrom = $('#quote_leave_home').datepicker('getDate')
-    currentTo = $('#quote_return_home').datepicker('getDate')
+  #  $('#quote_leave_home').change ->
+  #   selectedFrom = $('#quote_leave_home').datepicker('getDate')
+  #   currentTo = $('#quote_return_home').datepicker('getDate')
 
-    if currentTo && currentTo < selectedFrom
-      $('#quote_leave_home').datepicker("setDate", selectedFrom)
-      $('#quote_leave_home').datepicker("option", "minDate", selectedFrom) 
+  #  if currentTo && currentTo < selectedFrom
+  #     $('#quote_leave_home').datepicker("setDate", selectedFrom)
+  #     $('#quote_leave_home').datepicker("option", "minDate", selectedFrom) 
 
   $('#quote_apply_from').change ->
     if $(this).find(':selected').text() == "Yes"
