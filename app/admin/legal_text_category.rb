@@ -6,7 +6,8 @@ ActiveAdmin.register LegalTextCategory do
 
   remove_filter :legal_texts
 
-  permit_params :legal_text_parent_category_id, :name
+  permit_params :legal_text_parent_category_id, :name, :popup_description
+
   
   index do
     selectable_column

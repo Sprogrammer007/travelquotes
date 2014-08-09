@@ -40,7 +40,7 @@ class Version < ActiveRecord::Base
           destroyable_ages << agesets
         end
 			end
-	 	destroyable_ages.each { |age| age.age_bracket.destroy }
+	 	destroyable_ages.each { |age| age.first.age_bracket.destroy }
 	 	self.destroy 
   end
 

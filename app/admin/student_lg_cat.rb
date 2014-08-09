@@ -6,7 +6,8 @@ ActiveAdmin.register StudentLgCat do
 
   remove_filter :student_legal_texts
 
-  permit_params :student_lg_cat_id, :name
+  permit_params :student_lg_parent_cat_id, :name, :popup_description
+
   
   index do
     selectable_column
@@ -42,13 +43,13 @@ ActiveAdmin.register StudentLgCat do
   end
   
   action_item do
-    link_to("Sort Categories",  sort_admin_student_student_lg_cats_path()) 
+    link_to("Sort Student Categories",  sort_admin_student_lg_cats_path()) 
   end
 
   #Actions
   collection_action :sort, method: :get do
     @page_title = "Sort Legal Text Categories"
-    render template: "admins/sort_category"
+    render template: "admins/sort_student_category"
   end
 
   collection_action :sort_update, method: :post do

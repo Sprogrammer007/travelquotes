@@ -1,0 +1,48 @@
+<%= form_tag url_for(:controller => 'admin/student_lg_cats', :action => 'sort_update') do -%>
+    <div class="category_sort panel group">
+      <div class="group">
+        <ul class="group">
+          <% StudentLgParentCat.all.order(:order).each_with_index do |category, i| %>
+            <li id="parent_category" class="<%= (i == 0) ? "active" : "" %> group" data-order="<%= category.order %>">
+              <div class="place_holder">
+                <% if i == 0 %>
+                  <div class="sort_buttons">
+                    <button class="sort_up buttons">Up</button>
+                    <button class="sort_down buttons">Down</button>
+                  </div>
+                <% end %>
+              </div> 
+              <div class="sort_content">
+                <%= hidden_field_tag "[parents][#{category.id}][order]", category.order, class: "order" %>
+                <div class="accordion">
+                <h3><%= category.name %></h3> 
+                <div>
+                  <% if category.student_lg_cats %>
+                    <ul class="child">
+                      <% category.student_lg_cats.order(:order).each do |l| %>
+                        <li id="child_category" class="group" data-order="<%= l.order %>" >
+                          <div class="place_holder">
+                          </div> 
+                          <div class="sort_content">
+                            <h4><%= l.name %></h4>  
+                            <%= hidden_field_tag "[childs][#{l.id}][order]", l.order, class: "order" %>
+                          </div>
+                        </li>
+                      <% end %>
+                    </ul>
+                  <% end %>
+                </div>
+              </div>
+
+            </div>
+
+            </li>
+        <% end %>
+        </ul>
+      </div>
+      <%= submit_tag "Confirm Sort", class: "right", data: {confirm: I18n.t('active_admin.are_you_sure')} %>
+      <%= link_to "Add New Student Category", new_admin_student_lg_cat_path(),  class: "link_button right"  %>
+      <%= link_to "Add New Student Parent Category", new_admin_student_lg_parent_cat_path(),  class: "link_button right"  %>
+    </div>
+
+<% end %>

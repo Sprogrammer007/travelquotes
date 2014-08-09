@@ -40,7 +40,10 @@ class StudentVersion < ActiveRecord::Base
           destroyable_ages << agesets
         end
       end
-    destroyable_ages.each { |age| age.student_age_bracket.destroy }
+      
+    destroyable_ages.each do |age| 
+      age.first.student_age_bracket.destroy
+    end
     self.destroy 
   end
 

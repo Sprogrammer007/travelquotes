@@ -30,9 +30,7 @@ ActiveAdmin.register StudentProduct do
     column "Policy Name", :name, :sortable => :name do |resource|
       editable_text_column resource, :name
     end
-
     column :policy_number
-
     column "Versions", class: "col-btn-group col-versions" do |p| 
       p.student_versions.reverse.map do |version| 
         dropdown_menu "#{version.detail_type}", class: "dropdown_menu versions" do
@@ -43,7 +41,6 @@ ActiveAdmin.register StudentProduct do
         end
       end 
     end
-
     column "Pre-Med", :preex
     column :status do |p|
       if p.status
@@ -64,7 +61,7 @@ ActiveAdmin.register StudentProduct do
         item("Add Version", new_admin_student_version_path(:id => p.id, name: p.name))
         # item("Add Deductibles", new_admin_deductible_path(:id => p.id, name: p.name))
         item("Add Age Bracket", new_admin_student_age_bracket_path(:id => p.id, name: p.name))
-        item("Select Product Filters", add_admin_student_filter_set_path(id: p.id, name: p.name))
+        item("Select Student Filters", add_admin_student_filter_set_path(id: p.id, name: p.name))
         item("Add Legal Text", new_admin_student_legal_text_path(:id => p.id, name: p.name))
         item("Add Future Rate", add_future_admin_student_rate_path(id: p.id))
         item("Edit Policy", edit_admin_student_product_path(p))

@@ -87,9 +87,8 @@ ActiveAdmin.register StudentRate do
   member_action :add_future, method: :get do
     @product = StudentProduct.find(params[:id])
     @ages = @product.student_age_brackets
-    @controller = "admin/student_rates"
     @page_title = "Add Future Rates For #{@product.name}"
-    render template: "admins/add_rate"
+    render template: "admins/add_student_rate"
   end
 
   collection_action :create_future, method: :post do

@@ -19,7 +19,11 @@ class StudentLgParentCat < ActiveRecord::Base
     def calc_order
       if new_record?
         largest_order = StudentLgParentCat.all.pluck(:order).max
-        self.order = (largest_order + 1)
+        if largest_order
+          self.order = (largest_order + 1)
+        else
+          self.order = 1
+        end
       end
     end
 

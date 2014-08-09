@@ -11,7 +11,7 @@ ActiveAdmin.register StudentAgeSet do
       if params[:age_ids]
         age_ids = params[:age_ids].map { |i| {:student_age_bracket_id => i }}
         StudentAgeSet.create(age_ids) do |a|
-          a.version_id = params[:student_version_id]
+          a.student_version_id = params[:student_version_id]
         end
         flash[:notice] = "Successfully updated age brackets!"
       end

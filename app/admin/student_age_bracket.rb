@@ -3,7 +3,7 @@ ActiveAdmin.register StudentAgeBracket do
   config.sort_order = "id_asc"
   include_import
 
-  permit_params(:student_product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration,
+  permit_params(:student_product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration, :preex,
     student_rates_attributes: [:rate, :rate_type, :sum_insured, :effective_date])
 
   #Scopes
@@ -151,10 +151,7 @@ ActiveAdmin.register StudentAgeBracket do
 
   form do |f|
     f.inputs do
-      if f.object.new_record? && params[:product_id]
-        f.input :student_product_id, :as => :hidden, :input_html => { :value => params[:product_id] }
-        f.input :student_product_id, :as => :select, :collection => options_for_select([[params[:name], params[:product_id]]], params[:product_id]), input_html: { disabled: true, multiple: false}
-      elsif f.object.new_record? && params[:id]
+      if f.object.new_record? && params[:id]
         f.input :student_product_id, :as => :hidden, :input_html => { :value => params[:id] }
         f.input :student_product_id, :as => :select, :collection => options_for_select([[params[:name], params[:id]]], params[:id]), input_html: { disabled: true, multiple: false}
       elsif f.object.new_record?
@@ -168,6 +165,7 @@ ActiveAdmin.register StudentAgeBracket do
       f.input :max_age
       f.input :min_trip_duration
       f.input :max_trip_duration
+      f.input :preex, :as => :radio, :collection => [["Yes", true], ["No", false]]
     end
 
     f.inputs do
@@ -226,7 +224,6 @@ ActiveAdmin.register StudentAgeBracket do
         end
 
       end
-        
       redirect_to admin_student_age_brackets_path(student_product_id: params[:student_age_bracket][:student_product_id], q: {student_product_id_eq: params[:student_age_bracket][:student_product_id]})
     end
   end 

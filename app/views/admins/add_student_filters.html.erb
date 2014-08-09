@@ -1,0 +1,27 @@
+<%= form_tag url_for(:controller => 'admin/student_filter_sets', :action => 'create') do -%>
+  <fieldset class="inputs">
+    <%= hidden_field_tag "product_id", params[:id] %>
+    <div class="filters_select">
+      <%= link_to "Select None", "#",  class: "select_none_filter link_button right"  %>
+      <%= link_to "Select All", "#",  class: "select_all_filter link_button right"  %>
+      <div class="group">
+
+        <% @filters.each do |k, filters| %>
+          <div class="accordion">
+            <h3><%= k %></h3>
+            <div>
+              <% filters.each do |f| %>
+                <%= check_box_tag "filter_ids[]", f.id, @already_selected_filters.include?(f.id), id: "filter_#{f.id}" %>
+                <label for="<%= "filter_#{f.id}" %>" ><%= f.name %></label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
+      <%= submit_tag "Add Selected Filters", class: "right", data: {confirm: I18n.t('active_admin.are_you_sure')} %>
+      <%= link_to "Add New Filter", new_admin_student_filter_path(id: params[:id]),  class: "link_button right"  %>
+      </div>
+  </fieldset>
+
+<% end %>

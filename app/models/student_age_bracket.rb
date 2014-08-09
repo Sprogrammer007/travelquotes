@@ -9,7 +9,7 @@ class StudentAgeBracket < ActiveRecord::Base
   accepts_nested_attributes_for :student_rates
   
   #Callbacks
-  before_save :set_preex
+  after_save :set_preex
 
   #scopes
   generate_scopes
@@ -34,7 +34,7 @@ class StudentAgeBracket < ActiveRecord::Base
   private
     
     def set_preex
-      if self.new_record?
+      if self.preex.nil?
         self.preex = self.student_product.preex
       end
     end

@@ -1,0 +1,70 @@
+
+<%= form_tag url_for(:controller => "admin/student_rates", :action => 'create_future') do %>
+
+  <%= hidden_field_tag "product_id", @product.id %>
+  <div class="panel">
+    <h3>Product Details</h3>
+    <div class="panel_contents">
+      <div class="attributes_table" >
+        <table border="0" cellspacing="0" cellpadding="0">
+          <tbody>
+            <tr class="row">
+              <th>Product</th>
+              <td><%= @product.name %>
+            </tr>
+            
+            <tr class="row">
+              <th>Current Rate Effective Date:</th>
+              <td>
+                <%= @product.rate_effective_date.strftime("%m %d %Y") %>
+              </td>
+            </tr>
+
+            <tr class="row">
+              <th>Future Rate Effective Date:</th>
+              <td>
+                <%= text_field_tag "[effective_date]", nil, id: "future_rate_effective_date" , :placeholder => "Enter Future Effective Date...", readonly: true%>
+                <%= submit_tag "Apply Future Rates", class: "apply_rate" %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <span style="color: red; font-size: 1.3em; font-weight: bold;">Warning: If a new future rate is not enter for any rates below, the current rate will be used as the rate for the new future effective date!</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel group">
+    <h3>Current Rates</h3>
+    <% @ages.each do |age| %>
+      <div class="panel_contents group rate-col-50">
+        <div class="attributes_table" >
+          <table border="0" cellspacing="0" cellpadding="0">
+            <tbody>
+              <tr class="row">
+                <th>Range</th>
+                <td><%= age.range  %></td>
+              </tr>
+
+              <tr class="row">
+                <th>Pre-Existing Medical Conditions</th>
+                <td>
+                  <% if age.preex %>
+                    <span class="status_tag ok">Yes</span>
+                  <% else %>
+                    <span class="status_tag">No</span>
+                  <% end %>
+                </td>
+              </tr>
+       
+            </tbody>
+          </table>
+        </div>
+          
+          <%= render("admins/student_rate_table", rates: age.student_rates.current)%>
+          
+      </div>
+    <% end %>
+   
+  </div>
+<% end %>

@@ -126,15 +126,15 @@ ActiveAdmin.register AllInclusiveRate do
   		if params[:current_effective_date]
 	  		product.update(rate_effective_date: new_effective_date)
 	  		product.age_brackets.each do |age|
-	  			rate_ids << age.rates.current.pluck(:id)
+	  			rate_ids << age.all_inclusive_rates.current.pluck(:id)
 	  		end
-	  		Rate.where(id: rate_ids.flatten).update_all({effective_date: new_effective_date})
+	  		AllInclusiveRate.where(id: rate_ids.flatten).update_all({effective_date: new_effective_date})
   		else
 	  		product.age_brackets.each do |age|
 	  			product.update(future_rate_effective_date: new_effective_date)
-	  			rate_ids << age.rates.future.pluck(:id)
+	  			rate_ids << age.all_inclusive_rates.future.pluck(:id)
 	  		end
-	  		Rate.where(id: rate_ids.flatten).update_all({effective_date: new_effective_date})
+	  		AllInclusiveRate.where(id: rate_ids.flatten).update_all({effective_date: new_effective_date})
 	  	end
   	end
  		redirect_to :back

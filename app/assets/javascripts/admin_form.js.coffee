@@ -206,10 +206,14 @@ ready = ->
   #Sorter helpers
   catEnter = (e)->
     e.stopPropagation
-    overlay = " <div id='overlay'><h4>This Category Cannot Be Moved!</h4> </div>"
-    if $(this).siblings().length == 0
-      $(this).find('.sort_content').append(overlay)
-
+    overlay = "<div id='overlay'><h4>This Category Cannot Be Moved!</h4> </div>"
+    if $(this).is("#parent_category")
+      if $(this).siblings().length == 0 && $(this).find("#child_category").length == 0
+        $(this).find('.sort_content').append(overlay)
+    else 
+      if $(this).siblings().length == 0
+        $(this).find('.sort_content').append(overlay)
+        
   catLeave = (e)->
     e.stopPropagation
     $(this).find('#overlay').remove()

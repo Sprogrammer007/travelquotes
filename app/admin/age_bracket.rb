@@ -253,10 +253,7 @@ ActiveAdmin.register AgeBracket do
 
 	form do |f|
 		f.inputs do
-			if f.object.new_record? && params[:product_id]
-				f.input :product_id, :as => :hidden, :input_html => { :value => Version.find(params[:product_id]).product_id }
-				f.input :product_id, :as => :select, :collection => options_for_select([[params[:name], params[:product_id]]], params[:product_id]), input_html: { disabled: true, multiple: false}
-			elsif f.object.new_record? && params[:id]
+			if f.object.new_record? && params[:id]
 				f.input :product_id, :as => :hidden, :input_html => { :value => params[:id] }
 				f.input :product_id, :as => :select, :collection => options_for_select([[params[:name], params[:id]]], params[:id]), input_html: { disabled: true, multiple: false}
 			elsif f.object.new_record?

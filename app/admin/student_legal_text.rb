@@ -104,9 +104,9 @@ ActiveAdmin.register StudentLegalText do
     product = StudentProduct.find(params[:product_id])
     @page_title = "Legal Texts For #{product.name}"
     @lts = product.student_legal_texts.merge(StudentLegalText.ordered)
-    render template: 'admins/view_legal_texts'
+    render template: 'admins/view_student_legal_texts'
   end
   sidebar 'Filter Legal Texts', only: :view do
-    render template: 'admins/view_legal_texts_sidebar'
+    render template: 'admins/view_student_legal_texts_sidebar'
   end
 end

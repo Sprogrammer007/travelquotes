@@ -26,7 +26,7 @@ ActiveAdmin.register StudentVersion do
     end
     column :detail_type
     actions defaults: true, dropdown: true do |v|
-      item  "Add Age Bracket",  add_admin_student_age_set_path(id: v.id)
+      item  "Add Age Bracket",  add_admin_student_age_set_path(id: v.student_product_id)
     end
   end
 

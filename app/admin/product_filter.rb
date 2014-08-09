@@ -7,8 +7,6 @@ ActiveAdmin.register ProductFilter do
 
  	#Scopes
  	scope :all, default: true
-  scope :medical_benefits
-  scope :right_of_entry
 
 	#Filters
 	preserve_default_filters!

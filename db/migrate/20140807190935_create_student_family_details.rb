@@ -9,7 +9,7 @@ class CreateStudentFamilyDetails < ActiveRecord::Migration
       t.integer :max_adult
       t.integer :max_kids_age
       t.integer :max_age_with_kids
-      t.boolean :family_rate_type
+      t.string :family_rate_type
     end
   end
 end

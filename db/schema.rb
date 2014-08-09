@@ -275,7 +275,7 @@ ActiveRecord::Schema.define(version: 20140808013345) do
     t.integer "max_adult"
     t.integer "max_kids_age"
     t.integer "max_age_with_kids"
-    t.boolean "family_rate_type"
+    t.string  "family_rate_type"
   end
 
   create_table "student_filter_sets", id: false, force: true do |t|
@@ -287,9 +287,10 @@ ActiveRecord::Schema.define(version: 20140808013345) do
   add_index "student_filter_sets", ["student_product_id"], name: "index_student_filter_sets_on_student_product_id", using: :btree
 
   create_table "student_filters", force: true do |t|
-    t.string "category"
-    t.string "name"
-    t.text   "descriptions"
+    t.string  "category"
+    t.string  "name"
+    t.integer "associated_lt_id"
+    t.text    "descriptions"
   end
 
   create_table "student_legal_texts", force: true do |t|

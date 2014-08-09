@@ -1,4 +1,4 @@
-ActiveAdmin.register LegalTextParentCategory do
+ActiveAdmin.register StudentLgParentCat do
 
   include_import
 
