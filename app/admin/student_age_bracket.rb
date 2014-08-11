@@ -1,7 +1,11 @@
 ActiveAdmin.register StudentAgeBracket do
   menu :parent => "Super Admin"
   config.sort_order = "id_asc"
+  config.action_items.delete_if { |item|
+    item.display_on?(:index)
+  }
   include_import
+
 
   permit_params(:student_product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration, :preex,
     student_rates_attributes: [:rate, :rate_type, :sum_insured, :effective_date])

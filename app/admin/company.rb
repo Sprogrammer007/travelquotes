@@ -41,7 +41,7 @@ ActiveAdmin.register Company do
 		column "", class: "col-btn-group" do |c|
 			dropdown_menu "In-Bound Product" do 
 				item("View Visitor Medical Emergency", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor Medical Emergency"}))
-				item("View All Inclusive", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Visitor All Inclusive"}))
+				item("View All Inclusive", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "All Inclusive"}))
 				item("View Student Medical Inbound", admin_student_products_path(name: c.name))
 				item("View Ex-Pat Policy", admin_products_path(q: {company_id_eq: c.id, policy_type_equals: "Canadian Ex-Pat"}))
 				item("Add Visitor Medical Emergency", new_admin_product_path(id: c.id, name: c.name, p_type: "Visitor Medical Emergency"))

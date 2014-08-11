@@ -1,6 +1,9 @@
 ActiveAdmin.register AgeBracket do
 	menu :parent => "Super Admin"
 	config.sort_order = "id_asc"
+	config.action_items.delete_if { |item|
+	  item.display_on?(:index)
+  }
 	include_import
 
 	permit_params(:product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration, :preex,
@@ -63,7 +66,7 @@ ActiveAdmin.register AgeBracket do
 				end
 				row " " do |a|
 					[
-						link_to("View", add_future_admin_rate_path(id: a.id)),
+						link_to("View", admin_age_bracket_path(id: a.id)),
 						link_to("Edit", edit_admin_age_bracket_path(a)),
 						link_to("Delete", admin_age_bracket_path(a), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}),
 						link_to("Add Future Rate", add_future_admin_rate_path(id: a.product.id))
@@ -71,7 +74,7 @@ ActiveAdmin.register AgeBracket do
 				end
 				
 				if age.product.policy_type == "All Inclusive"
-					table_for age.all_inclusive_rates.current.order("sum_insured ASC") do
+					table_for age.all_inclusive_rates.current.order("sum_insured ASC").order("rate_trip_value ASC") do 
 						column :rate
 						column "Date Range" do |r|
 							"#{r.min_date} - #{r.max_date}"

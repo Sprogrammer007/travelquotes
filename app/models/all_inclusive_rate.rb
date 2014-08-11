@@ -31,8 +31,8 @@ class AllInclusiveRate < ActiveRecord::Base
   
   def self.select_age_bracket_options
     h = Hash.new 
-    Product.all.map do |product| 
-      h[product.name] =  product.versions.map { |version| version.age_brackets.map {|age| [version.detail_type + " (#{age.range})", age.id]}}.flatten(1)
+    Product.where(:policy_type => "All Inclusive").map do |product| 
+      h[product.name] =  product.age_brackets.map { |age| [age.range, age.id]}
     end
     h
   end

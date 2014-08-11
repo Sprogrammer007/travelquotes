@@ -314,6 +314,7 @@ div.show_right {
 .custom_grid_index {
   border: 2px solid #DDDDDD;
   background: #ffffff;
+
 }
 
 .custom_grid_index {
@@ -334,6 +335,8 @@ div.show_right {
   display: inline-block;
   margin: 0 12px 5px 0;
   width: 23%;
+  max-height: 500px;
+  overflow: scroll;
 }
 
 .age_select label:hover, .filters_select label:hover {

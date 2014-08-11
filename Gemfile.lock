@@ -1,13 +1,13 @@
 GIT
   remote: git://github.com/activerecord-hackery/polyamorous.git
-  revision: 6bcaa1357f878bbf738298a1d96269356f54db0d
+  revision: d41fc35b4fc396307e2ff2e9b10f3b574fc5fbe4
   specs:
     polyamorous (1.1.0)
       activerecord (>= 3.0)
 
 GIT
   remote: git://github.com/activerecord-hackery/ransack.git
-  revision: 66c9e3c721244aa900e7be6e4091b1ee0f9dd8f3
+  revision: 5e644af11cc116442b68334bc8cb05b2d9023454
   specs:
     ransack (1.2.3)
       actionpack (>= 3.0)
@@ -18,7 +18,7 @@ GIT
 
 GIT
   remote: git://github.com/gregbell/active_admin.git
-  revision: 27360996837146ebbbf3b3597049b1586542fbeb
+  revision: ac85139e308d26cc5706e0f431ea07553fff45d5
   specs:
     activeadmin (1.0.0.pre)
       arbre (~> 1.0)
@@ -43,7 +43,7 @@ GIT
 
 GIT
   remote: git://github.com/thoughtbot/paperclip.git
-  revision: dca87ec5d8038b2d436a75ad6119c8eb67b73e70
+  revision: e8c1dc8a26183cf10e5eac7fb29eb7bdcf51d01f
   specs:
     paperclip (4.2.0)
       activemodel (>= 3.0.0)
@@ -90,7 +90,7 @@ GEM
     arbre (1.0.1)
       activesupport (>= 3.0.0)
     arel (5.0.1.20140414130214)
-    aws-sdk (1.48.1)
+    aws-sdk (1.50.0)
       json (~> 1.4)
       nokogiri (>= 1.4.4)
     bcrypt (3.1.7)
@@ -186,7 +186,7 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    meta_request (0.3.3)
+    meta_request (0.3.4)
       callsite (~> 0.0, >= 0.0.11)
       rack-contrib (~> 1.1)
       railties (>= 3.0.0, < 5.0.0)
@@ -268,9 +268,9 @@ GEM
       sass (~> 3.2.0)
       sprockets (~> 2.8, <= 2.11.0)
       sprockets-rails (~> 2.0)
-    sdoc (0.4.0)
-      json (~> 1.8)
-      rdoc (~> 4.0, < 5.0)
+    sdoc (0.4.1)
+      json (~> 1.7, >= 1.7.7)
+      rdoc (~> 4.0)
     slop (3.6.0)
     sprockets (2.11.0)
       hike (~> 1.2)
@@ -290,9 +290,9 @@ GEM
       polyglot (>= 0.3.1)
     turbolinks (2.2.2)
       coffee-rails
-    tzinfo (1.2.1)
+    tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2014.5)
+    tzinfo-data (1.2014.6)
       tzinfo (>= 1.0.0)
     uglifier (2.5.3)
       execjs (>= 0.3.0)

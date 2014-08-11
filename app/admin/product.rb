@@ -1,6 +1,8 @@
 ActiveAdmin.register Product do
 	config.sort_order = "id_asc"
-	
+	config.action_items.delete_if { |item|
+	  item.display_on?(:index)
+  }
 	menu false
 
 	include_import

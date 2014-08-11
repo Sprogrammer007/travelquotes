@@ -29,10 +29,11 @@ class Rate < ActiveRecord::Base
       self.effective_date = self.age_bracket.product.rate_effective_date
     end
   end
+
   def self.select_age_bracket_options
   	h = Hash.new 
-  	Product.all.map do |product| 
-  		h[product.name] =  product.versions.map { |version| version.age_brackets.map {|age| [version.detail_type + " (#{age.range})", age.id]}}.flatten(1)
+  	Product.where(:policy_type => ["Visitor Medical Emergency", "Canadian Ex-Pat"]).map do |product| 
+  		h[product.name] =  product.age_brackets.map {|age| [age.range, age.id]}
   	end
   	h
   end

@@ -33,7 +33,7 @@ class StudentRate < ActiveRecord::Base
   def self.select_age_bracket_options
     h = Hash.new 
     StudentProduct.all.map do |product| 
-      h[product.name] =  product.student_versions.map { |version| version.student_age_brackets.map {|age| [version.detail_type + " (#{age.range})", age.id]}}.flatten(1)
+      h[product.name] =  product.student_age_brackets.map {|age| [age.range, age.id]}
     end
     h
   end

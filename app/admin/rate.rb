@@ -1,5 +1,8 @@
 ActiveAdmin.register Rate do
 	config.sort_order = "id_asc"
+  config.action_items.delete_if { |item|
+    item.display_on?(:index)
+  }
 	include_import
 
 	permit_params :rate, :rate_type, :age_bracket_id, :sum_insured, :effective_date
