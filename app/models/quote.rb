@@ -95,6 +95,10 @@ class Quote < ActiveRecord::Base
     rate = version.product_rate
     ratetype = version.rate_type
 
+    if self.quote_type == "All Inclusive"
+      return calc_all_inclusive_rate(rate, ratetype, version)
+    end
+
     # Logic for couple and family rate
     if version.detail_type == "Couple" && !version.detail.has_couple_rate
       product_id = version.product_id
@@ -104,7 +108,7 @@ class Quote < ActiveRecord::Base
         rate = t1[0].product_rate + t2[0].product_rate
       end
     elsif self.traveler_type == "Family"
-      rate = calc_family_rate(rate), version
+      rate = calc_family_rate(rate, version)
     end
     
     #reduce all rate to daily
@@ -114,7 +118,6 @@ class Quote < ActiveRecord::Base
 
     # check to see if there is a min price and if there is
     # we use the greater of the two
-    Rails.logger.warn "#{version.product.inspect}"
     if version.product.min_rate_type == "Price"
       minprice = version.min_price
       if rate < minprice
@@ -128,6 +131,20 @@ class Quote < ActiveRecord::Base
     end
 
    return rate
+  end
+
+  def calc_all_inclusive_rate (rate, ratetype, version)
+    if version.detail_type == "Couple" && !version.detail.has_couple_rate
+      product_id = version.product_id
+      t1 = @results["Traveler #1"].reject{ |t| t.product_id != product_id}
+      t2 = @results["Traveler #2"].reject{ |t| t.product_id != product_id}
+      if t1.any? and t2.any?
+        rate = t1[0].product_rate + t2[0].product_rate
+      end
+    else
+      r = calc_daily_rate(rate, ratetype)
+      return r
+    end
   end
 
   #if there is deductible we applie deductible multipler to the rates
@@ -297,11 +314,13 @@ class Quote < ActiveRecord::Base
     end
 
     if self.quote_type == "All Inclusive"
-      result = result.joins(age_brackets: [:all_inclusive_rates]).merge(AllInclusiveRate.include_sum(self.sum_insured))
+      result = result.joins(age_brackets: [:all_inclusive_rates]).merge(
+        AllInclusiveRate.include_date(self.traveled_days).include_sum(self.sum_insured)
+        .has_trip_value_of(self.trip_cost))
       result = result.select("versions.*, all_inclusive_rates.rate as product_rate, 
         all_inclusive_rates.rate_type as rate_type, products.min_price as min_price, 
         products.min_date as min_date, products.id as product_id").order("product_rate ASC")
-    else
+    else  
       result = result.joins(age_brackets: [:rates]).merge(Rate.include_sum(self.sum_insured))
       result = result.select("versions.*, rates.rate as product_rate, 
         rates.rate_type as rate_type, products.min_price as min_price, 
