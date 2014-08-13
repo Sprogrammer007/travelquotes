@@ -360,7 +360,7 @@ ActiveAdmin.register StudentProduct do
       #     end
       #   end
       # end
-      redirect_to admin_product_path(p)
+      redirect_to admin_student_product_path(p)
     end
   end
 
