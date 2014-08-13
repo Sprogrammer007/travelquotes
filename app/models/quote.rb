@@ -314,6 +314,7 @@ class Quote < ActiveRecord::Base
     end
 
     if self.quote_type == "All Inclusive"
+      Rails.logger.warn "#{result}"
       result = result.joins(age_brackets: [:all_inclusive_rates]).merge(
         AllInclusiveRate.include_date(self.traveled_days).include_sum(self.sum_insured)
         .has_trip_value_of(self.trip_cost))
