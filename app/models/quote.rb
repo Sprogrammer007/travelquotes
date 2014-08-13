@@ -297,13 +297,13 @@ class Quote < ActiveRecord::Base
   def single_search(age = nil, rate_type = nil)
     age = age || ages["Adult"].max
     rate_type = rate_type || self.traveler_type.downcase
-    result = Version.send(rate_type).joins(:product)
+    result = Version.send(rate_type).joins(:product).merge(Product.policy_type_of(self.quote_type).active)
 
 
     if self.apply_from && beyond_30_days? && !self.renew
-      result = result.merge(Product.can_buy_after_30.policy_type_of(self.quote_type).active)
+      result = result.merge(Product.can_buy_after_30)
     elsif self.apply_from && beyond_30_days? && self.renew
-      result = result.merge(Product.renewable_after_30.policy_type_of(self.quote_type).active)
+      result = result.merge(Product.renewable_after_30)
     end
 
     if self.has_preex
