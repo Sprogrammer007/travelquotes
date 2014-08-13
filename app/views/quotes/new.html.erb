@@ -23,7 +23,22 @@
           </div>
         </div>
 
-      <% if @quote.quote_sub_type == "Visitor Visa" || params[:policy_sub_type] == "Visitor Visa" %>
+      <% if @quote.quote_sub_type == "Super Visa" || params[:policy_sub_type] == "Super Visa" %>
+    
+        <div class="form-group row">
+          <div class="col-sm-4"> 
+            <%= label_tag "trip_length_place_holder", raw("Trip Length <br/> 1 Year(365 Days)"), class: "control-label" %>
+            <div class="question_mark"><%= image_tag "question.png"  %></div>
+          </div>
+       
+          <div class="col-sm-8">
+            <%= text_field_tag "trip_length_place_holder",nil, :placeholder => "Super Visa Requirement is 1 Year Trip Length", class: "form-control", readonly: true %>
+          </div>
+        </div>
+        
+        <%= f.hidden_field :leave_home, :value => Date.today, class: "form-control", readonly: true %>
+        <%= f.hidden_field :return_home, :value => (Date.today + 1.year), class: "form-control", readonly: true %>
+      <% else %>
         <div class="form-group row">
           <div class="col-sm-4"> 
             <%= f.label :leave_home, " Your departure date?", class: "control-label" %>
@@ -45,20 +60,6 @@
             <%= f.text_field :return_home, class: "form-control", readonly: true %>
           </div>
         </div>
-      <% else %>
-        <div class="form-group row">
-          <div class="col-sm-4"> 
-            <%= label_tag "trip_length_place_holder", raw("Trip Length <br/> 1 Year(365 Days)"), class: "control-label" %>
-            <div class="question_mark"><%= image_tag "question.png"  %></div>
-          </div>
-       
-          <div class="col-sm-8">
-            <%= text_field_tag "trip_length_place_holder",nil, :placeholder => "Super Visa Requirement is 1 Year Trip Length", class: "form-control", readonly: true %>
-          </div>
-        </div>
-        
-        <%= f.hidden_field :leave_home, :value => Date.today, class: "form-control", readonly: true %>
-        <%= f.hidden_field :return_home, :value => (Date.today + 1.year), class: "form-control", readonly: true %>
       <% end %>
 
       <div class="form-group row">
@@ -112,7 +113,7 @@
         </div>
       </div>
 
-      <% if @quote.quote_sub_type == "Visitor Visa" || params[:policy_sub_type] == "Visitor Visa"  %>
+      <% if @quote.quote_sub_type != "Super Visa" || params[:policy_sub_type] != "Super Visa"  %>
         <div class="form-group row">
           <div class="col-sm-4"> 
             <%= f.label :trip_cost, "What was the cost of your trip? (In Canadian Dollars - Optional)", class: "control-label" %>
