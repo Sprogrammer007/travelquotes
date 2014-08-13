@@ -123,7 +123,7 @@ class Quote < ActiveRecord::Base
       if rate < minprice
         rate = minprice
       end
-    else
+    elsif version.product.min_rate_type == "Date"
       mindate = version.product.min_date
       if mindate > self.traveled_days
         rate = (mindate * version.product_rate).round(2)
