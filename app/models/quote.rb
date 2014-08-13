@@ -345,6 +345,13 @@ class Quote < ActiveRecord::Base
 
   #Class Methods
   class << self
+    def all_inclusive_selections
+      self.super_visa_selections << "Family"
+    end
+
+    def all_inclusive_sum
+      %w{25,000 50,000 100,000 150,000 200,000}
+    end
 
     def visitor_visa_selections
       self.super_visa_selections << "Family"
