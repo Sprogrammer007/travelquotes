@@ -6,7 +6,6 @@
           <thead>
             <tr>
               <th class="col col-product">Product</th>
-              <th class="sortable col col-policy_type">Policy Type</th>
               <th class="col col-category">Category</th>
               <th class="col col-description">Description</th>
               <th class="col col-active">Active</th>
@@ -18,7 +17,6 @@
             <% @lts.each_with_index do |l, i| %>
               <tr class="<%= cycle("odd", "even") -%>" id="legal_text_<%= i.to_s %>">
                 <td class="col col-product"><%= l.student_product.name %></td>
-                <td class="col col-policy_type"><%= l.policy_type %></td>
                 <td class="col col-category"><%= l.student_lg_cat.name %></td>
                 <td class="col col-description">
                   <div class="lg_accordion">
