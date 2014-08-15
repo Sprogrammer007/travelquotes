@@ -36,9 +36,6 @@ ActiveAdmin.register StudentAgeBracket do
             status_tag("No")
           end
         end
-        row "Rate Type" do |a|
-          a.student_rates.first.rate_type() if a.student_rates.any?
-        end
         row :effective_date do |a|
           a.student_product.rate_effective_date.strftime("%d, %m, %Y")
         end
@@ -54,6 +51,7 @@ ActiveAdmin.register StudentAgeBracket do
 
         table_for age.student_rates.current.order("sum_insured ASC") do
           column :rate
+          column :rate_type
           column :sum_insured
           column :status do |r|
             status_tag r.status, "#{r.status.downcase}"
