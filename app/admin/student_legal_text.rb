@@ -70,9 +70,9 @@ ActiveAdmin.register StudentLegalText do
         f.input :student_lg_cat_id, :as => :select, :collection => grouped_options_for_select(StudentLgCat.category_selections(params[:id]))
         f.input :description, input_html: {value: "No Coverages", class: "tinymce"}
       else
-        f.input :parent_category, :as => :select, :collection => options_for_select(StudentLgParentCat.all.pluck(:name), f.object.legal_text_category.legal_text_parent_category.name), 
+        f.input :parent_category, :as => :select, :collection => options_for_select(StudentLgParentCat.all.pluck(:name), f.object.student_lg_cat.student_lg_parent_cat.name), 
         input_html: { disabled: true}
-        f.input :student_lg_cat_id, :as => :select, :collection => grouped_options_for_select(StudentLgCat.category_selections(f.object.product_id), f.object.legal_text_category.id), 
+        f.input :student_lg_cat_id, :as => :select, :collection => grouped_options_for_select(StudentLgCat.category_selections(f.object.product_id), f.object.student_lg_cat.id), 
         input_html: { disabled: true}
         f.input :description, input_html: {class: "tinymce"}
       end
