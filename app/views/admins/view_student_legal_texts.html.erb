@@ -17,7 +17,7 @@
           <tbody>
             <% @lts.each_with_index do |l, i| %>
               <tr class="<%= cycle("odd", "even") -%>" id="legal_text_<%= i.to_s %>">
-                <td class="col col-product"><%= l.product.name %></td>
+                <td class="col col-product"><%= l.student_product.name %></td>
                 <td class="col col-policy_type"><%= l.policy_type %></td>
                 <td class="col col-category"><%= l.student_lg_cat.name %></td>
                 <td class="col col-description">
