@@ -1,7 +1,7 @@
 ActiveAdmin.register StudentFilter do
   config.sort_order = "id_asc"
   config.paginate = false
-  config.filters = false
+  # config.filters = false
   include_import
 
   permit_params :category, :name, :associated_lt_id, :descriptions
@@ -10,12 +10,9 @@ ActiveAdmin.register StudentFilter do
   scope :all, default: true
 
   #Filters
-  # preserve_default_filters!
-  # remove_filter :student_filter_sets
-  # remove_filter :student_applied_filters
-  # remove_filter :quotes
-  # remove_filter :created_at
-  # remove_filter :updated_at
+  filter :category
+  filter :name
+
 
   menu :parent => "Global Settings", :label => "Global Student Filters"
 

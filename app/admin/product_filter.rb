@@ -10,7 +10,9 @@ ActiveAdmin.register ProductFilter do
 
 	#Filters
 	preserve_default_filters!
+  remove_filter :product
 	remove_filter :product_filter_sets
+  remove_filter :legal_text_category
 	remove_filter :applied_filters
 	remove_filter :quotes
 	remove_filter :created_at
