@@ -4,8 +4,8 @@ class StudentFilter < ActiveRecord::Base
   has_many :student_filter_sets
   has_many :student_product, :through => :student_filter_sets
   belongs_to :student_lg_cat, foreign_key: "associated_lt_id"
-  has_many :applied_student_filters
-  has_many :student_quotes, :through => :applied_student_filters
+  has_many :student_applied_filters
+  has_many :student_quotes, :through => :student_applied_filters
   
 
   private

@@ -1,6 +1,7 @@
 ActiveAdmin.register StudentFilter do
   config.sort_order = "id_asc"
   config.paginate = false
+  config.filters = false
   include_import
 
   permit_params :category, :name, :associated_lt_id, :descriptions
@@ -9,12 +10,12 @@ ActiveAdmin.register StudentFilter do
   scope :all, default: true
 
   #Filters
-  preserve_default_filters!
-  remove_filter :product_filter_sets
-  remove_filter :applied_filters
-  remove_filter :quotes
-  remove_filter :created_at
-  remove_filter :updated_at
+  # preserve_default_filters!
+  # remove_filter :student_filter_sets
+  # remove_filter :student_applied_filters
+  # remove_filter :quotes
+  # remove_filter :created_at
+  # remove_filter :updated_at
 
   menu :parent => "Global Settings", :label => "Global Student Filters"
 
@@ -43,10 +44,11 @@ ActiveAdmin.register StudentFilter do
       end
     end
   end
+
   form do |f|
     f.inputs do
       f.input :name
-      f.input :category, :as => :select, :collection => options_for_select(ProductFilter.filter_categories.map(&:upcase), f.object.category)
+      f.input :category, :as => :select, :collection => options_for_select(StudentFilter.filter_categories.map(&:upcase), f.object.category)
       f.input :associated_lt_id, :lebal => "Associated LegalText Category", :as => :select, :collection => options_for_select(StudentLgCat.all.map { |l| [l.name, l.id] })
       f.input :descriptions, input_html: { class: "tinymce" }
     end
