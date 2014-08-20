@@ -11,7 +11,7 @@ class StudentFilter < ActiveRecord::Base
   private
     def self.filter_categories
       %w{Medical\ Benefits Repatriation\ to\ Residence Medical\ Emergency\ Transportation
-      Trip\ Cancellation\ &\ Interuption Terrorism Life\ &\ Accident\ Insurance Side\ Trips
-      Right\ of\ Entry Extensions\ &\ Renewals Refunds Non\ Medical\ Benefits}
+      Sports\ &\ Activities Life\ &\ Accident\ Insurance Side\ Trips Right\ of\ Entry 
+      Extensions\ &\ Renewals Refunds}
     end
 end

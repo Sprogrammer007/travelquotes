@@ -180,7 +180,7 @@ ActiveAdmin.register StudentVersion do
           d.input :max_dependant
           d.input :max_kids_age
           d.input :max_age_with_kids
-          d.input :family_rate_type, :as => :select, :collection => options_for_select(['Add Every Member Rate', 'Eldest X2', 'Has Family Rate'])
+          d.input :family_rate_type, :as => :select, :collection => options_for_select(['Add Every Member Rate', 'Eldest X2', 'Has Family Rate', 'Separate Family Rate'])
         elsif f.object.detail_type == "Couple"
           d.input :has_couple_rate, :as => :radio, :collection => [["Yes", true], ["No", false]]
         end 
