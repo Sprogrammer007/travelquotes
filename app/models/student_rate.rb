@@ -43,7 +43,7 @@ class StudentRate < ActiveRecord::Base
   end
 
   def self.rate_versions
-    %w{Primary Secondary}
+    %w{Student Family\ Members}
   end
 
   #not in use
