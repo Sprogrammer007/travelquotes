@@ -173,7 +173,8 @@ ActiveAdmin.register StudentAgeBracket do
     f.inputs do
       f.has_many :student_rates, :allow_destroy => true, :heading => 'Add Rates' do |cf|
         cf.input :rate
-        cf.input :rate_type, :as => :select, :collection => StudentRate.rate_types
+        cf.input :rate_type, :as => :select, :collection => options_for_select(StudentRate.rate_types, (cf.object.rate_type || "Daily" )) 
+        cf.input :rate_version, as: :select, :collection => options_for_select(StudentRate.rate_versions, (cf.object.rate_version || "Primary" )) 
         cf.input :sum_insured
         cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"], (cf.object.status || "Current"))
       end

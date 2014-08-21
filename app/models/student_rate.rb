@@ -42,6 +42,10 @@ class StudentRate < ActiveRecord::Base
     %w{Daily Weekly Monthly Annually}
   end
 
+  def self.rate_versions
+    %w{Primary Secondary}
+  end
+
   #not in use
   def self.status
     %w{Current OutDated Future}

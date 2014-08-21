@@ -5,7 +5,7 @@ ActiveAdmin.register StudentRate do
   }
   include_import
 
-  permit_params :rate, :rate_type, :student_age_bracket_id, :sum_insured, :effective_date
+  permit_params :rate, :rate_type, :student_age_bracket_id, :sum_insured, :effective_date, :rate_version
 
   #Scopes
   scope :all, default: true
@@ -21,6 +21,7 @@ ActiveAdmin.register StudentRate do
     selectable_column
     column :rate
     column :rate_type
+    column :rate_version
     column :sum_insured
     column :status do |r|
       status_tag r.status, "#{r.status.downcase}"
@@ -39,6 +40,7 @@ ActiveAdmin.register StudentRate do
       end
       row :rate
       row :rate_type
+      row :rate_version
       row :sum_insured
       row :effective_date
       row :status
@@ -57,6 +59,7 @@ ActiveAdmin.register StudentRate do
       end
       f.input :rate
       f.input :rate_type, as: :select, :collection => options_for_select(StudentRate.rate_types, f.object.rate_type) 
+      f.input :rate_version, as: :select, :collection => options_for_select(StudentRate.rate_versions, f.object.rate_versions) 
       f.input :sum_insured
     end
     f.actions
