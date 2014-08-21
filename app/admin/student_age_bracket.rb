@@ -52,6 +52,7 @@ ActiveAdmin.register StudentAgeBracket do
         table_for age.student_rates.current.order("sum_insured ASC") do
           column :rate
           column :rate_type
+          column :rate_version
           column :sum_insured
           column :status do |r|
             status_tag r.status, "#{r.status.downcase}"

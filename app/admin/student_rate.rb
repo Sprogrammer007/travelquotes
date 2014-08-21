@@ -58,8 +58,8 @@ ActiveAdmin.register StudentRate do
         f.input :student_age_bracket, as: :select, :collection => grouped_options_for_select(StudentRate.select_age_bracket_options, f.object.student_age_bracket_id) 
       end
       f.input :rate
-      f.input :rate_type, as: :select, :collection => options_for_select(StudentRate.rate_types, f.object.rate_type) 
-      f.input :rate_version, as: :select, :collection => options_for_select(StudentRate.rate_versions, f.object.rate_versions) 
+      f.input :rate_type, as: :select, :collection => options_for_select(StudentRate.rate_types, ("Daily" || f.object.rate_type) ) 
+      f.input :rate_version, as: :select, :collection => options_for_select(StudentRate.rate_versions, ("Primary" || f.object.rate_version)) 
       f.input :sum_insured
     end
     f.actions
