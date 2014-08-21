@@ -59,7 +59,7 @@ ActiveAdmin.register StudentRate do
       end
       f.input :rate
       f.input :rate_type, as: :select, :collection => options_for_select(StudentRate.rate_types, ("Daily" || f.object.rate_type) ) 
-      f.input :rate_version, as: :select, :collection => options_for_select(StudentRate.rate_versions, ("Primary" || f.object.rate_version)) 
+      f.input :rate_version, as: :select, :collection => options_for_select(StudentRate.rate_versions, ("Student" || f.object.rate_version)) 
       f.input :sum_insured
     end
     f.actions
