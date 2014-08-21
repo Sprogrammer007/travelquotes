@@ -55,7 +55,7 @@ ActiveAdmin.register StudentProduct do
     column "Policy Options", class: "col-btn-group-verticale" do |p|
       dropdown_menu "View" do 
         item("View Policy Details", admin_student_product_path(p))
-        item("View Policy Age Brackets", admin_student_age_brackets_path(product_id: p.id, q: {product_id_eq: p.id}))
+        item("View Policy Age Brackets", admin_student_age_brackets_path(product_id: p.id, q: {student_product_id_eq: p.id}))
         item("View Policy Legal Texts", view_admin_student_legal_texts_path(product_id: p.id))
         # item("View Policy Deductibles", admin_deductibles_path(q: {product_id_eq: p.id}))     
       end

@@ -8,7 +8,7 @@ ActiveAdmin.register StudentAgeBracket do
 
 
   permit_params(:student_product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration, :preex,
-    student_rates_attributes: [:rate, :rate_type, :sum_insured, :effective_date])
+    student_rates_attributes: [:rate, :rate_type, :sum_insured, :effective_date, :rate_version])
 
   #Scopes
   scope :all, default: true
@@ -149,7 +149,6 @@ ActiveAdmin.register StudentAgeBracket do
         end
       end 
     end
-  
   end
 
   form do |f|
@@ -188,7 +187,7 @@ ActiveAdmin.register StudentAgeBracket do
 
     def clean_params
       params.require(:student_age_bracket).permit(:min_age, :max_age, :min_trip_duration, :max_trip_duration,
-        :student_rates_attributes => [:rate, :rate_type, :sum_insured, :status])
+        :student_rates_attributes => [:rate, :rate_type, :rate_version, :sum_insured, :status])
     end
 
     def index
