@@ -6,7 +6,7 @@
       <th class="col col-rate_type">Rate Type</th>
       <% if type == "All Inclusive" %>
         <th class="col col-rate_type">Date - Range</th>
-        <th class="col col-rate_type">Value of Trip</th>
+        <th class="col col-rate_type">Cost of Trip Range</th>
       <% end %>
 
 
@@ -29,11 +29,15 @@
         </td>
 
         <% if type == "All Inclusive" %>
+          <%= hidden_field_tag "future[][min_date]", r.min_date, id: "future_min_date" %>
+          <%= hidden_field_tag "future[][max_date]", r.max_date, id: "future_max_date" %>
+          <%= hidden_field_tag "future[][min_trip_cost]", r.min_trip_cost, id: "future_min_trip_cost" %>
+          <%= hidden_field_tag "future[][rate_trip_value]", r.rate_trip_value, id: "future_rate_trip_value" %>
           <td class="col">
             <%= "#{r.min_date} - #{r.max_date}" %>
           </td>
           <td class="col">
-            <%= r.rate_trip_value %>
+            <%= "#{r.min_trip_cost} - #{r.rate_trip_value}" %>
           </td>
         <% end %>
         <td class="col">

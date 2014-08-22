@@ -5,7 +5,7 @@ ActiveAdmin.register AllInclusiveRate do
   }
 	include_import
 
-	permit_params :rate, :rate_type, :min_date, :max_date, :rate_trip_value, :age_bracket_id, :sum_insured, :effective_date
+	permit_params :rate, :rate_type, :min_date, :max_date, :min_trip_cost, :rate_trip_value, :age_bracket_id, :sum_insured, :effective_date
 
 	#Scopes
 	scope :all, default: true
@@ -23,7 +23,9 @@ ActiveAdmin.register AllInclusiveRate do
 		column :rate_type
     column :min_date
     column :max_date
-    column :rate_trip_value
+    column "Trip Cost Range" do |r|
+      "#{r.min_trip_cost} - #{r.rate_trip_value}"
+    end
 		column :sum_insured
 		column :status do |r|
 			status_tag r.status, "#{r.status.downcase}"
@@ -44,7 +46,9 @@ ActiveAdmin.register AllInclusiveRate do
 			row :rate_type
       row :min_date
       row :max_date
-      row :rate_trip_value
+      row "Trip Cost Range" do |r|
+        "#{r.min_trip_cost} - #{r.rate_trip_value}"
+      end
 			row :sum_insured
 			row :effective_date
 			row :status
@@ -65,7 +69,8 @@ ActiveAdmin.register AllInclusiveRate do
 			f.input :rate_type, as: :select, :collection => options_for_select(AllInclusiveRate.rate_types, f.object.rate_type)
       f.input :min_date
       f.input :max_date
-      f.input :rate_trip_value
+      f.input :min_trip_cost
+      f.input :rate_trip_value, label: "Max Trip Cost"
 			f.input :sum_insured
 		end
 		f.actions
@@ -73,7 +78,8 @@ ActiveAdmin.register AllInclusiveRate do
 
 	controller do         
 		def clean_params             
-			params.permit(:effective_date, :future => [:age_bracket_id, :rate_type, :min_date, :max_date, :rate_trip_value, :sum_insured, :rate, :effective_date])     
+			params.permit(:effective_date, 
+        :future => [:age_bracket_id, :rate_type, :min_date, :max_date, :min_trip_cost, :rate_trip_value, :sum_insured, :rate, :effective_date])     
 		end
 
 		def new
@@ -86,7 +92,14 @@ ActiveAdmin.register AllInclusiveRate do
 
 		def edit 
 			@page_title = "Edit Rate For #{resource.age_bracket.product.name}(#{resource.age_bracket.range})"
-		end     
+		end  
+
+    def update
+      super do |format|
+        p_id = resource.age_bracket.product_id
+        redirect_to admin_age_brackets_path(product_id: p_id, q: {product_id_eq: p_id}) and return
+      end
+    end   
 
     def destroy
       super do |format|

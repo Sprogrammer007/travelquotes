@@ -8,7 +8,8 @@ ActiveAdmin.register AgeBracket do
 
 	permit_params(:product_id, :min_age, :max_age, :min_trip_duration, :max_trip_duration, :preex,
     rates_attributes: [:rate, :rate_type, :sum_insured, :effective_date],
-    all_inclusive_rates_attributes: [:rate, :rate_type, :sum_insured, :min_date, :max_date, :rate_trip_value])
+    all_inclusive_rates_attributes: [:rate, :rate_type, :sum_insured, :min_date, :max_date, :min_trip_cost,
+     :rate_trip_value])
 
   #Scopes
 	scope :all, default: true
@@ -79,7 +80,9 @@ ActiveAdmin.register AgeBracket do
 						column "Date Range" do |r|
 							"#{r.min_date} - #{r.max_date}"
 						end
-						column :rate_trip_value
+						column "Trip Cost Range" do |r|
+      				"#{r.min_trip_cost} - #{r.rate_trip_value}"
+    				end
 						column :sum_insured
 						column :status do |r|
 							status_tag r.status, "#{r.status.downcase}"
@@ -281,7 +284,8 @@ ActiveAdmin.register AgeBracket do
 						cf.input :rate_type, :as => :select, :collection => AllInclusiveRate.rate_types
 						cf.input :min_date
 						cf.input :max_date
-						cf.input :rate_trip_value
+						cf.input :min_trip_cost
+						cf.input :rate_trip_value, label: "Max Trip Cost"
 						cf.input :sum_insured
 						cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"])
 					end
@@ -304,7 +308,8 @@ ActiveAdmin.register AgeBracket do
 						cf.input :rate_type, :as => :select, :collection => AllInclusiveRate.rate_types
 						cf.input :min_date
 						cf.input :max_date
-						cf.input :rate_trip_value
+						cf.input :min_trip_cost
+						cf.input :rate_trip_value, label: "Max Trip Cost"
 						cf.input :sum_insured
 						cf.input :status, :as => :select, :collection => options_for_select(["Current", "Future", "OutDated"], (cf.object.status || "Current"))
 					end
@@ -351,7 +356,8 @@ ActiveAdmin.register AgeBracket do
 				elsif params[:age_bracket][:all_inclusive_rates_attributes]
 					params[:age_bracket][:all_inclusive_rates_attributes].each_value do |attrs|
 						age.all_inclusive_rates.create!(rate: attrs[:rate], min_date: attrs[:min_date], max_date: attrs[:max_date], 
-							rate_type: attrs[:rate_type], rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
+							rate_type: attrs[:rate_type], min_trip_cost: attrs[:min_trip_cost],
+							rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
 							effective_date: attrs[:effective_date])
 					end
 				end
@@ -397,11 +403,13 @@ ActiveAdmin.register AgeBracket do
 						AllInclusiveRate.find(attrs[:id]).destroy 
 					elsif attrs[:id].nil?
 						age.all_inclusive_rates.create!(rate: attrs[:rate], min_date: attrs[:min_date], max_date: attrs[:max_date], 
-							rate_type: attrs[:rate_type], rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
+							rate_type: attrs[:rate_type], min_trip_cost: attrs[:min_trip_cost], 
+							rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
 							effective_date: attrs[:effective_date])
 					else
 						AllInclusiveRate.find(attrs[:id]).update(rate: attrs[:rate], min_date: attrs[:min_date], max_date: attrs[:max_date], 
-							rate_type: attrs[:rate_type], rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
+							rate_type: attrs[:rate_type], min_trip_cost: attrs[:min_trip_cost], 
+							rate_trip_value: attrs[:rate_trip_value], sum_insured: attrs[:sum_insured], 
 							effective_date: attrs[:effective_date])
 					end
 				end

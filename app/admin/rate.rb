@@ -79,6 +79,13 @@ ActiveAdmin.register Rate do
 			@page_title = "Edit Rate For #{resource.age_bracket.product.name}(#{resource.age_bracket.range})"
 		end     
 
+    def update
+      super do |format|
+        p_id = resource.age_bracket.product_id
+        redirect_to admin_age_brackets_path(product_id: p_id, q: {product_id_eq: p_id}) and return
+      end
+    end
+
     def destroy
       super do |format|
         redirect_to :back and return

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140821141300) do
+ActiveRecord::Schema.define(version: 20140822154334) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,6 +65,7 @@ ActiveRecord::Schema.define(version: 20140821141300) do
     t.string   "status"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "min_trip_cost"
   end
 
   add_index "all_inclusive_rates", ["age_bracket_id"], name: "index_all_inclusive_rates_on_age_bracket_id", using: :btree

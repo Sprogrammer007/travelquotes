@@ -40,7 +40,7 @@
       <% else %>
         <h3>There are currently no age brackets belonging to this product. To add a brand new age baracket use the button on the bottom right.</h3>
       <% end %>
-      <%= link_to "Add Age Bracket", new_admin_student_age_bracket_path(id: @version.student_product_id, name: @version.student_product.name),  class: "link_button right"  %>
+      <%= link_to "Add New Age Bracket", new_admin_student_age_bracket_path(id: @version.student_product_id, name: @version.student_product.name),  class: "link_button right"  %>
     </div>
   </fieldset>
 
