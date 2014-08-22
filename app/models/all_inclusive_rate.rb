@@ -11,7 +11,7 @@ class AllInclusiveRate < ActiveRecord::Base
   scope :outdated, -> { status_eq("Outdated")}
   scope :future, -> { status_eq("Future") }
   scope :include_date, ->(date) {min_date_lteq(date) & max_date_gteq(date)}
-  scope :has_trip_value_of, ->(v) {rate_trip_value_lteq(v)}
+  scope :has_trip_value_of, ->(v) {min_trip_cost_lteq(v) & rate_trip_value_gteq(v)}
   scope :include_sum, ->(sum) {sum_insured_eq(sum).current}
 
   validates :rate, :min_date, :max_date, :rate_type, :rate_trip_value, :sum_insured,  presence: true
