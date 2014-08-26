@@ -83,7 +83,7 @@
         </div>
       </div>
 
-      <div class="form-group row renew" <%= display?(@quote.apply_from()) %>>
+      <div class="form-group row renew" <%= display?(@quote.apply_from.nil?) %>>
         <div class="col-sm-4"> 
           <%= f.label :renew, "Are you an exisiting policy holder renewing your policy with a new or exisiting insure?", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
@@ -93,7 +93,7 @@
         </div>
       </div>
 
-      <div class="form-group row renew_expire_date" <%= display?(@quote.apply_from()) %>>
+      <div class="form-group row renew_expire_date" <%= display?(!@quote.renew()) %>>
         <div class="col-sm-4"> 
           <%= f.label :renew_expire_date, "When does your current policy expires?", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
@@ -103,7 +103,7 @@
         </div>
       </div>
 
-      <div class="form-group row arrival_date" <%= display?(@quote.apply_from()) %>>
+      <div class="form-group row arrival_date" <%= display?(@quote.apply_from.nil?) %>>
         <div class="col-sm-4"> 
           <%= f.label :arrival_date, "Arrival date in Canada?", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
@@ -113,7 +113,7 @@
         </div>
       </div>
 
-      <% if @quote.quote_sub_type != "Super Visa" || params[:policy_sub_type] != "Super Visa"  %>
+      <% if @quote.quote_type == "All Inclusive" || params[:quote_type] == "All Inclusive"  %>
         <div class="form-group row">
           <div class="col-sm-4"> 
             <%= f.label :trip_cost, "What was the cost of your trip? (In Canadian Dollars - Optional)", class: "control-label" %>
@@ -124,6 +124,7 @@
           </div>
         </div>
       <% end %>
+
       <div class="form-group row">
         <div class="col-sm-4"> 
           <%= f.label :sum_insured, "Select insured sum? (Super Visa minimun $100,000)", class: "control-label" %>

@@ -2,6 +2,8 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
+# group all functions that is required after 
+# ajax requests
 refresherFunctions = ->
   
   # Details
@@ -96,13 +98,14 @@ refresherFunctions = ->
 
 ready = ->
 
-  #Run refresher refresher first time
+  #Run refresher first time
   refresherFunctions();
 
   #tooltips
   $('.tool_tips').tooltip
     placement: 'right'
     html: true
+
   #email quotes
   $('.email-pop').popover
     animation: true
@@ -150,7 +153,7 @@ ready = ->
   #  if currentFromDate
   #    $(input).datepicker("option", "minDate", currentFromDate) 
 
-
+  # datepicker function
   addDatePicker = (element) ->
     element.datepicker 
       dateFormat: "yy-mm-dd"
@@ -181,12 +184,24 @@ ready = ->
 
   $('#quote_apply_from').change ->
     if $(this).find(':selected').text() == "Yes"
+      today = new Date()
+      dd = today.getDate()
+      mm = today.getMonth()+1 
+      yyyy = today.getFullYear()
+      today = yyyy+'-'+mm+'-'+dd
+      $('#quote_return_home').val(today)
       $('.arrival_date').fadeIn()
       $('.renew').fadeIn()
-      $('.renew_expire_date').fadeIn()
     else
+      $('#quote_return_home').val("")
       $('.arrival_date').fadeOut()
       $('.renew').fadeOut()
+      $('.renew_expire_date').fadeOut()
+
+  $('#quote_renew').change ->
+    if $(this).find(':selected').text() == "Yes"
+      $('.renew_expire_date').fadeIn()
+    else
       $('.renew_expire_date').fadeOut()
       
   # new quote form js
@@ -291,8 +306,7 @@ ready = ->
       dependentHide(true)
     event.preventDefault()
 
-
-
+#These are functions fired after ajax requests
 $(document).ready(ready)
 $(document).on('page:load', ready)
 $(document).on 'compare:accordion', ->

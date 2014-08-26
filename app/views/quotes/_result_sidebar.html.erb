@@ -5,6 +5,7 @@
     </div>
 
     <div class="col-sm-6">
+      <p>Quote ID:</p>
       <p>Trip Length:</p>
       <p>Trip Cost:</p>
       <p>Traveler Age:</p>
@@ -15,6 +16,7 @@
       <% end %>
     </div>
     <div class="col-sm-6">
+      <p><%= q.quote_id %></p>
       <p class="trip_length" ><%= pluralize(q.traveled_days, "Day") %></p>
       <p><%= q.trip_cost || "Not Entered" %></p>
       <p><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(", ") %></p>

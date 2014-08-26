@@ -16,7 +16,7 @@ module ApplicationHelper
     link_to(name, '#', class: "#{name.split(" ").join("_").downcase.gsub("+", "add")}_fields btn btn-info right", data: {id: id, fields: fields.gsub("\n", "")})
   end
 
-  def display?(obj)
-    obj ? "" : "style='display: none;'".html_safe 
+  def display?(bool)
+    bool ? "style='display: none;'".html_safe() : ""
   end
 end
