@@ -67,9 +67,6 @@ class Quote < ActiveRecord::Base
     ProductFilter.sorted.each do |n|
       f[n] = filters[n.upcase]
     end
-    f.each do |k, v|
-    Rails.logger.warn "#{k} -> #{v}"
-    end
     return f
   end
 
