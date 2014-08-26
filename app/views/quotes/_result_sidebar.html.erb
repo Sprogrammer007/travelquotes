@@ -61,19 +61,22 @@
     <div class="filter_selections clearfix">
       <%= form_tag url_for(:controller => 'quotes', :action => 'apply_filters') do -%>
         <%= hidden_field_tag "quote_id", q.id %>
-        <% ProductFilter.all.group_by(&:category).each do |k, v| %>
+        <% q.sort_filters(ProductFilter.all.group_by(&:category)).each do |k, v| %>
           <h5 data-toggle="collapse"  href="#selection_<%= "#{k.gsub("&", "AND").gsub(" ", "_").downcase}" %>" class="collapsible collapsed arrow-black" > <%= "#{k.downcase.split.map(&:capitalize)*' '}" %></h5>
 
           <div id="selection_<%= "#{k.gsub("&", "AND").gsub(" ", "_").downcase}" %>" class="panel-collapse collapse">
           <ul>
-            <% v.each do |filter| %>
-              <li>
+            <% if v %>
+              <% v.each do |filter| %>
+                <li>
 
-              <%= check_box_tag "filters[][product_filter_id]", filter.id, q.cached_applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}", class: "quote_filters" %>
-              <%= label_tag("filter_#{filter.id}", "#{filter.name}", class: "tool_tips", title: "#{filter.descriptions}") %>
+                <%= check_box_tag "filters[][product_filter_id]", filter.id, q.cached_applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}", class: "quote_filters" %>
+                <%= label_tag("filter_#{filter.id}", "#{filter.name}", class: "tool_tips", title: "#{filter.descriptions}") %>
 
-              </li>
+                </li>
+              <% end %>
             <% end %>
+           
           </ul>
           </div>
         <% end %>

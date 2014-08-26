@@ -62,6 +62,17 @@ class Quote < ActiveRecord::Base
     return self
   end
 
+  def sort_filters(filters)
+    f = {}
+    ProductFilter.sorted.each do |n|
+      f[n] = filters[n.upcase]
+    end
+    f.each do |k, v|
+    Rails.logger.warn "#{k} -> #{v}"
+    end
+    return f
+  end
+
   def cached_results(results)
     Rails.cache.fetch([self, results.object_id]) { results }
   end

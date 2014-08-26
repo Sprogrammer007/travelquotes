@@ -11,7 +11,13 @@ class ProductFilter < ActiveRecord::Base
   private
     def self.filter_categories
       %w{Medical\ Benefits Repatriation\ to\ Residence Medical\ Emergency\ Transportation
-      Trip\ Cancellation\ &\ Interuption Terrorism Life\ &\ Accident\ Insurance Side\ Trips
+      Trip\ Cancellation\ &\ Interruption Terrorism Life\ &\ Accident\ Insurance Side\ Trips
       Right\ of\ Entry Extensions\ &\ Renewals Refunds Non\ Medical\ Benefits Sports\ &\ Activities}
+    end
+
+    def self.sorted
+      %w{Medical\ Benefits Medical\ Emergency\ Transportation Repatriation\ to\ Residence 
+      Side\ Trips Right\ of\ Entry Life\ &\ Accident\ Insurance Terrorism Sports\ &\ Activities
+      Trip\ Cancellation\ &\ Interruption Non\ Medical\ Benefits Extensions\ &\ Renewals Refunds}
     end
 end
