@@ -39,14 +39,6 @@
     </td>
   </tr>
 
-  <tr class="legal_text_definitions odd">
-    <% products.each do |p| %>
-      <td class="content_td"><strong>Definitions:</strong>
-      <%= p.legal_texts.where(:legal_text_category_id => LegalTextCategory.where(name: "Definitions").first.id).first.description.html_safe() %>
-
-      </td>
-    <% end %>
-  </tr>
 
  
 

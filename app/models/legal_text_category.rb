@@ -39,8 +39,7 @@ class LegalTextCategory < ActiveRecord::Base
     options = []
     if applied_filters.any?
       lt_ids = applied_filters.pluck(:associated_lt_id).uniq
-      @applied_lts = LegalTextCategory.find(lt_ids).joins(:legal_text_parent_category).order( 'legal_text_parent_category.order DESC' ).order('order DESC')
-
+      @applied_lts = LegalTextCategory.find(lt_ids)
     end
     
     @applied_lts.each do |lt|
@@ -51,7 +50,7 @@ class LegalTextCategory < ActiveRecord::Base
   end
 
   def self.get_lts_after_filters(type)
-    lts = LegalTextCategory.all.joins(:legal_text_parent_category).order( 'legal_text_parent_category.order DESC' ).order('order DESC')
+    lts = LegalTextCategory.categories_by_order().values.flatten()
     options = []
     if @applied_lts.any?
       lts = lts - @applied_lts
@@ -74,13 +73,13 @@ class LegalTextCategory < ActiveRecord::Base
     end
   end
 
-  def self.map_by_parent
-    a = all.group_by(&:legal_text_parent_category_id)
-    f = {}
-    LegalTextParentCategory.all.each do |l|
-      f[l.name] = a[l.id].map(&:name)
+  def self.categories_by_order
+    categories = {} 
+    LegalTextParentCategory.all.order("legal_text_parent_categories.order ASC").each do |ltp|
+      categories[ltp.name] = LegalTextCategory.where(:legal_text_parent_category_id => ltp).order("legal_text_categories.order ASC").map(&:name)
     end
-    return f
+
+    return categories
   end
 
   def next
