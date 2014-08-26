@@ -76,12 +76,20 @@ class LegalTextCategory < ActiveRecord::Base
   def self.categories_by_order
     categories = {} 
     LegalTextParentCategory.all.order("legal_text_parent_categories.order ASC").each do |ltp|
-      categories[ltp.name] = LegalTextCategory.where(:legal_text_parent_category_id => ltp).order("legal_text_categories.order ASC").map(&:name)
+      categories[ltp.name] = LegalTextCategory.where(:legal_text_parent_category_id => ltp).order("legal_text_categories.order ASC")
     end
 
     return categories
   end
 
+  def self.map_by_parent()
+    f = {}
+    LegalTextCategory.categories_by_order.each do |k, v|
+      f[k] = v.map(&:name)
+    end
+    return f
+  end
+  
   def next
     legal_text_parent_category.legal_text_categories.where("legal_text_categories.order > ?", self.order).order("legal_text_categories.order ASC")
   end

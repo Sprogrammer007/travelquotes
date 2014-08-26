@@ -30,7 +30,7 @@
         </div>
         <div class="row deductible-body odd">
           <%= label_tag "legal_texts", "Select Legal Texts:" %>
-          <%= select_tag "details_legal_text", grouped_options_for_select(LegalTextCategory.categories_by_order()), class: "form-control ", id: "applied_filters_legal_texts", prompt: "Please Select Legal Text For Comparing", data: {url: compare_legals_quote_path() } %>
+          <%= select_tag "details_legal_text", grouped_options_for_select(LegalTextCategory.map_by_parent()), class: "form-control ", id: "applied_filters_legal_texts", prompt: "Please Select Legal Text For Comparing", data: {url: compare_legals_quote_path() } %>
   
         </div>
 
