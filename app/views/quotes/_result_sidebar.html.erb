@@ -19,7 +19,7 @@
       <p><%= q.quote_id %></p>
       <p class="trip_length" ><%= pluralize(q.traveled_days, "Day") %></p>
       <p><%= q.trip_cost || "Not Entered" %></p>
-      <p><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(", ") %></p>
+      <p class="traveler_ages"><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(" ") %></p>
       <% if q.traveler_type != "Family" %>
         <% q.adult_members.each do |m| %>
           <p><%= m.birthday.strftime("%d-%m-%Y") %></p>

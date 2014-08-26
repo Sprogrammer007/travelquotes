@@ -56,6 +56,7 @@ class LegalTextCategory < ActiveRecord::Base
       lts = lts - @applied_lts
     end
     lts.each do |lt|
+      next if lt.name == "Definitions"
       options << [lt.name, lt.id]
     end
     return options
@@ -70,6 +71,15 @@ class LegalTextCategory < ActiveRecord::Base
     else
       true
     end
+  end
+
+  def self.map_by_parent
+    a = all.group_by(&:legal_text_parent_category_id)
+    f = {}
+    LegalTextParentCategory.all.each do |l|
+      f[l.name] = a[l.id].map(&:name)
+    end
+    return f
   end
 
   def next

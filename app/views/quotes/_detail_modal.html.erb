@@ -12,9 +12,30 @@
           </div>
           <p>Currently Show Rates For <span class="number_dates"></span> at $<%= rate %>/Day.</p>
         </div>
-        <div class="row deductible-body odd">
+        <div class="row buy-body odd">
+          <div style="text-align: center;">
+            <div class="btn-group">
+              <div class="btn btn-default">
+                <%= link_to(raw("<span class='glyphicon glyphicon-file'></span> Policy PDF"), product.pdf.url()) %>
+              </div> 
+              <div class="btn btn-danger">
+              <%= link_to "Buy Now", product.purchase_url() %>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row deductible-body">
           <%= label_tag "deductible", "Select Deductible:" %>
           <%= select_tag "deductible", options_for_select(product.get_deductible_by_age(age)), class: "form-control deductible_select" %>
+        </div>
+        <div class="row deductible-body odd">
+          <%= label_tag "legal_texts", "Select Legal Texts:" %>
+          <%= select_tag "details_legal_text", grouped_options_for_select(LegalTextCategory.map_by_parent()), class: "form-control ", id: "applied_filters_legal_texts", prompt: "Please Select Legal Text For Comparing", data: {url: compare_legals_quote_path() } %>
+  
+        </div>
+
+        <div class="row legal_text_body">
+          
         </div>
       </div>
       <div class="modal-footer">
