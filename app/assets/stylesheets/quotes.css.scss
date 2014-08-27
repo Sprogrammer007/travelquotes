@@ -542,6 +542,7 @@ aside .email-button button {
 .traveler_ages {
   display: inline-block;
   padding: 3px 5px;
+  margin-right: 3px;
   border-radius: 3px;
   -moz-box-shadow:    inset 0 0 5px #000000;
   -webkit-box-shadow: inset 0 0 5px #000000;
@@ -633,12 +634,20 @@ h5.collapsed.arrow-black::before {
   color:#F33823;
 }
 
+.modal-header {
+  text-align: center;
+}
+
 .deductible-body {
   padding: 10px 20px 30px;
 }
 
-.buy-body, .legal-text-body {
+.buy-body, .legal_text_body {
   padding: 20px;
+}
+
+.legal_text_body {
+  border-bottom: none;
 }
 
 .buy-body .btn-group {

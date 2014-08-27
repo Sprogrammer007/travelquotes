@@ -43,6 +43,7 @@ ActiveAdmin.register ProductFilter do
 	form do |f|
 		f.inputs do
 			f.input :name
+      f.input :sort_order
 			f.input :category, :as => :select, :collection => options_for_select(ProductFilter.filter_categories.map(&:upcase), f.object.category)
 			f.input :policy_type, :as => :select, :collection => options_for_select(["Visitor Visa", " Super Visa", "Both"], f.object.policy_type)
 			f.input :associated_lt_id, :lebal => "Associated LegalText Category", :as => :select, :collection => options_for_select(LegalTextCategory.all.map { |l| [l.name, l.id] })

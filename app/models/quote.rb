@@ -1,7 +1,8 @@
 class Quote < ActiveRecord::Base
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   has_many :traveler_members, dependent: :destroy
-  has_many :applied_filters, dependent: :destroy
+  has_many :applied_filte
+  rs, dependent: :destroy
   has_many :product_filters, through: :applied_filters
 
   accepts_nested_attributes_for :traveler_members, allow_destroy: true

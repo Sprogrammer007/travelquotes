@@ -45,6 +45,7 @@ ActiveAdmin.register StudentFilter do
   form do |f|
     f.inputs do
       f.input :name
+      f.input :sort_order
       f.input :category, :as => :select, :collection => options_for_select(StudentFilter.filter_categories.map(&:upcase), f.object.category)
       f.input :associated_lt_id, :lebal => "Associated LegalText Category", :as => :select, :collection => options_for_select(StudentLgCat.all.map { |l| [l.name, l.id] })
       f.input :descriptions, input_html: { class: "tinymce" }

@@ -22,6 +22,12 @@ refresherFunctions = ->
       rate = rate_element.data('rate') * current_mutiplier
     rate_element.text("$#{calc_rate(rate, trip_length)}")
 
+  detailLegalTexts = ->
+    cat_id = $(this).find(':selected').val().split("-")
+    texts = $('.modal-body').find(".cat_id_eq_#{cat_id}").attr('data-texts')
+    console.log(texts)
+    $('.modal-body').find('.legal_text_body').html(texts)
+
   $('#detail_modal').modal
     show: false
     remote: false
@@ -35,6 +41,7 @@ refresherFunctions = ->
       $('.modal-body').find('#rate').text("$#{drate}")
       $('.modal-body').find('.number_dates').text("#{trip_length} Days")
       $('.modal-body').find('.deductible_select').change(deductibleChange)
+      $('.modal-body').find('.details_legal_text').change(detailLegalTexts)
       $('#detail_modal').modal('show')
 
   # Deductible selection change for list view
@@ -214,7 +221,6 @@ ready = ->
     else
       $('.family_member').fadeIn()
       $('.dependent_fields').fadeIn()
-
 
   addDatePicker $('#quote_traveler_members_attributes_0_birthday')
 

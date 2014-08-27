@@ -85,7 +85,12 @@ class LegalTextCategory < ActiveRecord::Base
   def self.map_by_parent()
     f = {}
     LegalTextCategory.categories_by_order.each do |k, v|
-      f[k] = v.map(&:name)
+      n = []
+      # Loop through each set of categories to get name and id in array
+      v.each do |l|
+        n << [l.name, l.id]
+      end
+      f[k] = n
     end
     return f
   end
