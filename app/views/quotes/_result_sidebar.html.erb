@@ -61,7 +61,7 @@
     <div class="filter_selections clearfix">
       <%= form_tag url_for(:controller => 'quotes', :action => 'apply_filters') do -%>
         <%= hidden_field_tag "quote_id", q.id %>
-        <% q.sort_filters(ProductFilter.all.order('product_filter.sort_order ASC').group_by(&:category)).each do |k, v| %>
+        <% q.sort_filters(ProductFilter.all.order('sort_order ASC').group_by(&:category)).each do |k, v| %>
           <h5 data-toggle="collapse"  href="#selection_<%= "#{k.gsub("&", "AND").gsub(" ", "_").downcase}" %>" class="collapsible collapsed arrow-black" > <%= "#{k.downcase.split.map(&:capitalize)*' '}" %></h5>
 
           <div id="selection_<%= "#{k.gsub("&", "AND").gsub(" ", "_").downcase}" %>" class="panel-collapse collapse">
