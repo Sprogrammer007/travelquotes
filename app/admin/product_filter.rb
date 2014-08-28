@@ -3,7 +3,7 @@ ActiveAdmin.register ProductFilter do
 	config.paginate = false
 	include_import
 
-	permit_params :category, :name, :policy_type, :associated_lt_id, :descriptions
+	permit_params :category, :name, :policy_type, :associated_lt_id, :descriptions, :sort_order
 
  	#Scopes
  	scope :all, default: true

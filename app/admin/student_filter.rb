@@ -4,7 +4,7 @@ ActiveAdmin.register StudentFilter do
   # config.filters = false
   include_import
 
-  permit_params :category, :name, :associated_lt_id, :descriptions
+  permit_params :category, :name, :associated_lt_id, :descriptions, :sort_order
 
   #Scopes
   scope :all, default: true
