@@ -67,7 +67,7 @@
           <div id="selection_<%= "#{k.gsub("&", "AND").gsub(" ", "_").downcase}" %>" class="panel-collapse collapse">
           <ul>
             <% if v %>
-              <% v.each do |filter| %>
+              <% v.order('sort_order ASC').each do |filter| %>
                 <li>
 
                 <%= check_box_tag "filters[][product_filter_id]", filter.id, q.cached_applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}", class: "quote_filters" %>
