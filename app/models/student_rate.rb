@@ -11,7 +11,12 @@ class StudentRate < ActiveRecord::Base
   scope :current, -> { status_eq("Current") }
   scope :outdated, -> { status_eq("Outdated")}
   scope :future, -> { status_eq("Future") }
-  scope :include_sum, ->(sum) {sum_insured_eq(sum).current}
+  scope :include_sum, -> (sum) {sum_insured_eq(sum).current}
+  scope :student, -> { rate_version_eq("Student") }
+  scope :family, -> { rate_version_eq("Family") }
+  scope :daily, -> { rate_type_eq("Daily") }
+  scope :annually, -> { rate_type_eq("Annually") }
+
 
   validates :rate, :rate_type, :sum_insured,  presence: true
   validates :rate, :numericality => {:only_integer => false}
