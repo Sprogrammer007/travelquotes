@@ -57,7 +57,7 @@ class StudentQuote < ActiveRecord::Base
 
   #get the base rate for the version
   def calc_base_rate(version)
-    ab = version.age_bracket
+    ab = version.age_brackets.first
     rate = calc_rate_by_type(ab, "student")
 
     # Logic for couple and family rate
@@ -143,7 +143,7 @@ class StudentQuote < ActiveRecord::Base
       result = result.joins(:student_age_brackets).merge(StudentAgeBracket.include_age(age))
     end
 
-    result = result.select("student_versions.*, student_age_brackets.* as age_bracket, student_products.min_price as min_price, 
+    result = result.select("student_versions.*, student_products.min_price as min_price, 
       student_products.min_date as min_date, student_products.id as product_id")
   
     return result
