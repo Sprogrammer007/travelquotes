@@ -173,7 +173,6 @@ ActiveAdmin.register StudentProduct do
             p.student_versions.each do |version|
               li do
                 attributes_table_for version do
-                  row :type
                   row :detail_type
                   row :status do |v|
                     if v.status

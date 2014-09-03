@@ -29,7 +29,7 @@
                   <% unless type == "filtered_results" %>
                     <% @base_rate = quote.calc_base_rate(result) %>
                     <div class="rate" data-baserate="<%= @base_rate %>">
-                      <p><%= number_to_currency(quote.calc_rate_with_ded(result, @base_rate, type)) %></p>
+                      <p><%= number_to_currency(@base_rate) %></p>
                     </div>
 
                     <div class="buy-now">                
