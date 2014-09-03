@@ -1,0 +1,107 @@
+<div class="row">
+
+  <div class="col-md-8 quotes">  
+    <div class="quote_form_info" >
+      <h2>Student Visa Insurance Quote</h2>
+
+      <p>Stone-Hedge Financial Group Inc. provides unbiased comparative quotes to travelers. Stone-Hedge Financial Group Inc. is not owned in part or in whole by any insurance company and is a leader in the insurance industry.</p>
+    </div>
+
+    <div class="errors">
+      <%= render "shared/error_messages", object: @quote %>
+    </div>
+
+    <%= form_for @quote, class: "form-horizontal" do |f|%>
+  
+      <div class="form-group row">
+        <div class="col-sm-4"> 
+          <%= f.label :email, "Email:", class: "control-label" %>
+        </div>
+        <div class="col-sm-8">
+          <%= f.text_field :email, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-4"> 
+          <%= f.label :leave_home, " Your departure date?", class: "control-label" %>
+          <div class="question_mark"><%= image_tag "question.png"  %></div>
+        </div>
+        <div class="col-sm-8">
+          <%= f.text_field :leave_home, class: "form-control", id: "quote_leave_home", readonly: true %>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-4"> 
+          <%= f.label :return_home, "When do you return home?", class: "control-label" %>
+          <div class="question_mark"><%= image_tag "question.png"  %></div>
+        </div>
+     
+        <div class="col-sm-8">
+          <%= f.text_field :return_home, class: "form-control", id: "quote_return_home",readonly: true %>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-4"> 
+          <%= f.label :plan_type, "What type of Student plan do you want?", class: "control-label" %>
+          <div class="question_mark"><%= image_tag "question.png"  %></div>
+        </div>
+     
+        <div class="col-sm-8">
+          <%= f.select(:plan_type, options_for_select(["Daily", "Annully"]), {}, class: "form-control") %>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-4"> 
+          <%= f.label :has_preex, "Do you require coverage for stable pre-exisiting medical conditions?", class: "control-label" %>
+          <div class="question_mark"><%= image_tag "question.png"  %></div>
+        </div>
+     
+        <div class="col-sm-8">
+          <%= f.select(:has_preex, options_for_select([["Yes", true],["No", false]], false), {}, class: "form-control") %>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <%= f.label :traveler_type, "Number of travelers", class: "col-sm-4 control-label" %>
+        <div class="col-sm-8">
+          <%= f.select :traveler_type, options_for_select(StudentQuote.traveler_type_selection), {}, class: "form-control", id: "quote_traveler_type" %>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <fieldset class="traveling_members">
+          <legend>Traveling Members</legend>
+          <%= render('member_fields_toolbar', f: f) %>
+
+          <div class="row adult_fields">
+            <%= f.fields_for :student_traveler_members do |builder| %>
+              <%= render('student_traveler_member_fields', f: builder )%>
+            <% end %>
+          </div>
+          <div class="row dependent_fields" style="display: none;">
+            <h4>Dependents</h4>
+          </div>
+        </fieldset>
+
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-12 right">
+          <%= f.submit "Get Quote!", class: "btn btn-danger btn-f btn-h-40 " %>
+        </div>
+      </div>
+
+    <% end %>
+  </div>
+
+  <div class="col-md-4">
+    <aside>
+      SideBar
+    </aside>
+  </div>
+</div>
+

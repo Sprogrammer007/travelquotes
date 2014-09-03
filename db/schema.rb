@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140827154243) do
+ActiveRecord::Schema.define(version: 20140903025932) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -265,12 +265,12 @@ ActiveRecord::Schema.define(version: 20140827154243) do
   add_index "student_age_sets", ["student_version_id"], name: "index_student_age_sets_on_student_version_id", using: :btree
 
   create_table "student_applied_filters", id: false, force: true do |t|
-    t.integer "quote_id"
-    t.integer "product_filter_id"
+    t.integer "student_quote_id"
+    t.integer "student_filter_id"
   end
 
-  add_index "student_applied_filters", ["product_filter_id"], name: "index_student_applied_filters_on_product_filter_id", using: :btree
-  add_index "student_applied_filters", ["quote_id"], name: "index_student_applied_filters_on_quote_id", using: :btree
+  add_index "student_applied_filters", ["student_filter_id"], name: "index_student_applied_filters_on_student_filter_id", using: :btree
+  add_index "student_applied_filters", ["student_quote_id"], name: "index_student_applied_filters_on_student_quote_id", using: :btree
 
   create_table "student_couple_details", force: true do |t|
     t.integer "min_age"
@@ -360,19 +360,14 @@ ActiveRecord::Schema.define(version: 20140827154243) do
     t.string   "quote_id"
     t.string   "client_ip"
     t.string   "email"
-    t.boolean  "renew"
-    t.datetime "renew_expire_date"
     t.datetime "leave_home"
     t.datetime "return_home"
-    t.boolean  "apply_from"
     t.string   "deductible_filter"
     t.boolean  "has_preex"
-    t.datetime "arrival_date"
-    t.integer  "trip_cost"
-    t.integer  "sum_insured"
     t.string   "traveler_type"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "plan_type"
   end
 
   create_table "student_rates", force: true do |t|

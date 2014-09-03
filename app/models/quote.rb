@@ -42,6 +42,7 @@ class Quote < ActiveRecord::Base
       errors.add(:base, "Please provide a expired date for your current policy.")
     end
   end
+  
   def complete
     if save
       set_quote_id

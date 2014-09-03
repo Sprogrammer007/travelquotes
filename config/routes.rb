@@ -16,5 +16,17 @@ Travelquotes::Application.routes.draw do
     end
   end
 
+  resources :student_quotes do
+    member do
+      post 'apply_filters'
+      post 'remove_filters'
+      post 'compare'
+      post 'compare_legals'
+      post 'detail'
+      post 'email'
+      post 'update_email'
+    end
+  end
+
 
 end

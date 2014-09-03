@@ -1,0 +1,89 @@
+<aside>
+  <div class="row side_bar_widget">
+    <div class="title">
+      <p>Your Quote</p>
+    </div>
+
+    <div class="col-sm-6">
+      <p>Quote ID:</p>
+      <p>Plan Type:</p>
+      <p>Trip Length:</p>
+      <p>Traveler Age:</p>
+      <% if q.traveler_type != "Family" %>
+        <% q.adult_members.each_with_index do |m, i| %>
+          <p>Traveler Adult #<%= "#{i + 1}"%>:</p>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="col-sm-6">
+      <p><%= q.quote_id %></p>
+      <p><%= q.plan_type %></p>
+      <p class="trip_length" ><%= pluralize(q.traveled_days, "Day") %></p>
+      <p class="traveler_ages"><%= [q.ages["Adult"], q.ages["Dependent"]].flatten.join(" ") %></p>
+      <% if q.traveler_type != "Family" %>
+        <% q.adult_members.each do |m| %>
+          <p><%= m.birthday.strftime("%d-%m-%Y") %></p>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="email-button">
+    <%= button_tag "Email Me This Quote!", class: "email-pop btn btn-danger", data: {content:"#{render('popover_email', q: q)}"} %>
+    </div>
+  </div>
+
+  <div class="row side_bar_widget">
+
+    <div class="title">
+        <p>Your Current Filter</p>
+    </div>
+
+    <div class="current_filters">
+      <%= render 'current_filters', q: q %>
+    </div>
+  </div>
+<!-- 
+  <div class="row side_bar_widget">
+    <div class="title">
+      <p>Apply Deductible</p>
+    </div>
+
+    <div class="deductible group">
+      
+    </div>
+  </div>
+ -->
+
+  <div class="row side_bar_widget">
+    <div class="title">
+        <p>Select Filter</p>
+    </div>
+
+    <div class="filter_selections clearfix">
+      <%= form_tag url_for(:controller => 'student_quotes', :action => 'apply_filters') do -%>
+        <%= hidden_field_tag "quote_id", q.id %>
+        <% q.sort_filters(StudentFilter.all.order('sort_order ASC').group_by(&:category)).each do |k, v| %>
+          <h5 data-toggle="collapse"  href="#selection_<%= "#{k.gsub("&", "AND").gsub(" ", "_").downcase}" %>" class="collapsible collapsed arrow-black" > <%= "#{k.downcase.split.map(&:capitalize)*' '}" %></h5>
+
+          <div id="selection_<%= "#{k.gsub("&", "AND").gsub(" ", "_").downcase}" %>" class="panel-collapse collapse">
+          <ul>
+            <% if v %>
+              <% v.each do |filter| %>
+                <li>
+
+                <%= check_box_tag "filters[][product_filter_id]", filter.id, q.cached_applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}", class: "quote_filters" %>
+                <%= label_tag("filter_#{filter.id}", "#{filter.name}", class: "tool_tips", title: "#{filter.descriptions}") %>
+
+                </li>
+              <% end %>
+            <% end %>
+           
+          </ul>
+          </div>
+        <% end %>
+    
+      <% end %>
+    </div>
+  </div>
+
+</aside>

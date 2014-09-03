@@ -1,4 +1,5 @@
-# Place all the behaviors and hooks related to the matching controller here.
+ 
+ # Place all the behaviors and hooks related to the matching controller here.
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
@@ -25,7 +26,6 @@ refresherFunctions = ->
   detailLegalTexts = ->
     cat_id = $(this).find(':selected').val().split("-")
     texts = $('.modal-body').find(".cat_id_eq_#{cat_id}").attr('data-texts')
-    console.log(texts)
     $('.modal-body').find('.legal_text_body').html(texts)
 
   $('#detail_modal').modal
@@ -223,7 +223,8 @@ ready = ->
       $('.dependent_fields').fadeIn()
 
   addDatePicker $('#quote_traveler_members_attributes_0_birthday')
-
+  addDatePicker $('#student_quote_student_traveler_members_attributes_0_birthday')
+ 
   $('#quote_traveler_type').focus ->
     currentTravelTypeSelection = $(this).find(':selected').text()
 
@@ -270,6 +271,7 @@ ready = ->
     else 
       member_fields.last().after($(this).data('fields').replace(regexp, time))
       addDatePicker($("#quote_traveler_members_attributes_#{time}_birthday"))
+      addDatePicker($("#student_quote_student_traveler_members_attributes_#{time}_birthday"))
 
     event.preventDefault()
 
@@ -290,11 +292,15 @@ ready = ->
     if member_fields.length == 0
       $('.dependent_fields').append($(this).data('fields').replace(regexp, time).replace("Adult", "Dependent"))
       addDatePicker($("#quote_traveler_members_attributes_#{time}_birthday"))
+      addDatePicker($("#student_quote_student_traveler_members_attributes_#{time}_birthday"))
+
     else if member_fields.length >= 16
       alert("Cannot have more than 16 dependent")
     else
       member_fields.last().after($(this).data('fields').replace(regexp, time).replace("Adult", "Dependent"))
       addDatePicker($("#quote_traveler_members_attributes_#{time}_birthday"))
+      addDatePicker($("#student_quote_student_traveler_members_attributes_#{time}_birthday"))
+
     event.preventDefault()
 
   $('.remove_dependent_fields').on 'click', (event) ->

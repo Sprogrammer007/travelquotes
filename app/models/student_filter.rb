@@ -14,4 +14,10 @@ class StudentFilter < ActiveRecord::Base
       Sports\ &\ Activities Life\ &\ Accident\ Insurance Side\ Trips Right\ of\ Entry 
       Extensions\ &\ Renewals Refunds}
     end
+
+    def self.sorted
+      %w{Medical\ Benefits Medical\ Emergency\ Transportation Repatriation\ to\ Residence 
+      Side\ Trips Right\ of\ Entry Life\ &\ Accident\ Insurance Terrorism Sports\ &\ Activities
+      Trip\ Cancellation\ &\ Interruption Non\ Medical\ Benefits Extensions\ &\ Renewals Refunds}
+    end
 end
