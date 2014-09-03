@@ -57,7 +57,7 @@ class StudentQuote < ActiveRecord::Base
 
   #get the base rate for the version
   def calc_base_rate(version)
-    ab = version.age_brackets.first
+    ab = version.student_age_brackets.first
     rate = calc_rate_by_type(ab, "student")
 
     # Logic for couple and family rate
