@@ -63,7 +63,7 @@ class StudentQuote < ActiveRecord::Base
     # Logic for couple and family rate
     if version.detail_type == "Couple" && !version.detail.has_couple_rate
 
-      rate_family = calc_rate_by_type("family")
+      rate_family = calc_rate_by_type(ab, "family")
 
       if t1.any? and t2.any?
         rate = rate + rate_family
