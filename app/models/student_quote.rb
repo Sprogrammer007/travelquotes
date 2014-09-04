@@ -98,15 +98,15 @@ class StudentQuote < ActiveRecord::Base
     if plan_type == "Annually"
       r = age_bracket.student_rates.annually.send(type)
       if r.any?
-        r = rate.first
+        r = r.first.rate
       else
         r = age_bracket.student_rates.daily.send(type).first
-        r = rate * 365
+        r = r.rate * 365
       end
     else
-      r = age_bracket.student_rates.daily.send(type).first
+      r = age_bracket.student_rates.daily.send(type).first.rate
     end
-    return r.rate
+    return r
   end
 
   def complete
