@@ -115,7 +115,7 @@ class StudentQuotesController < ApplicationController
     end
 
     def permitted_params
-      params.require(:student_quote).permit(:leave_home, :return_home, :traveler_type, :has_preex, :email, :plan_type
+      params.require(:student_quote).permit(:leave_home, :return_home, :traveler_type, :has_preex, :email, :plan_type,
         :student_traveler_members_attributes => [:member_type, :gender, :birthday]).merge(:client_ip => request.remote_ip)
     end
 end
