@@ -72,8 +72,10 @@ class StudentQuote < ActiveRecord::Base
       rate = calc_family_rate(rate, version)
     end
 
-    rate = (rate * self.traveled_days).round(2)
-
+    unless plan_type == "Annually" 
+      rate = (rate * self.traveled_days).round(2)
+    end
+    
     # check to see if there is a min price and if there is
     # we use the greater of the two
     if version.student_product.min_rate_type == "Price"
