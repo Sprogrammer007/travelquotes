@@ -75,7 +75,7 @@ class StudentQuote < ActiveRecord::Base
     unless plan_type == "Annually" 
       rate = (rate * self.traveled_days).round(2)
     end
-    
+
     # check to see if there is a min price and if there is
     # we use the greater of the two
     if version.student_product.min_rate_type == "Price"
@@ -94,19 +94,19 @@ class StudentQuote < ActiveRecord::Base
   end
 
   def calc_rate_by_type(age_bracket, type)
-    rate = 0
+    r = 0
     if plan_type == "Annually"
-      rate = age_bracket.student_rates.annually.send(type)
-      if rate.any?
-        rate = rate.first
+      r = age_bracket.student_rates.annually.send(type)
+      if r.any?
+        r = rate.first
       else
-        rate = age_bracket.student_rates.daily.send(type).first
-        rate = rate * 365
+        r = age_bracket.student_rates.daily.send(type).first
+        r = rate * 365
       end
     else
-      rate = age_bracket.student_rates.daily.send(type).first
+      r = age_bracket.student_rates.daily.send(type).first
     end
-    return rate.rate
+    return r.rate
   end
 
   def complete
