@@ -115,6 +115,20 @@ class StudentQuote < ActiveRecord::Base
     end
   end
 
+    #get age by person for couple rate
+  def get_age_by_person(person)
+    if self.traveler_type == "Couple"
+      if person == "Traveler #2"
+        @ages['Adult'][1]
+      elsif person == "Couple"
+        @ages['Adult'].max
+      end
+    else
+      @ages['Adult'].max
+    end
+  end
+
+
   def sort_filters(filters)
     f = {}
     StudentFilter.sorted.each do |n|

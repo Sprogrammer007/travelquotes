@@ -48,23 +48,23 @@
                   <% end %>
 
                   <div class="btn btn-default detail_modal">
-                  <%= link_to(raw("<span class='glyphicon glyphicon-plus-sign'></span> Policy Details"), detail_quote_path(quote, product_id: result.product_id, t_age: quote.get_age_by_person(type)), data: {rate: quote.calc_daily_rate(result.product_rate, result.rate_type)}) %>
+                  <%= link_to(raw("<span class='glyphicon glyphicon-plus-sign'></span> Policy Details"), detail_quote_path(quote, product_id: result.product_id, t_age: quote.get_age_by_person(type)), data: {rate:  @base_rate}) %>
                   </div>
                   
-                  <% if !result.product.pdf_file_name.nil? %>
+                  <% if !result.student_product.pdf_file_name.nil? %>
                     <div class="btn btn-default pdf">
                     <%= link_to(raw("<span class='glyphicon glyphicon-file'></span> Policy PDF"), result.product.pdf.url()) %>
                     </div> 
                   <% end %>
               
-                  <div class="btn btn-default deduct-form">
+<!--                   <div class="btn btn-default deduct-form">
                     <div class="ded-label">
                     <label for="deductible">Deductible:</label></div>
 
                      <div class="ded-select">
-                    <%= select_tag "deductible", options_for_select(quote.get_deductible_by_age(result.product, type), quote.get_selected_ded(result, type)), class: "form-control list_deduct", id: "deductible_select_#{result.id}" %>
+                  
                     </div>
-                  </div>
+                  </div> -->
                 </div>
             </div>
             </div>
