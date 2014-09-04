@@ -1,5 +1,4 @@
- 
- # Place all the behaviors and hooks related to the matching controller here.
+# Place all the behaviors and hooks related to the matching controller here.
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
@@ -318,6 +317,21 @@ ready = ->
       dependentHide(true)
     event.preventDefault()
 
+  #Student quote dail and annually auto fill
+  $('#student_quote_leave_home').datepicker
+    dateFormat: "yy-mm-dd"
+    altFormat: "yy/mm/dd"
+    constrainInput: true
+    changeYear: true
+    changeMonth :true
+    yearRange: "-100:+0"
+    onSelect: (dateStr) ->
+      plan_type = $('#student_quote_plan_type').val()
+      d = $.datepicker.parseDate('yy-mm-dd', dateStr)
+      d.setFullYear(d.getFullYear() + 1)
+      if plan_type == "Annually"
+        $('#quote_return_home').datepicker( "setDate", d)
+        
 #These are functions fired after ajax requests
 $(document).ready(ready)
 $(document).on('page:load', ready)
