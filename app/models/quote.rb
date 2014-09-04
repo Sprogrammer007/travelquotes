@@ -320,6 +320,7 @@ class Quote < ActiveRecord::Base
       result = result.merge(Product.has_preex)
       result = result.joins(:age_brackets).merge(AgeBracket.include_age(age).preex)
     else
+      result = result.merge(Product.no_preex)
       result = result.joins(:age_brackets).merge(AgeBracket.include_age(age))
     end
 

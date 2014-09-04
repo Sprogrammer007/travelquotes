@@ -27,7 +27,7 @@ class StudentProduct < ActiveRecord::Base
   #scopes
   generate_scopes
   scope :has_preex, -> { preex_eq(true) }
-  scope :has_no_preex, -> { preex_eq(false) }
+  scope :no_preex, -> { preex_eq(false) }
   scope :active, -> { status_eq(true)}
   scope :can_buy_after_30, -> { can_buy_after_30_days_eq(true) }
   scope :renewable_after_30, -> {  can_renew_after_30_days_eq(true) | can_buy_after_30_days_eq(true) }

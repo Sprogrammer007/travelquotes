@@ -154,6 +154,7 @@ class StudentQuote < ActiveRecord::Base
       result = result.merge(StudentProduct.has_preex)
       result = result.joins(:student_age_brackets).merge(StudentAgeBracket.include_age(age).preex)
     else
+      result = result.merge(StudentProduct.no_preex)
       result = result.joins(:student_age_brackets).merge(StudentAgeBracket.include_age(age))
     end
 
