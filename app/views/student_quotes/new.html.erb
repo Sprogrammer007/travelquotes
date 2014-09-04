@@ -24,7 +24,7 @@
 
       <div class="form-group row">
         <div class="col-sm-4"> 
-          <%= f.label :plan_type, "What type of Student plan do you want?", class: "control-label" %>
+          <%= f.label :plan_type, "What type of student plan do you want?", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
         </div>
      
@@ -56,7 +56,7 @@
 
       <div class="form-group row">
         <div class="col-sm-4"> 
-          <%= f.label :has_preex, "Do you require coverage for stable pre-exisiting medical conditions?", class: "control-label" %>
+          <%= f.label :has_preex, "Do you require coverage for stable pre-existing medical conditions?", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
         </div>
      
@@ -66,7 +66,7 @@
       </div>
 
       <div class="form-group row">
-        <%= f.label :traveler_type, "Number of travelers", class: "col-sm-4 control-label" %>
+        <%= f.label :traveler_type, "Number of Travelers", class: "col-sm-4 control-label" %>
         <div class="col-sm-8">
           <%= f.select :traveler_type, options_for_select(StudentQuote.traveler_type_selection), {}, class: "form-control", id: "quote_traveler_type" %>
         </div>

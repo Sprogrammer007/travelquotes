@@ -64,7 +64,7 @@
 
       <div class="form-group row">
         <div class="col-sm-4"> 
-          <%= f.label :has_preex, "Do you require coverage for stable pre-exisiting medical conditions?", class: "control-label" %>
+          <%= f.label :has_preex, "Do you require coverage for stable pre-existing medical conditions?", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
         </div>
      
@@ -85,7 +85,7 @@
 
       <div class="form-group row renew" <%= display?(@quote.apply_from.nil?) %>>
         <div class="col-sm-4"> 
-          <%= f.label :renew, "Are you an exisiting policy holder renewing your policy with a new or exisiting insure?", class: "control-label" %>
+          <%= f.label :renew, "Are you an existing policy holder renewing your policy with a new or existing insurer?", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
         </div>
         <div class="col-sm-8">
@@ -127,7 +127,7 @@
 
       <div class="form-group row">
         <div class="col-sm-4"> 
-          <%= f.label :sum_insured, "Select insured sum? (Super Visa minimun $100,000)", class: "control-label" %>
+          <%= f.label :sum_insured, "Select insured sum? (Super Visa minimum $100,000)", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
         </div>
         <div class="col-sm-8">
@@ -136,7 +136,7 @@
       </div>
 
       <div class="form-group row">
-        <%= f.label :traveler_type, "Number of travelers", class: "col-sm-4 control-label" %>
+        <%= f.label :traveler_type, "Number of Travelers", class: "col-sm-4 control-label" %>
         <div class="col-sm-8">
           <%= f.select :traveler_type, options_for_select(Quote.send("#{(@quote.quote_sub_type || params[:policy_sub_type]).downcase.gsub(" ", "_")}_selections")), {}, class: "form-control" %>
         </div>
