@@ -92,6 +92,14 @@ ActiveAdmin.register StudentLegalText do
         super
       end
     end
+
+
+    def update 
+      super do |format|
+        redirect_to view_admin_student_legal_texts_path(student_product_id: resource.student_product_id)
+        return
+      end
+    end
     
     def destroy
       super do |format|

@@ -331,7 +331,6 @@ ActiveAdmin.register AgeBracket do
 
 	controller do
 
-
 		def index
 			@per_page = 9
 			if params[:product_id]

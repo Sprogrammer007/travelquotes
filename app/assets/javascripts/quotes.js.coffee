@@ -53,7 +53,6 @@ refresherFunctions = ->
       $('.modal-body').find('.details_legal_text').change(detailLegalTexts)
       $('#detail_modal').modal('show')
 
-
   # Deductible selection change for list view
   $('.list_deduct').change ->
     selected = $(this).find(':selected').val().split("-")

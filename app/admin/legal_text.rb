@@ -97,6 +97,13 @@ ActiveAdmin.register LegalText do
       end
     end
     
+    def update 
+      super do |format|
+        redirect_to view_admin_legal_texts_path(product_id: resource.product_id)
+        returnt
+      end
+    end
+
     def destroy
       super do |format|
         redirect_to :back and return

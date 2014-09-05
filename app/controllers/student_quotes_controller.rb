@@ -110,7 +110,7 @@ class StudentQuotesController < ApplicationController
   private
 
     def permitted_filters
-      params.permit(:filters => [:product_filter_id])
+      params.permit(:filters => [:student_filter_id])
     end
 
     def permitted_params
