@@ -178,6 +178,51 @@ class StudentQuote < ActiveRecord::Base
     single_search(age, "family")
   end
 
+  def filter_results
+    self.search() unless cached_results(@pre_filtered_results)
+    original_results = cached_results(@pre_filtered_results)
+
+    if self.traveler_type == "Couple"
+      @filtered_results = couple_filter(original_results)
+      @results = couple_filter_results(original_results, @filtered_results)
+    else
+      @filtered_results = single_filter(original_results)
+      @results = original_results - @filtered_results
+    end
+  end
+
+  def single_filter(results, person = nil)
+    ffiltered = nil
+
+    ffiltered = results.to_a.reject do |r| 
+      has_filters?(r.student_filters.pluck(:id), applied_filter_ids) 
+    end
+
+    return ffiltered
+  end
+
+  # since couple reults is a hash we must filter everyone
+  def couple_filter(couple_results)
+    h = Hash.new()
+    couple_results.each do |k, v|
+      h[k] = single_filter(v, k)
+    end
+    return h
+  end
+
+  # since couple reults is a hash we must filter everyone
+  def couple_filter_results(original, filtered)
+    h = Hash.new()
+    original.each do |k, v|
+      h[k] = v.to_a - filtered[k]
+    end
+    return h
+  end
+
+  def applied_filter_ids
+    student_filters.pluck(:id)
+  end
+  
   #Class Methods
   class << self
     def traveler_type_selection

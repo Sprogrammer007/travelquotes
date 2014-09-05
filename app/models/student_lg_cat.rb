@@ -27,6 +27,13 @@ class StudentLgCat < ActiveRecord::Base
     h
   end
 
+  def self.get_legal_texts_compare_option(applied_filters, type)
+    options = {}
+    options["Filtered"] = StudentLgCat.get_legal_texts_by_filter(applied_filters, type)
+    options["Not Filtered"] = StudentLgCat.get_lts_after_filters(type)
+    return options
+  end
+
   #gets only the legal text that the quote has applied filters for
   def self.get_legal_texts_by_filter(applied_filters, type)
     @applied_lts = []
@@ -44,25 +51,51 @@ class StudentLgCat < ActiveRecord::Base
   end
 
   def self.get_lts_after_filters(type)
-    lts = StudentLgCat.all
+    lts = StudentLgCat.categories_by_order().values.flatten()
     options = []
     if @applied_lts.any?
       lts = lts - @applied_lts
     end
     lts.each do |lt|
+      next if lt.name == "Definitions"
       options << [lt.name, lt.id]
     end
     return options
   end
 
   def self.filter_check(product, id)
-    p = product.student_legal_texts.where(:student_lg_cat_id => id)
-    if (p.length == 1)
+    p = product.legal_texts.where(:student_lg_cat_id => id)
+    if (p.length == 1) && (p.first.policy_type == "Both")
+      false
+    elsif (p.length >= 2)
       false
     else
       true
     end
   end
+
+  def self.categories_by_order
+    categories = {} 
+    StudentLgParentCat.all.order("student_lg_parent_cats.order ASC").each do |ltp|
+      categories[ltp.name] = StudentLgCat.where(:student_lg_parent_cat_id => ltp).order("student_lg_cats.order ASC")
+    end
+
+    return categories
+  end
+
+  def self.map_by_parent()
+    f = {}
+    StudentLgCat.categories_by_order.each do |k, v|
+      n = []
+      # Loop through each set of categories to get name and id in array
+      v.each do |l|
+        n << [l.name, l.id]
+      end
+      f[k] = n
+    end
+    return f
+  end
+  
 
   def next
     student_lg_parent_cat.student_lg_cats.where("student_lg_cats.order > ?", self.order).order("student_lg_cats.order ASC")
@@ -82,7 +115,8 @@ class StudentLgCat < ActiveRecord::Base
           self.order = (largest_order + 1)
         else
           self.order = 1
-        end      end
+        end      
+      end
     end
 
     def destroy_order_change

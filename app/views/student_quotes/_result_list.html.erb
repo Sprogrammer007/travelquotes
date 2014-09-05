@@ -47,8 +47,8 @@
                     </label>
                   <% end %>
 
-                  <div class="btn btn-default detail_modal">
-                  <%= link_to(raw("<span class='glyphicon glyphicon-plus-sign'></span> Policy Details"), detail_quote_path(quote, product_id: result.product_id, t_age: quote.get_age_by_person(type)), data: {rate:  @base_rate}) %>
+                  <div class="btn btn-default student_detail_modal">
+                  <%= link_to(raw("<span class='glyphicon glyphicon-plus-sign'></span> Policy Details"), detail_student_quote_path(quote, product_id: result.product_id, t_age: quote.get_age_by_person(type)), data: {rate:  @base_rate}) %>
                   </div>
                   
                   <% if !result.student_product.pdf_file_name.nil? %>

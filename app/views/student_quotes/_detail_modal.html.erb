@@ -9,8 +9,9 @@
       <div class="modal-body">
         <div class="row rate-body">
           <div id="rate" data-ratetype="Daily" data-rate="<%= rate %>">
+            <%= rate %>
           </div>
-          <p>Currently Show Rates For <span class="number_dates"></span> at $<%= rate %>/Day.</p>
+          <p>Currently Show Rates For <span class="number_dates"></span></p>
         </div>
         <div class="row buy-body odd">
           <div style="text-align: center;">
@@ -24,19 +25,15 @@
             </div>
           </div>
         </div>
-        <div class="row deductible-body">
-          <%= label_tag "deductible", "Select Deductible:" %>
-          <%= select_tag "deductible", options_for_select(product.get_deductible_by_age(age)), class: "form-control deductible_select" %>
-        </div>
-        <div class="row deductible-body odd">
+        <div class="row deductible-body ">
           <%= label_tag "legal_texts", "Select Legal Texts:" %>
-          <%= select_tag "details_legal_text", grouped_options_for_select(LegalTextCategory.map_by_parent()), class: "form-control details_legal_text", id: "details_legal_text", prompt: "Please Select Legal Text For Comparing", data: {url: compare_legals_quote_path() } %>
-          <% product.legal_texts.each do |l| %>
-            <input type="hidden" class="cat_id_eq_<%= l.legal_text_category_id %>" data-texts='<%= l.description.html_safe() %>'>
+          <%= select_tag "details_legal_text", grouped_options_for_select(StudentLgCat.map_by_parent()), class: "form-control details_legal_text", id: "details_legal_text", prompt: "Please Select Legal Text For Comparing", data: {url: compare_legals_student_quote_path() } %>
+          <% product.student_legal_texts.each do |l| %>
+            <input type="hidden" class="cat_id_eq_<%= l.student_lg_cat_id %>" data-texts='<%= l.description.html_safe() %>'>
           <% end %>
         </div>
 
-        <div class="row legal_text_body">
+        <div class="row legal_text_body odd">
           
         </div>
       </div>

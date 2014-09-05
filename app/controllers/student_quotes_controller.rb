@@ -1,6 +1,5 @@
 class StudentQuotesController < ApplicationController
 
- 
   def new
     @quote = StudentQuote.new
     @quote.student_traveler_members.new
@@ -26,9 +25,9 @@ class StudentQuotesController < ApplicationController
       @quote.search
     end
 
-    # if @quote.product_filters.any? || @quote.deductible_filter
-    #   @quote.filter_results
-    # end
+    if @quote.student_filters.any?
+      @quote.filter_results
+    end
 
     Rails.cache.fetch([@quote.class.name, @quote.id]) { @quote }
   end
@@ -51,7 +50,7 @@ class StudentQuotesController < ApplicationController
 
   def remove_filters
     id = params[:id]
-    @quote = Rails.cache.fetch([Quote.name, id]) { Quote.find(id) }
+    @quote = Rails.cache.fetch([StudentQuote.name, id]) { StudentQuote.find(id) }
 
     AppliedFilter.where(product_filter_id: params[:filter_id], quote_id: id).delete_all
     @quote.filter_results
@@ -62,8 +61,8 @@ class StudentQuotesController < ApplicationController
   end
 
   def compare
-    @quote = Quote.find(params[:quote_id])
-    @products = Product.find_compare(params[:products])
+    @quote = StudentQuote.find(params[:quote_id])
+    @products = StudentProduct.find_compare(params[:products])
     respond_to do |format|
       format.html { redirect_to root_path}
       format.js
@@ -71,7 +70,7 @@ class StudentQuotesController < ApplicationController
   end
 
   def compare_legals
-    @products = Product.find(params[:products].split(",").map(&:to_i)).sort_by!{ |p| p.id }
+    @products = StudentProduct.find(params[:products].split(",").map(&:to_i)).sort_by!{ |p| p.id }
     respond_to do |format|
       format.html { redirect_to root_path}
       format.js
@@ -79,7 +78,7 @@ class StudentQuotesController < ApplicationController
   end
 
   def detail
-    @product = Product.find(params[:product_id])
+    @product = StudentProduct.find(params[:product_id])
     @age = params[:t_age]
     respond_to do |format|
       format.html { redirect_to root_path}
@@ -88,7 +87,7 @@ class StudentQuotesController < ApplicationController
   end
 
   def email
-    @quote = Quote.find(params[:id])
+    @quote = StudentQuote.find(params[:id])
       
     if @quote
       QuoteMailer.email_quote_id(@quote).deliver
@@ -101,7 +100,7 @@ class StudentQuotesController < ApplicationController
   end
   
   def update_email
-    @quote = Quote.find(params[:id])
+    @quote = StudentQuote.find(params[:id])
     @quote.update(:email => params[:email])
     respond_to do |format|
       format.html { redirect_to :back}

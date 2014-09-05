@@ -43,6 +43,17 @@ refresherFunctions = ->
       $('.modal-body').find('.details_legal_text').change(detailLegalTexts)
       $('#detail_modal').modal('show')
 
+  # Student detail modal
+  $('.student_detail_modal').click (e)->
+    e.preventDefault()
+    rate = $(this).find('a').data('rate')
+    url = $(this).children('a').attr("href")
+    $.post(url, {rate: rate} , undefined, "script").done ->
+      $('.modal-body').find('.number_dates').text("#{trip_length} Days")
+      $('.modal-body').find('.details_legal_text').change(detailLegalTexts)
+      $('#detail_modal').modal('show')
+
+
   # Deductible selection change for list view
   $('.list_deduct').change ->
     selected = $(this).find(':selected').val().split("-")
