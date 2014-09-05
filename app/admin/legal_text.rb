@@ -100,7 +100,7 @@ ActiveAdmin.register LegalText do
     def update 
       super do |format|
         redirect_to view_admin_legal_texts_path(product_id: resource.product_id)
-        returnt
+        return
       end
     end
 
