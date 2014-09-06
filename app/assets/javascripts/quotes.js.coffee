@@ -162,6 +162,19 @@ ready = ->
       $.post(remove_url, {filter_id: id}, undefined, "script")
     return
 
+
+  $('.student_quote_filters').change (e)->
+    id = $(this).attr('value') 
+    url = $(this).parents('form').attr('action')
+    quote_id = parseInt(url.match(/\d+\.?\d*/g))
+    remove_url = "/student_quotes/#{quote_id}/remove_filters"
+
+    if $(this).is(':checked')
+      $.post(url, {filter_id: id}, undefined, "script")
+    else
+      $.post(remove_url, {filter_id: id}, undefined, "script")
+    return
+
   # date picker
   # callback function for to min date after from is set
   # setMinDateTo = (input, inst) ->

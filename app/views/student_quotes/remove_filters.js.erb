@@ -1,0 +1,3 @@
+$('.current_filters').html("<%= j render('current_filters', q: @quote) %>")
+$('.quotes').html("<%= j render('quote_content', quote: @quote) %>")
+$(document).trigger("applied:filters")

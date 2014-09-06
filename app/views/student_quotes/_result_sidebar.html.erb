@@ -71,7 +71,7 @@
               <% v.each do |filter| %>
                 <li>
 
-                <%= check_box_tag "filters[][product_filter_id]", filter.id, q.cached_applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}", class: "quote_filters" %>
+                <%= check_box_tag "filters[][student_filter_id]", filter.id, q.cached_applied_filter_ids.include?(filter.id), id: "filter_#{filter.id}", class: "student_quote_filters" %>
                 <%= label_tag("filter_#{filter.id}", "#{filter.name}", class: "tool_tips", title: "#{filter.descriptions}") %>
 
                 </li>

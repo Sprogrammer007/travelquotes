@@ -64,7 +64,7 @@ class StudentLgCat < ActiveRecord::Base
   end
 
   def self.filter_check(product, id)
-    p = product.legal_texts.where(:student_lg_cat_id => id)
+    p = product.student_legal_texts.where(:student_lg_cat_id => id)
     if (p.length == 1) && (p.first.policy_type == "Both")
       false
     elsif (p.length >= 2)

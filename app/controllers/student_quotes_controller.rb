@@ -5,7 +5,6 @@ class StudentQuotesController < ApplicationController
     @quote.student_traveler_members.new
   end 
 
-
   def create
     @quote = StudentQuote.new(permitted_params)
     if @quote.complete
@@ -33,11 +32,11 @@ class StudentQuotesController < ApplicationController
   end
 
   def apply_filters
-    @quote = Rails.cache.fetch([Quote.name, params[:id]]) { Quote.find(params[:id]) }
+    @quote = Rails.cache.fetch([StudentQuote.name, params[:id]]) { StudentQuote.find(params[:id]) }
 
     if params[:filter_id] && @quote.not_include_filter?(params[:filter_id])
-      AppliedFilter.create(product_filter_id: params[:filter_id]) do |a|
-        a.quote_id = params[:id]
+      StudentAppliedFilter.create(student_filter_id: params[:filter_id]) do |a|
+        a.student_quote_id = params[:id]
       end
 
       @quote.filter_results
@@ -52,7 +51,7 @@ class StudentQuotesController < ApplicationController
     id = params[:id]
     @quote = Rails.cache.fetch([StudentQuote.name, id]) { StudentQuote.find(id) }
 
-    AppliedFilter.where(product_filter_id: params[:filter_id], quote_id: id).delete_all
+    StudentAppliedFilter.where(student_filter_id: params[:filter_id], student_quote_id: id).delete_all
     @quote.filter_results
     respond_to do |format|
       format.html { render "show" }

@@ -130,6 +130,9 @@ class StudentQuote < ActiveRecord::Base
     end
   end
 
+  def not_include_filter?(filter)
+    !student_applied_filter_ids.include?(filter)
+  end
 
   def sort_filters(filters)
     f = {}

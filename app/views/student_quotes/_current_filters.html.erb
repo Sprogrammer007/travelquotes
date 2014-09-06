@@ -3,7 +3,7 @@
   <ul class="list-group">
     <% q.student_filters.each do |filter| %>
       <li class="list-group-item list-group-item-success">
-        <%= filter.name  %> <%= link_to(raw("<span class='close'> &times;</span>"), remove_filters_quote_path(q, filter_id: filter.id), method: :post, class: "remove_filter", data: {:id => "filter_#{filter.id}"} ) %>
+        <%= filter.name  %> <%= link_to(raw("<span class='close'> &times;</span>"), remove_filters_student_quote_path(q, filter_id: filter.id), method: :post, class: "remove_filter", data: {:id => "filter_#{filter.id}"} ) %>
       </li>
     <% end %>
   </ul>
