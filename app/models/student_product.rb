@@ -44,11 +44,9 @@ class StudentProduct < ActiveRecord::Base
     student_products = []
     ps.each_value do |v| 
       student_product = find(v["id"])
-      student_product.define_singleton_method(:applied_ded) do
-        v["ded_value"]
-      end
+
       student_product.define_singleton_method(:rate) do
-        (v["rate"].to_f * v["ded_mutip"].to_f)
+        (v["rate"].to_f)
       end
       student_products << student_product
       student_products.sort_by! { |p| p.id }
