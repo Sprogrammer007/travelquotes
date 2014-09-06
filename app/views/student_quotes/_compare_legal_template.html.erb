@@ -1,0 +1,10 @@
+<% ps.each do |p| %>
+  <td class="product-<%= p.id  %>">
+    <% lt = p.legal_texts.where(legal_text_category_id: l_id) %>
+    <% if lt.any? %>
+      <%= lt[0].description.html_safe() %>
+    <% else %>
+      "No Coverage"
+    <% end %>
+  </td>
+<% end %>

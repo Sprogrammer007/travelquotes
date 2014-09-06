@@ -7,7 +7,7 @@
     <li class="tab"><%= link_to "Traveler #1", "#traveler1", data: {toggle: "tab"} %></li>
     <li class="tab"><%= link_to "Traveler #2", "#traveler2", data: {toggle: "tab"} %></li>
   <% end %>
-  <li class="disabled"><a id="compare_tab" href="#compare" data-url="<%= compare_quote_path(quote) %>" data-quote-id="<%= quote.id %>" >Compare Policies</a></li>
+  <li class="disabled"><a id="compare_tab" href="#compare" data-url="<%= compare_student_quote_path(quote) %>" data-quote-id="<%= quote.id %>" >Compare Policies</a></li>
 </ul>
 
 <!-- Tab panes -->

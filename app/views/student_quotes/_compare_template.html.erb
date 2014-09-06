@@ -1,0 +1,52 @@
+<table class="compare_table table table-bordered">
+  <tr>
+    <% products.each do |p| %>
+      <td class="content_td"><%= image_tag p.company.logo %></td>
+    <% end %>
+  </tr>
+  <tr class="odd">   
+    <% products.each do |p| %>
+      <td class="content_td"><%= p.name %></td>
+    <% end %>
+  </tr>
+  <tr>
+    <% products.each do |p| %>
+      <td class="content_td"><%= link_to "Buy Now", p.purchase_url(), class: "btn-danger compare_buy_now" %></td>
+    <% end %>
+  </tr>
+  <tr class="odd">
+    <% products.each do |p| %>
+      <td class="content_td"><strong>Rate: <%= number_to_currency(p.rate) %></strong></td>
+    <% end %>
+  </tr>
+
+  <tr>
+    <td class="content_td" colspan="<%=  products.count.to_s  %>" data-products="<%= "#{products.map(&:id).join(",")}" %>">
+      <% if quote.student_applied_filters%>
+      
+      <%= select_tag "applied_filters_legal_texts", grouped_options_for_select(StudentLgCat.get_legal_texts_compare_option(quote.student_filters)), class: "form-control", id: "applied_filters_legal_texts", prompt: "Please Select Legal Text For Comparing", data: {url: compare_legals_student_quote_path() } %>
+      <% end %>
+    </td>
+
+  </tr>
+  <tr class="compare_legal_text odd">
+    <td class="content_td" colspan="<%= products.count.to_s  %>">
+        No Legal Text Comparison Selected Yet
+    </td>
+  </tr>
+
+
+   <tr class="legal_text_definitions">
+    <% products.each do |p| %>
+      <td class="content_td">
+      <h5 data-toggle="collapse" href="#compare_defintions_<%= p.id %>" class="collapsible collapsed arrow-black">Definitions</h5>
+      <div id="compare_defintions_<%= p.id %>" class="panel-collapse collapse">
+        <%= p.student_legal_texts.where(:student_lg_cat_id => StudentLgCat.where(name: "Definitions").first.id).first.description.html_safe() %>
+      </div>
+      </td>
+    <% end %>
+  </tr>
+
+
+
+</table>

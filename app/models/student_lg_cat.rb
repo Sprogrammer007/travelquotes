@@ -27,15 +27,15 @@ class StudentLgCat < ActiveRecord::Base
     h
   end
 
-  def self.get_legal_texts_compare_option(applied_filters, type)
+  def self.get_legal_texts_compare_option(applied_filters)
     options = {}
-    options["Filtered"] = StudentLgCat.get_legal_texts_by_filter(applied_filters, type)
-    options["Not Filtered"] = StudentLgCat.get_lts_after_filters(type)
+    options["Filtered"] = StudentLgCat.get_legal_texts_by_filter(applied_filters)
+    options["Not Filtered"] = StudentLgCat.get_lts_after_filters()
     return options
   end
 
   #gets only the legal text that the quote has applied filters for
-  def self.get_legal_texts_by_filter(applied_filters, type)
+  def self.get_legal_texts_by_filter(applied_filters)
     @applied_lts = []
     options = []
     if applied_filters.any?
@@ -50,7 +50,7 @@ class StudentLgCat < ActiveRecord::Base
     return options
   end
 
-  def self.get_lts_after_filters(type)
+  def self.get_lts_after_filters()
     lts = StudentLgCat.categories_by_order().values.flatten()
     options = []
     if @applied_lts.any?

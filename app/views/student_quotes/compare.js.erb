@@ -1,0 +1,2 @@
+$('#compare').html("<%= j(render 'compare_template', products: @products, quote: @quote) %>")
+$(document).trigger("compare:accordion")
