@@ -11,7 +11,7 @@ Travelquotes::Application.routes.draw do
       post 'compare'
       post 'compare_legals'
       post 'detail'
-      post 'email'
+      get 'email'
       post 'update_email'
     end
   end
@@ -23,7 +23,7 @@ Travelquotes::Application.routes.draw do
       post 'compare'
       post 'compare_legals'
       post 'detail'
-      post 'email'
+      get 'email'
       post 'update_email'
     end
   end

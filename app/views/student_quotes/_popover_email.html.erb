@@ -1,4 +1,4 @@
 <p>Your Quote will be send to <strong><%= q.email %></strong> is that correct?</p>
 <%= link_to "No", "#", class: 'email-no-button btn btn-info pull-right',  data: {field:
   "#{render('email_update_form', q: q )}"}%>
-<%= link_to "Yes", email_quote_path(q), class: 'email-yes-button btn btn-info pull-right'%>
+<%= link_to "Yes", email_student_quote_path(q), class: 'email-yes-button btn btn-info pull-right'%>
