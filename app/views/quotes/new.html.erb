@@ -73,46 +73,49 @@
         </div>
       </div>
 
-      <div class="form-group row">
-        <div class="col-sm-4"> 
-          <%= f.label :apply_from, "Are you applying from within Canada?", class: "control-label" %>
-          <div class="question_mark"><%= image_tag "question.png"  %></div>
+      <% unless @quote.quote_type == "All Inclusive" || params[:quote_type] == "All Inclusive"   %>
+        
+        <div class="form-group row">
+          <div class="col-sm-4"> 
+            <%= f.label :apply_from, "Are you applying from within Canada?", class: "control-label" %>
+            <div class="question_mark"><%= image_tag "question.png"  %></div>
+          </div>
+          <div class="col-sm-8">
+            <%= f.select(:apply_from, options_for_select([["Yes", true], ["No", false]], (@quote.apply_from || false)), {}, class: "form-control") %>
+          </div>
         </div>
-        <div class="col-sm-8">
-          <%= f.select(:apply_from, options_for_select([["Yes", true], ["No", false]], (@quote.apply_from || false)), {}, class: "form-control") %>
-        </div>
-      </div>
 
-      <div class="form-group row renew" <%= display?(@quote.apply_from.nil?) %>>
-        <div class="col-sm-4"> 
-          <%= f.label :renew, "Are you an existing policy holder renewing your policy with a new or existing insurer?", class: "control-label" %>
-          <div class="question_mark"><%= image_tag "question.png"  %></div>
+        <div class="form-group row renew" <%= display?(@quote.apply_from.nil?) %>>
+          <div class="col-sm-4"> 
+            <%= f.label :renew, "Are you an existing policy holder renewing your policy with a new or existing insurer?", class: "control-label" %>
+            <div class="question_mark"><%= image_tag "question.png"  %></div>
+          </div>
+          <div class="col-sm-8">
+            <%= f.select(:renew, options_for_select(["", ["Yes", true], ["No", false]]), {}, class: "form-control") %>
+          </div>
         </div>
-        <div class="col-sm-8">
-          <%= f.select(:renew, options_for_select(["", ["Yes", true], ["No", false]]), {}, class: "form-control") %>
-        </div>
-      </div>
 
-      <div class="form-group row renew_expire_date" <%= display?(!@quote.renew()) %>>
-        <div class="col-sm-4"> 
-          <%= f.label :renew_expire_date, "When does your current policy expires?", class: "control-label" %>
-          <div class="question_mark"><%= image_tag "question.png"  %></div>
+        <div class="form-group row renew_expire_date" <%= display?(!@quote.renew()) %>>
+          <div class="col-sm-4"> 
+            <%= f.label :renew_expire_date, "When does your current policy expires?", class: "control-label" %>
+            <div class="question_mark"><%= image_tag "question.png"  %></div>
+          </div>
+          <div class="col-sm-8">
+            <%= f.text_field :renew_expire_date, class: "form-control", readonly: true %>
+          </div>
         </div>
-        <div class="col-sm-8">
-          <%= f.text_field :renew_expire_date, class: "form-control", readonly: true %>
-        </div>
-      </div>
 
-      <div class="form-group row arrival_date" <%= display?(@quote.apply_from.nil?) %>>
-        <div class="col-sm-4"> 
-          <%= f.label :arrival_date, "Arrival date in Canada?", class: "control-label" %>
-          <div class="question_mark"><%= image_tag "question.png"  %></div>
+        <div class="form-group row arrival_date" <%= display?(@quote.apply_from.nil?) %>>
+          <div class="col-sm-4"> 
+            <%= f.label :arrival_date, "Arrival date in Canada?", class: "control-label" %>
+            <div class="question_mark"><%= image_tag "question.png"  %></div>
+          </div>
+          <div class="col-sm-8">
+            <%= f.text_field :arrival_date, class: "form-control", readonly: true %>
+          </div>
         </div>
-        <div class="col-sm-8">
-          <%= f.text_field :arrival_date, class: "form-control", readonly: true %>
-        </div>
-      </div>
-
+      <% end %>
+      
       <% if @quote.quote_type == "All Inclusive" || params[:quote_type] == "All Inclusive"  %>
         <div class="form-group row">
           <div class="col-sm-4"> 
