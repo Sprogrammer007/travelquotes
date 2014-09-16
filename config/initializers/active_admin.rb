@@ -2,16 +2,17 @@ ActiveAdmin.setup do |config|
   config.namespace :admin do |admin|
 
     admin.build_menu do |menu|
-      menu.add :label => "Products", :priority => 1 do |products|
+      menu.add :label => "Visitor Products", :priority => 1 do |products|
         products.add :label => "All Visitor Policies", :url => Rails.application.routes.url_helpers.admin_products_path()
         products.add :label => "Visitor All Inclusive", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "All Inclusive"})
         products.add :label => "Visitor Medical Emergency", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Visitor Medical Emergency"})
         products.add :label => "Student Medical Inbound", :url => Rails.application.routes.url_helpers.admin_student_products_path()
         products.add :label => "Canadian Ex-Pat", :url => Rails.application.routes.url_helpers.admin_products_path(q: {policy_type_equals: "Canadian Ex-Pat"})
       end
-      menu.add :label => "Global Settings", :priority => 2
+      menu.add :label => "Canadian Products", :priority => 2
+      menu.add :label => "Global Settings", :priority => 3
  
-      menu.add :label => "Super Admin", :priority => 3, :if => proc{ current_admin_user.email == "stevenag006@hotmail.com" }
+      menu.add :label => "Super Admin", :priority => 4, :if => proc{ current_admin_user.email == "stevenag006@hotmail.com" }
     end
   end
   # == Site Title
