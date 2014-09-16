@@ -218,9 +218,10 @@ ready = ->
       mm = today.getMonth()+1 
       yyyy = today.getFullYear()
       today = yyyy+'-'+mm+'-'+dd
-      $('#quote_return_home').val(today)
       $('.arrival_date').fadeIn()
       $('.renew').fadeIn()
+      if $('#quote_quote_sub_type').val() != "Super Visa"
+        $('#quote_return_home').val(today)
     else
       $('#quote_return_home').val("")
       $('.arrival_date').fadeOut()

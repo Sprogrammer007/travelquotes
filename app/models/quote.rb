@@ -38,7 +38,7 @@ class Quote < ActiveRecord::Base
   end
 
   def renew_expire_check
-    if apply_from.present? && renew && renew_expire_date.nil?
+    if apply_from.present? && renew.present? && renew_expire_date.nil?
       errors.add(:base, "Please provide a expired date for your current policy.")
     end
   end
