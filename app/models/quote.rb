@@ -10,7 +10,7 @@ class Quote < ActiveRecord::Base
   validates :email, presence: true, format: { with: VALID_EMAIL_REGEX }
   validates :arrival_date, presence: true, if: "apply_from"
   validates :arrival_date, absence: true, unless: "apply_from"
-  validates :trip_cost, numericality: { only_integer: true }, if: "trip_cost"
+  validates :trip_cost, numericality: true, if: "trip_cost"
   validate :return_date_greater_leave_date
   validate :renew_check
   validate :renew_expire_check
@@ -326,7 +326,7 @@ class Quote < ActiveRecord::Base
     if self.quote_type == "All Inclusive"
       result = result.joins(age_brackets: [:all_inclusive_rates]).merge(
         AllInclusiveRate.include_date(self.traveled_days).include_sum(self.sum_insured)
-        .has_trip_value_of(self.trip_cost))
+        .has_trip_value_of(self.trip_cost.to_i))
       result = result.select("versions.*, all_inclusive_rates.rate as product_rate, 
         all_inclusive_rates.rate_type as rate_type, products.min_price as min_price, 
         products.min_date as min_date, products.id as product_id").order("product_rate ASC")

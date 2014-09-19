@@ -93,10 +93,9 @@ ActiveAdmin.register StudentLegalText do
       end
     end
 
-
     def update 
       super do |format|
-        redirect_to view_admin_student_legal_texts_path(student_product_id: resource.student_product_id)
+        redirect_to view_admin_student_legal_texts_path(product_id: resource.student_product_id)
         return
       end
     end
