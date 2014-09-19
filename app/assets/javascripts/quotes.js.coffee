@@ -341,21 +341,29 @@ ready = ->
       dependentHide(true)
     event.preventDefault()
 
-  #Student quote dail and annually auto fill
-  $('#student_quote_leave_home').datepicker
-    dateFormat: "yy-mm-dd"
-    altFormat: "yy/mm/dd"
-    constrainInput: true
-    changeYear: true
-    changeMonth :true
-    yearRange: "-100:+0"
-    onSelect: (dateStr) ->
-      plan_type = $('#student_quote_plan_type').val()
-      d = $.datepicker.parseDate('yy-mm-dd', dateStr)
-      d.setFullYear(d.getFullYear() + 1)
-      if plan_type == "Annually"
-        $('#quote_return_home').datepicker( "setDate", d)
-        
+  #Student quote dail and annually auto fill=
+
+  addDatePicker $('#student_quote_leave_home')
+  addDatePicker $('#student_quote_return_home')
+
+  $('#student_quote_plan_type').change -> 
+    plan_type = $(this).val()
+    today = new Date()
+    dd = today.getDate()
+    mm = today.getMonth()+1
+    yyyy = today.getFullYear()
+    yyyyy = today.getFullYear()+1
+    today = yyyy+'-'+mm+'-'+dd
+
+    oneyear = yyyyy+'-'+mm+'-'+dd
+
+    if plan_type == "Annual"
+      $('#student_quote_leave_home').prop('disabled', true).datepicker( "setDate", today)
+      $('#student_quote_return_home').prop('disabled', true).datepicker( "setDate", oneyear)
+    else
+      $('#student_quote_leave_home').prop('disabled', false)
+      $('#student_quote_return_home').prop('disabled', false)
+
 #These are functions fired after ajax requests
 $(document).ready(ready)
 $(document).on('page:load', ready)

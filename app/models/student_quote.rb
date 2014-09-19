@@ -72,7 +72,7 @@ class StudentQuote < ActiveRecord::Base
       rate = calc_family_rate(rate, version)
     end
 
-    unless plan_type == "Annually" 
+    unless plan_type == "Annual" 
       rate = (rate * self.traveled_days).round(2)
     end
 
@@ -95,7 +95,7 @@ class StudentQuote < ActiveRecord::Base
 
   def calc_rate_by_type(age_bracket, type)
     r = 0
-    if plan_type == "Annually"
+    if plan_type == "Annual"
       r = age_bracket.student_rates.annually.send(type)
       if r.any?
         r = r.first.rate

@@ -24,12 +24,12 @@
 
       <div class="form-group row">
         <div class="col-sm-4"> 
-          <%= f.label :plan_type, "What type of student plan do you want?", class: "control-label" %>
+          <%= f.label :plan_type, "Select Student Plan", class: "control-label" %>
           <div class="question_mark"><%= image_tag "question.png"  %></div>
         </div>
      
         <div class="col-sm-8">
-          <%= f.select(:plan_type, options_for_select(["Daily", "Annually"]), {}, class: "form-control") %>
+          <%= f.select(:plan_type, options_for_select(["Daily", "Annual"]), {}, class: "form-control") %>
         </div>
       </div>
 
@@ -50,7 +50,7 @@
         </div>
      
         <div class="col-sm-8">
-          <%= f.text_field :return_home, class: "form-control", id: "quote_return_home",readonly: true %>
+          <%= f.text_field :return_home, class: "form-control" ,readonly: true %>
         </div>
       </div>
 
