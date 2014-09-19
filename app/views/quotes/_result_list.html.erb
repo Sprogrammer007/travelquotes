@@ -48,7 +48,7 @@
                   <% end %>
 
                   <div class="btn btn-default detail_modal">
-                  <%= link_to(raw("<span class='glyphicon glyphicon-plus-sign'></span> Policy Details"), detail_quote_path(quote, product_id: result.product_id, t_age: quote.get_age_by_person(type)), data: {rate: quote.calc_daily_rate(result.product_rate, result.rate_type)}) %>
+                  <%= link_to(raw("<span class='glyphicon glyphicon-plus-sign'></span> Policy Details"), detail_quote_path(quote, product_id: result.product_id, t_age: quote.get_age_by_person(type)), data: {rate: result.product_rate }) %>
                   </div>
                   
                   <% if !result.product.pdf_file_name.nil? %>
