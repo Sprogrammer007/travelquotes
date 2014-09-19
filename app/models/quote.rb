@@ -270,7 +270,7 @@ class Quote < ActiveRecord::Base
     end
 
     ffiltered = results.to_a.reject do |r| 
-      has_filters?(r.student_filters.pluck(:id), applied_filter_ids) 
+      has_filters?(r.product_filters.pluck(:id), applied_filter_ids) 
     end
     
     final_filtered = (dfiltered + ffiltered).uniq
