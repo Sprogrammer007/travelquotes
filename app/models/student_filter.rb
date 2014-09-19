@@ -17,7 +17,6 @@ class StudentFilter < ActiveRecord::Base
 
     def self.sorted
       %w{Medical\ Benefits Medical\ Emergency\ Transportation Repatriation\ to\ Residence 
-      Side\ Trips Right\ of\ Entry Life\ &\ Accident\ Insurance Terrorism Sports\ &\ Activities
-      Trip\ Cancellation\ &\ Interruption Non\ Medical\ Benefits Extensions\ &\ Renewals Refunds}
+      Side\ Trips Life\ &\ Accident\ Insurance Sports\ &\ Activities Extensions\ &\ Renewals Refunds}
     end
 end

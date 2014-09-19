@@ -73,7 +73,7 @@ class StudentQuote < ActiveRecord::Base
     end
 
     unless plan_type == "Annual" 
-      rate = (rate * self.traveled_days).round(2)
+      rate = (rate * self.traveled_days)
     end
 
     # check to see if there is a min price and if there is
@@ -90,7 +90,7 @@ class StudentQuote < ActiveRecord::Base
       end
     end
 
-   return rate
+   return rate.round(2)
   end
 
   def calc_rate_by_type(age_bracket, type)
@@ -117,7 +117,7 @@ class StudentQuote < ActiveRecord::Base
     end
   end
 
-    #get age by person for couple rate
+  #get age by person for couple rate
   def get_age_by_person(person)
     if self.traveler_type == "Couple"
       if person == "Traveler #2"

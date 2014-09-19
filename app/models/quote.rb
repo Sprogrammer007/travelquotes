@@ -88,16 +88,17 @@ class Quote < ActiveRecord::Base
   end
   
   #math for daily rate
-  def calc_daily_rate(rate, type)
+  def calc_rate_by_type(rate, type, traveled_days)
     case type
     when "Monthly"
-      daily_rate = (rate / 30)
-    when "Annually"
-      daily_rate = (rate / 360)
+      d = self.leave_home
+      d2 = self.return_home
+      number_months = (d2.year * 12 + d2.month) - (d1.year * 12 + d1.month)
+      rate = (rate * number_months)
     else
-      daily_rate = rate
+      rate = (rate * traveled_days) 
     end
-    return daily_rate
+    return rate
   end
   
   #get the base rate for the version
@@ -121,10 +122,8 @@ class Quote < ActiveRecord::Base
       rate = calc_family_rate(rate, version)
     end
     
-    #reduce all rate to daily
-    rate = calc_daily_rate(rate, ratetype)
-
-    rate = (rate * self.traveled_days).round(2)
+    #get the rate for different rate type
+    rate = calc_rate_by_type(rate, ratetype, self.traveled_days)
 
     # check to see if there is a min price and if there is
     # we use the greater of the two
@@ -136,11 +135,11 @@ class Quote < ActiveRecord::Base
     elsif version.product.min_rate_type == "Date"
       mindate = version.product.min_date
       if mindate > self.traveled_days
-        rate = (mindate * version.product_rate).round(2)
+        rate = (mindate * version.product_rate)
       end
     end
 
-   return rate
+   return rate.round(2)
   end
 
   def calc_all_inclusive_rate (rate, ratetype, version)
@@ -151,10 +150,10 @@ class Quote < ActiveRecord::Base
       if t1.any? and t2.any?
         rate = t1[0].product_rate + t2[0].product_rate
       end
-    else
-      r = calc_daily_rate(rate, ratetype)
-      return r
     end
+    
+    return rate
+    
   end
 
   #if there is deductible we applie deductible multipler to the rates
