@@ -91,7 +91,7 @@ class Quote < ActiveRecord::Base
   def calc_rate_by_type(rate, type, traveled_days)
     case type
     when "Monthly"
-      d = self.leave_home
+      d1 = self.leave_home
       d2 = self.return_home
       number_months = (d2.year * 12 + d2.month) - (d1.year * 12 + d1.month)
       rate = (rate * number_months)
